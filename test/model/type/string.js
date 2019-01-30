@@ -347,7 +347,7 @@ suite( "Model Attribute Type `string`", function() {
 			coerce( " SOME STRING ", { lowerCase: false } ).should.be.equal( " SOME STRING " );
 			coerce( " SOME STRING ", { lowerCase: true } ).should.be.equal( " some string " );
 			coerce( " GEMÄß ", { lowerCase: true } ).should.be.equal( " gemäß " );
-			coerce( " GEMÄẞ ", { lowerCase: true } ).should.be.equal( " gemäß " );
+			coerce( " GEMÄẞ ", { lowerCase: true } ).should.be.equal( " gemäß " ); // known to fail, see https://github.com/unicode-org/full-icu-npm/issues/30
 			coerce( " some string ", { lowerCase: true } ).should.be.equal( " some string " );
 			coerce( " gemäß ", { lowerCase: true } ).should.be.equal( " gemäß " );
 		} );
