@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "file-essentials": "0.*",
+    "full-icu": "^1.2.1",
     "object-monitor": "0.0.7",
     "promise-essentials": "0.*"
   }
