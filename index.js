@@ -35,7 +35,6 @@ const { Model } = Models;
 const { Adapter, MemoryAdapter } = Adapters;
 
 const { String: { kebabToPascal } } = Utilities;
-const Log = require( "debug" )( "odem" );
 
 
 module.exports = Object.assign( {},
@@ -46,7 +45,8 @@ module.exports = Object.assign( {},
 		defaults: require( "./lib/defaults" )
 	}, {
 		onExposed( /* options */ ) {
-			const { runtime: { models, config } } = this;
+			const { log, runtime: { models, config } } = this;
+			const Log = log( "odem" );
 
 			// choose configured default adapter for storing model instances
 			let adapter = ( config.database || {} ).default;
