@@ -8,17 +8,21 @@ module.exports = {};
 
 To create an application working with models post, comment and user you basically need to create files **post.js**, **comment.js** and **user.js** in folder **api/model**.
 
+## Naming Models
+
+Every declaration of a model may provide an explicit name to use when exposing and accepting it.
+
 ## Elements of Model Declaration
 
 Empty model declarations don't help much, though. You need to start declaring elements that define the structure of a model's records and their behaviour. 
 
-The declaration of some mode may consist of 
+The declaration of some model may consist of 
 
 * attributes describing structural similarities in instances of a model actually stored in a database,
 
 * computed attributes deriving additional value from values of actual attributes or other computed attributes and
 
-* callback functions to be invoked on certain events related to either instance' life cycle.
+* callback functions to be invoked on certain events related to either instance's life cycle.
 
 Either kind of element is declared by adding another property to the object exported in a declaration file as shown above.
 
@@ -222,7 +226,7 @@ The computed attribute `hasLoggedInBefore` can be accessed on a particular insta
 
 ```javascript
 if ( instance.hasLoggedInbefore ) {
-	...
+	// put code depending on user logged in here
 }
 ```
 
