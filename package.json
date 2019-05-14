@@ -4,8 +4,8 @@
   "description": "ODM API used by hitchy framework",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test NODE_ICU_DATA=node_modules/full-icu mocha --ui=tdd 'test/**/*.js'",
-    "coverage": "cross-env NODE_ENV=test NODE_ICU_DATA=node_modules/full-icu nyc mocha --ui=tdd test/**/*.js",
+    "test": "cross-env NODE_ENV=test mocha --ui=tdd 'test/**/*.js'",
+    "coverage": "cross-env NODE_ENV=test nyc mocha --ui=tdd test/**/*.js",
     "style": "eslint .",
     "doc:serve": "vuepress dev doc",
     "doc:build": "vuepress build doc"
@@ -35,7 +35,6 @@
   },
   "dependencies": {
     "file-essentials": "0.*",
-    "full-icu": "^1.2.1",
     "object-monitor": "0.0.7",
     "promise-essentials": "0.*"
   }

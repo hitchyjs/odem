@@ -342,12 +342,14 @@ suite( "Model Attribute Type `string`", function() {
 			coerce( " SOME STRİNG ", { upperCase: "tr" } ).should.be.equal( " SOME STRİNG " );
 		} );
 
-		xit( "converts characters to lower case", function() {
+		it( "converts characters to lower case", function() {
 			coerce( " SOME STRING ", {} ).should.be.equal( " SOME STRING " );
 			coerce( " SOME STRING ", { lowerCase: false } ).should.be.equal( " SOME STRING " );
 			coerce( " SOME STRING ", { lowerCase: true } ).should.be.equal( " some string " );
 			coerce( " GEMÄß ", { lowerCase: true } ).should.be.equal( " gemäß " );
-			coerce( " GEMÄẞ ", { lowerCase: true } ).should.be.equal( " gemäß " ); // known to fail, see https://github.com/unicode-org/full-icu-npm/issues/30
+			if ( parseInt( process.version ) >= 12 ) {
+				coerce( " GEMÄẞ ", { lowerCase: true } ).should.be.equal( " gemäß " ); // see https://github.com/nodejs/node/issues/25738
+			}
 			coerce( " some string ", { lowerCase: true } ).should.be.equal( " some string " );
 			coerce( " gemäß ", { lowerCase: true } ).should.be.equal( " gemäß " );
 		} );
