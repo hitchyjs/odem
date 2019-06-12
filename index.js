@@ -66,7 +66,7 @@ module.exports = Object.assign( {},
 				const name = modelNames[i];
 				const definition = models[name] || {};
 
-				const modelName = definition.name || kebabToPascal( name.toLocaleLowerCase() );
+				const modelName = definition.$name || kebabToPascal( name.toLocaleLowerCase() );
 
 				const schema = {};
 
