@@ -38,23 +38,28 @@ Here comes a slightly more elaborate example:
 
 ```javascript
 module.exports = {
+	// schema elements of model are declared as objects
 	name: {},
 	password: {},
 	lastLogin: {},
-	// a usual case of computed attribute
+
+	// computed attribute are declared as functions returning derived value
 	hasLoggedInBefore( item ) {
 		return item.lastLogin != null;
 	},
-	// declaring instance method using support for computed attributes
+
+	// instance methods are computed attributes returning function to invoke
 	lockAccount( item ) {
 		return function() {
 			item.password = "LOCKED";
 		};
 	},
-	// reducing syntax involved in declaring instance method
+
 	unlockAccount: item => newPassword => {
 		item.password = CreateHash( newPassword );
 	},
+
+	// lifecycle hooks are declared as arrays of listener functions
 	onSaved: [
 		item => {
 			// invoked when instance has been saved in database ...
