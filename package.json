@@ -4,9 +4,9 @@
   "description": "ODM API used by hitchy framework",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test mocha --ui=tdd 'test/**/*.js'",
+    "lint": "eslint .",
+    "unit": "cross-env NODE_ENV=test mocha --ui=tdd 'test/**/*.js'",
     "coverage": "cross-env NODE_ENV=test nyc mocha --ui=tdd test/**/*.js",
-    "style": "eslint .",
     "doc:serve": "vuepress dev doc",
     "doc:build": "vuepress build doc"
   },
