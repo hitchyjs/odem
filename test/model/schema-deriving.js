@@ -44,12 +44,12 @@ suite( "Deriving a model", function() {
 
 		Intermittent = Model.define( "intermittent", {
 			intermittentName: {},
-			name: {},
+			name: { type: "number" },
 		}, Root );
 
 		Sub = Model.define( "sub", {
 			subName: {},
-			name: {},
+			name: { type: "integer" },
 		}, Intermittent );
 	} );
 
@@ -105,5 +105,29 @@ suite( "Deriving a model", function() {
 		Root.derivesFrom.should.be.equal( Model );
 		Intermittent.derivesFrom.should.be.equal( Root );
 		Sub.derivesFrom.should.be.equal( Intermittent );
+	} );
+
+	test( "results in a derived model's class exposing non-overloaded attributes of its base classes", function() {
+		Root.schema.attributes.should.have.property( "rootName" );
+		Root.schema.attributes.should.not.have.property( "intermittentName" );
+		Root.schema.attributes.should.not.have.property( "subName" );
+
+		Intermittent.schema.attributes.should.have.property( "rootName" );
+		Intermittent.schema.attributes.should.have.property( "intermittentName" );
+		Intermittent.schema.attributes.should.not.have.property( "subName" );
+
+		Sub.schema.attributes.should.have.property( "rootName" );
+		Sub.schema.attributes.should.have.property( "intermittentName" );
+		Sub.schema.attributes.should.have.property( "subName" );
+	} );
+
+	test( "results in a derived model's class exposing attributes of its base classes overloaded", function() {
+		Root.schema.attributes.should.have.property( "name" );
+		Intermittent.schema.attributes.should.have.property( "name" );
+		Sub.schema.attributes.should.have.property( "name" );
+
+		Root.schema.attributes.name.type.should.be.equal( "string" );
+		Intermittent.schema.attributes.name.type.should.be.equal( "number" );
+		Sub.schema.attributes.name.type.should.be.equal( "integer" );
 	} );
 } );
