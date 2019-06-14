@@ -1,16 +1,35 @@
-# Declaring Models
+# Declaring Models In Filesystem
 
-Because of this extension's tight integration with Hitchy models are declared following conventions defined by Hitchy. That's why declaring a model basically requires adding a Javascript file in folder **api/model** of your Hitchy-based project. By creating file **api/model/user.js** you are implicitly declaring to have a user model named `User`. The file needs to expose an empty object at least.
+Hitchy ODM is tightly integrated with Hitchy by means of satisfying the latter one's abstract assumptions on how to declare models. That's why declaring a model basically works just by adding a Javascript file in folder **api/model** of your Hitchy-based project. 
+
+For example, by creating file **api/model/user.js** you are implicitly declaring to have a user model named `User`. The file needs to expose an empty object at least.
 
 ```javascript
 module.exports = {};
 ```
 
-To create an application working with models post, comment and user you basically need to create files **post.js**, **comment.js** and **user.js** in folder **api/model**.
+To create an application working with models **Post**, **Comment** and **User** you basically need to create files **post.js**, **comment.js** and **user.js** in folder **api/model**.
 
 ## Naming Models
 
-Every declaration of a model may provide an explicit name to use when exposing and accepting it.
+The name of a model is derived from name of defining file as described before. This derivation assumes filename is given in kebab-case and converts it into PascalCase for naming the resulting model.
+ 
+However, every definition of a model may provide an explicit name to use instead of deriving it. This name must be provided in special property `$name`.
+
+::: warning Limitations
+Due to using a model's name in string interpolations in context of evaluated code model names have to start with a latin letter followed by a mixture of further latin letters, digits and underscores.
+
+* **Good:** My5thGrade_YearBook_ 
+* **Bad:** My 5.-Grade Year Book _or_ My-5thGrade-YearBook
+:::
+
+```javascript
+module.exports = {
+	$name: "MyCustomName",
+};
+```
+
+When putting this in a file **api/model/public-holiday.js** the resulting model won't be implicitly named **PublicHoliday**, but **MyCustomName**.
 
 ## Elements of Model Declaration
 
@@ -18,23 +37,52 @@ Empty model declarations don't help much, though. You need to start declaring el
 
 The declaration of some model may consist of 
 
-* attributes describing structural similarities in instances of a model actually stored in a database,
+* **attributes** describing structural similarities in instances of a model actually stored in a database,
 
-* computed attributes deriving additional value from values of actual attributes or other computed attributes and
+* **computed attributes** deriving additional value from values of actual attributes or other computed attributes,
 
-* callback functions to be invoked on certain events related to either instance's life cycle.
+* **instance methods** as a special kind of computed attribute and
 
-Either kind of element is declared by adding another property to the object exported in a declaration file as shown above.
+* **life cycle event listeners**, which are callback functions to be invoked on certain events related to either instance's life cycle.
 
-* Regular attributes are declared using an object with declaration properties regarding either attribute.
+Either kind of element is declared by adding another property to the object exported in a a model's definition file as shown above. The intention depends on type of either property's value.
 
-* Providing a function results in the declaration of a computed attribute. Computed attributes are invoked with a reference to an instance of the model in first argument. They are expected to return some value.
+* Regular **attributes** are declared using an **object** consisting of declaration properties for either attribute.
 
-  Since the returned value might be a function it is possible to declare instance-related methods this way as well.
-  
-* Arrays are expected to consist of functions, only. Either function is registered as a listener to a life-cycle event matching the declaration property by name. That's why this kind of declaration is considered a life-cycle hook.
+  ```javascript
+  {
+    firstName: {},
+    lastName: {}
+  }
+  ```
 
-Here comes a slightly more elaborate example:
+* Methods a.k.a. properties of type **function** declare **computed attributes**. Those functions are invoked with a reference to an instance of the model in first argument. They are expected to return some arbitrary value.
+
+  ```javascript
+  {
+    fullName: item => item.lastName + ", " + item.firstName
+  }
+  ```
+
+   **Instance methods** for resulting model are defined as computed attributes that return some function to invoke. That function is the instance's method. 
+
+  ```javascript
+  {
+    setPassword: item => cleartext => item.password = hash( cleartext )
+  }
+  ```
+
+* **Arrays** are assumed to list functions to be registered as listeners for a particular **life cycle event**. The property's name selects the event and must start with `on` followed by name of life cycle event in PascalCase. The set of provided arguments depend on particular life cycle event, but first argument is reference to affected instance of model.
+
+  ```javascript
+  {
+    onSaved: [
+  	  item => { ... }
+    ]
+  }
+  ```
+
+Let's conclude with a summary:
 
 ```javascript
 module.exports = {
@@ -59,7 +107,7 @@ module.exports = {
 		item.password = CreateHash( newPassword );
 	},
 
-	// lifecycle hooks are declared as arrays of listener functions
+	// life cycle event listeners are declared as arrays of functions
 	onSaved: [
 		item => {
 			// invoked when instance has been saved in database ...
@@ -79,7 +127,7 @@ module.exports = {
 };
 ```
 
-Due to the preference of convention over configuration this code declares to have two attributes in model `User` with either attribute capable of holding some string value. The same can be achieved using a more explicit declaration:
+By following _convention over configuration_ paradigm this code declares to have two attributes in model `User` with either attribute capable of holding some arbitrary string value. The same can be achieved using a more explicit declaration:
 
 ```javascript
 module.exports = {
@@ -92,7 +140,7 @@ module.exports = {
 };
 ```
 
-As you can see the there is a set of attributes declared with every attribute capable of having one or more declaration properties. `type` is a declaration property selecting one of several available attribute types. When omitting it the attribute is declared to be of type _string_.
+Every property in model's definition describes one of the model's attribute given that the property's value is an object. This object may consist of declaration properties customizing either attribute of model. It might be empty so defaults apply. `type` is a declaration property selecting one of several available attribute types. When omitting it the attribute is declared to be of type _string_.
 
 Additional declaration properties depend on the declared type of attribute. Some common declaration properties are available without regards to the attribute's declared type.
 
@@ -208,11 +256,8 @@ This boolean attaches constraint controlling whether this attribute requires a v
 
 Computed attributes are actually functions invoked to derive additional information by computing one or more attributes or accessing additional information sources. Either function is invoked with reference on a model's instance in first argument. The computed attribute's value is returned by the function provided as part of a model's declaration.
 
-::: tip Functions provided here are registered as getters of resulting instances of model. Because of that they are used like attributes: reading the computed value doesn't require use of parentheses as provided function is invoked transparently.
-:::
-
 ::: tip
-This code has been used above as part of a example declaring some basic user model.
+Functions provided here are registered as getters of resulting instances of model. Because of that they are used like attributes: reading the computed value doesn't require use of parentheses as provided function is invoked transparently.
 :::
 
 ```javascript
@@ -239,10 +284,6 @@ if ( instance.hasLoggedInbefore ) {
 
 Currently, instance methods are available as a special case of computed attributes, only. Relying on closure scopes the computed value might be a function to be invoked for processing in context of either instance taking additional parameters.
 
-::: tip
-This code has been used above as part of a example declaring some basic user model.
-:::
-
 ```javascript
 module.exports = {
 	// declaring instance method using support for computed attributes
@@ -263,13 +304,9 @@ Here two instance methods are declared:
 * `instance.lockAccount()` can be invoked to mark account locked by assigning some invalid password.
 * `instance.unlockAccount( "new-secret" )` reverts this by setting new password for the user to log in.
 
-## Life-Cycle Hooks
+## Life Cycle Events (LCE)
 
-Working with a model's instance either instance passes several stage of its life cycle. In either stage callbacks can be registered to add custom behaviour to instances of a model.
-
-::: tip
-This code has been used above as part of a example declaring some basic user model.
-:::
+When working with a model's instance it passes several stages of its life cycle. In either stage callbacks can be registered to be notified as soon as the related life cycle event occurs.
 
 ```javascript
 module.exports = {
@@ -281,8 +318,67 @@ module.exports = {
 };
 ```
 
-This declaration adds a list if callbacks to be invoked sequentially after having saved an instance of this model. In fact this example provides single function, but it still has to be declared as a list of functions so the function is detected as a life-cycle hook rather than some computed attribute.
+This example declares a list of callbacks to be invoked sequentially after having saved an instance of this model. Even though there is a single callback, only, this must be provided as array of callbacks to distinguish this declaration of a life-cycle event listener from declaration of a computed attribute
 
-Here comes a list of supported life-cycle hooks:
+Here comes a list of life-cycle events supported by basic implementation of models:
 
-tba.
+### Creating Instances
+
+#### onCreate( properties ) : properties
+
+When creating new instance of model the LCE **create** is dispatched. Registered listeners are invoked with set of new item's properties. It is assumed to return the eventually desired set of new item's properties. 
+
+The result of registered listeners is always passed through validation before creating instance.
+
+#### onCreated( item, properties )
+
+Right after creating new instance of model the LCE **created** is dispatched. Listeners are invoked with reference on freshly created instance and set of properties used to create it before.
+
+### Changing Properties
+
+### onChanged
+
+### onSave
+
+### onSaved
+
+### onBeforeValidate
+
+### onAfterValidate
+
+### onRemove
+
+### onRemoved
+
+
+## Indexing
+
+Defining a model might include definition of per-attribute indices to use. Indices are improving performance on searching items by redundantly saving values per attribute and associating them with references on matching records.
+
+Indices are configured in special property `$index` in definition of model. This property must be an object mapping existing attribute names into one or more test names.
+
+```javascript
+module.exports = {
+	...,
+	$index: { ... }
+};
+```
+
+The index definition object maps attributes' names onto definitions for how to manage index for either attribute.
+
+::: warning
+Defining index works with regular, non-computed attributes, only. There is no support for multi-attribute indices.
+::: 
+
+```javascript
+module.exports = {
+	firstName: {},
+	lastName: {},
+	age: { type: "number" },
+	$index: {
+		firstName: {},
+		lastName: {},
+		age: true,
+	},
+};
+```
