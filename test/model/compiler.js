@@ -779,9 +779,9 @@ suite( "Model compiler", function() {
 			let item = fakeModelInstance( { properties: { name: "John Doe", age: 42 }, attributes } );
 			let coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 2 );
-			item.properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
-			item.properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
+			item.$properties.should.have.size( 2 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
+			item.$properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
 
 
 			attributes = { name: { type: "string" }, age: { type: "int" }, active: { type: "bool" } };
@@ -790,18 +790,18 @@ suite( "Model compiler", function() {
 			item = fakeModelInstance( { properties: { name: "John Doe", age: 42, active: true }, attributes } );
 			coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 3 );
-			item.properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
-			item.properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
-			item.properties.should.have.ownProperty( "active" ).which.is.equal( true );
+			item.$properties.should.have.size( 3 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
+			item.$properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
+			item.$properties.should.have.ownProperty( "active" ).which.is.equal( true );
 
 			item = fakeModelInstance( { properties: { name: null, age: "42", active: 1 }, attributes } );
 			coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 3 );
-			item.properties.should.have.ownProperty( "name" ).which.is.null();
-			item.properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
-			item.properties.should.have.ownProperty( "active" ).which.is.equal( true );
+			item.$properties.should.have.size( 3 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.null();
+			item.$properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
+			item.$properties.should.have.ownProperty( "active" ).which.is.equal( true );
 		} );
 
 		test( "returns non-empty function on non-empty definition adjusting defined properties in provided context, only", function() {
@@ -814,10 +814,10 @@ suite( "Model compiler", function() {
 			const item = fakeModelInstance( { properties: { name: "John Doe", age: "42", active: 1 }, attributes } );
 			const coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 3 );
-			item.properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
-			item.properties.should.have.ownProperty( "age" ).which.is.equal( "42" );
-			item.properties.should.have.ownProperty( "active" ).which.is.equal( 1 );
+			item.$properties.should.have.size( 3 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
+			item.$properties.should.have.ownProperty( "age" ).which.is.equal( "42" );
+			item.$properties.should.have.ownProperty( "active" ).which.is.equal( 1 );
 		} );
 
 		test( "returns non-empty function on non-empty definition setting all defined properties `null` if unset", function() {
@@ -827,10 +827,10 @@ suite( "Model compiler", function() {
 			const item = fakeModelInstance( { attributes } );
 			const coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 3 );
-			item.properties.should.have.ownProperty( "name" ).which.is.null();
-			item.properties.should.have.ownProperty( "age" ).which.is.null();
-			item.properties.should.have.ownProperty( "active" ).which.is.null();
+			item.$properties.should.have.size( 3 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.null();
+			item.$properties.should.have.ownProperty( "age" ).which.is.null();
+			item.$properties.should.have.ownProperty( "active" ).which.is.null();
 		} );
 	} );
 
@@ -1198,17 +1198,17 @@ suite( "Model compiler", function() {
 			const computeds = {
 				name: function( ...args ) { // eslint-disable-line consistent-return
 					if ( args.length === 0 ) {
-						return this.properties.name.toUpperCase();
+						return this.$properties.name.toUpperCase();
 					}
 
-					this.properties.name = args[0];
+					this.$properties.name = args[0];
 				},
 				age: function( ...args ) { // eslint-disable-line consistent-return
 					if ( args.length === 0 ) {
-						return this.properties.age * 2;
+						return this.$properties.age * 2;
 					}
 
-					this.properties.age = args[0];
+					this.$properties.age = args[0];
 				}
 			};
 			const properties = { name: "Jane Doe", age: 23 };

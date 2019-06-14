@@ -122,7 +122,7 @@ suite( "Abstract Model", function() {
 	test( "exposes context of monitoring properties for changes", function() {
 		const instance = new Model( "01234567-89ab-cdef-fedc-ba9876543210" );
 
-		Should( instance.properties.$context ).be.an.Object().which.is.ok().and.has.property( "changed" ).which.is.ok().and.empty();
+		Should( instance.$properties.$context ).be.an.Object().which.is.ok().and.has.property( "changed" ).which.is.ok().and.empty();
 	} );
 
 	test( "marks initially unbound instance as new", function() {
@@ -245,57 +245,57 @@ suite( "Abstract Model", function() {
 
 			return instance.load()
 				.then( () => {
-					instance.properties.$context.changed.should.be.empty();
-					instance.properties.$context.hasChanged.should.be.false();
+					instance.$properties.$context.changed.should.be.empty();
+					instance.$properties.$context.hasChanged.should.be.false();
 
-					instance.properties.adjusted = "1";
+					instance.$properties.adjusted = "1";
 
-					instance.properties.$context.changed.should.not.be.empty();
-					instance.properties.$context.hasChanged.should.be.true();
+					instance.$properties.$context.changed.should.not.be.empty();
+					instance.$properties.$context.hasChanged.should.be.true();
 
 					return instance.save();
 				} )
 				.then( () => {
-					instance.properties.$context.changed.should.be.empty();
-					instance.properties.$context.hasChanged.should.be.false();
+					instance.$properties.$context.changed.should.be.empty();
+					instance.$properties.$context.hasChanged.should.be.false();
 				} );
 		} );
 
 		test( "clears mark on changed properties after loaded from persistent storage using Model#load()", function() {
 			const instance = new Model( created.uuid, { adapter: memory, onUnsaved: "ignore" } );
 
-			instance.properties.$context.changed.should.be.empty();
-			instance.properties.$context.hasChanged.should.be.false();
+			instance.$properties.$context.changed.should.be.empty();
+			instance.$properties.$context.hasChanged.should.be.false();
 
-			instance.properties.adjusted = "1";
+			instance.$properties.adjusted = "1";
 
-			instance.properties.$context.changed.should.not.be.empty();
-			instance.properties.$context.hasChanged.should.be.true();
+			instance.$properties.$context.changed.should.not.be.empty();
+			instance.$properties.$context.hasChanged.should.be.true();
 
 			return instance.load()
 				.then( () => {
-					instance.properties.$context.changed.should.be.empty();
-					instance.properties.$context.hasChanged.should.be.false();
+					instance.$properties.$context.changed.should.be.empty();
+					instance.$properties.$context.hasChanged.should.be.false();
 				} );
 		} );
 
 		test( "rejects to load after having changed properties of bound item using Model#load()", function() {
 			const instanceUnchanged = new Model( created.uuid, { adapter: memory, onUnsaved: "fail" } );
 
-			instanceUnchanged.properties.$context.changed.should.be.empty();
-			instanceUnchanged.properties.$context.hasChanged.should.be.false();
+			instanceUnchanged.$properties.$context.changed.should.be.empty();
+			instanceUnchanged.$properties.$context.hasChanged.should.be.false();
 
 			return instanceUnchanged.load().should.be.Promise().which.is.not.rejected()
 				.then( () => {
 					const instanceChanging = new Model( created.uuid, { adapter: memory, onUnsaved: "fail" } );
 
-					instanceChanging.properties.$context.changed.should.be.empty();
-					instanceChanging.properties.$context.hasChanged.should.be.false();
+					instanceChanging.$properties.$context.changed.should.be.empty();
+					instanceChanging.$properties.$context.hasChanged.should.be.false();
 
-					instanceChanging.properties.adjusted = "1";
+					instanceChanging.$properties.adjusted = "1";
 
-					instanceChanging.properties.$context.changed.should.not.be.empty();
-					instanceChanging.properties.$context.hasChanged.should.be.true();
+					instanceChanging.$properties.$context.changed.should.not.be.empty();
+					instanceChanging.$properties.$context.hasChanged.should.be.true();
 
 					return instanceChanging.load().should.be.Promise().which.is.rejected();
 				} );
