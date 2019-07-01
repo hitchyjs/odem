@@ -39,10 +39,10 @@ suite( "Utility API for processing strings", function() {
 	} );
 
 	test( "exposes methods for converting case formats", function() {
-		API.should.be.an.Object().which.has.properties( "camelToSnake", "camelToKebab", "snakeToCamel", "snakeToKebab", "kebabToCamel", "kebabToPascal", "kebabToSnake" );
+		API.should.be.an.Object().which.has.properties( "camelToSnake", "camelToKebab", "snakeToCamel", "snakeToKebab", "kebabToCamel", "kebabToPascal", "kebabToSnake", "autoKebabToPascal" );
 	} );
 
-	test( "converts camelCase string to snake_case", function() {
+	test( "exposes method camelToSnake() which converts camelCase string to snake_case", function() {
 		API.camelToSnake( "" ).should.be.String().which.is.empty();
 		API.camelToSnake( "indifferent" ).should.be.String().which.is.equal( "indifferent" );
 		API.camelToSnake( "someCamelCase" ).should.be.String().which.is.equal( "some_camel_case" );
@@ -50,7 +50,7 @@ suite( "Utility API for processing strings", function() {
 		API.camelToSnake( "ignores space but handles camelCase" ).should.be.String().which.is.equal( "ignores space but handles camel_case" );
 	} );
 
-	test( "converts camelCase string to kebab-case", function() {
+	test( "exposes method camelToKebab() which converts camelCase string to kebab-case", function() {
 		API.camelToKebab( "" ).should.be.String().which.is.empty();
 		API.camelToKebab( "indifferent" ).should.be.String().which.is.equal( "indifferent" );
 		API.camelToKebab( "someCamelCase" ).should.be.String().which.is.equal( "some-camel-case" );
@@ -58,7 +58,7 @@ suite( "Utility API for processing strings", function() {
 		API.camelToKebab( "ignores space but handles camelCase" ).should.be.String().which.is.equal( "ignores space but handles camel-case" );
 	} );
 
-	test( "converts snake_case string to camelCase", function() {
+	test( "exposes method snakeToCamel() which converts snake_case string to camelCase", function() {
 		API.snakeToCamel( "" ).should.be.String().which.is.empty();
 		API.snakeToCamel( "indifferent" ).should.be.String().which.is.equal( "indifferent" );
 		API.snakeToCamel( "some_snake_case" ).should.be.String().which.is.equal( "someSnakeCase" );
@@ -67,7 +67,7 @@ suite( "Utility API for processing strings", function() {
 		API.snakeToCamel( "collapses__multiple_____________underscores" ).should.be.String().which.is.equal( "collapsesMultipleUnderscores" );
 	} );
 
-	test( "converts snake_case string to kebab-case", function() {
+	test( "exposes method snakeToKebab() which converts snake_case string to kebab-case", function() {
 		API.snakeToKebab( "" ).should.be.String().which.is.empty();
 		API.snakeToKebab( "indifferent" ).should.be.String().which.is.equal( "indifferent" );
 		API.snakeToKebab( "some_snake_case" ).should.be.String().which.is.equal( "some-snake-case" );
@@ -76,7 +76,7 @@ suite( "Utility API for processing strings", function() {
 		API.snakeToKebab( "collapses__multiple_____________underscores" ).should.be.String().which.is.equal( "collapses-multiple-underscores" );
 	} );
 
-	test( "converts kebab-case string to camelCase", function() {
+	test( "exposes method kebabToCamel() which converts kebab-case string to camelCase", function() {
 		API.kebabToCamel( "" ).should.be.String().which.is.empty();
 		API.kebabToCamel( "indifferent" ).should.be.String().which.is.equal( "indifferent" );
 		API.kebabToCamel( "some-kebab-case" ).should.be.String().which.is.equal( "someKebabCase" );
@@ -85,7 +85,7 @@ suite( "Utility API for processing strings", function() {
 		API.kebabToCamel( "collapses--multiple-------------underscores" ).should.be.String().which.is.equal( "collapsesMultipleUnderscores" );
 	} );
 
-	test( "converts kebab-case string to PascalCase", function() {
+	test( "exposes method kebabToPascal() which converts kebab-case string to PascalCase", function() {
 		API.kebabToPascal( "" ).should.be.String().which.is.empty();
 		API.kebabToPascal( "indifferent" ).should.be.String().which.is.equal( "Indifferent" );
 		API.kebabToPascal( "some-kebab-case" ).should.be.String().which.is.equal( "SomeKebabCase" );
@@ -94,12 +94,31 @@ suite( "Utility API for processing strings", function() {
 		API.kebabToPascal( "collapses--multiple-------------underscores" ).should.be.String().which.is.equal( "CollapsesMultipleUnderscores" );
 	} );
 
-	test( "converts kebab-case string to snake_case", function() {
+	test( "exposes method kebabToSnake() which converts kebab-case string to snake_case", function() {
 		API.kebabToSnake( "" ).should.be.String().which.is.empty();
 		API.kebabToSnake( "indifferent" ).should.be.String().which.is.equal( "indifferent" );
 		API.kebabToSnake( "some-kebab-case" ).should.be.String().which.is.equal( "some_kebab_case" );
 		API.kebabToSnake( "Some-kebab-case" ).should.be.String().which.is.equal( "Some_kebab_case" );
 		API.kebabToSnake( "ignores space but handles kebab-case" ).should.be.String().which.is.equal( "ignores space but handles kebab_case" );
 		API.kebabToSnake( "collapses--multiple-------------underscores" ).should.be.String().which.is.equal( "collapses_multiple_underscores" );
+	} );
+
+	suite( "exposes method autoKebabToPascal() which", () => {
+		test( "assumes any non-PascalCase input as kebab-case to be converted to PascalCase", function() {
+			API.autoKebabToPascal( "" ).should.be.String().which.is.empty();
+			API.autoKebabToPascal( "indifferent" ).should.be.String().which.is.equal( "Indifferent" );
+			API.autoKebabToPascal( "some-kebab-case" ).should.be.String().which.is.equal( "SomeKebabCase" );
+			API.autoKebabToPascal( "Some-kebab-case" ).should.be.String().which.is.equal( "SomeKebabCase" );
+			API.autoKebabToPascal( "does not handle spaces pretty well though also containing kebab-case" ).should.be.String().which.is.equal( "Does not handle spaces pretty well though also containing kebabCase" );
+			API.autoKebabToPascal( "collapses--multiple-------------underscores" ).should.be.String().which.is.equal( "CollapsesMultipleUnderscores" );
+		} );
+
+		test( "drops existing mixture of lower and upper case in provided non-PascalCase string before converting to PascalCase", function() {
+			API.autoKebabToPascal( "some-stringWith-extraUpper-caseLetters" ).should.be.String().which.is.equal( "SomeStringwithExtraupperCaseletters" );
+		} );
+
+		test( "detects provided PascalCase string to be kept as-is", function() {
+			API.autoKebabToPascal( "SomeStringWithUpperCaseLetters" ).should.be.String().which.is.equal( "SomeStringWithUpperCaseLetters" );
+		} );
 	} );
 } );
