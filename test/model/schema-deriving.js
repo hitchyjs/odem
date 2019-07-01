@@ -40,16 +40,22 @@ suite( "Deriving a model", function() {
 		Root = Model.define( "root", {
 			rootName: {},
 			name: {},
+			rootConverted: item => `root: ${item.rootName}`,
+			converted: item => `root: ${item.rootName}`,
 		} );
 
 		Intermittent = Model.define( "intermittent", {
 			intermittentName: {},
 			name: { type: "number" },
+			intermittentConverted: item => `intermittent: ${item.rootName}`,
+			converted: item => `intermittent: ${item.intermittentName}`,
 		}, Root );
 
 		Sub = Model.define( "sub", {
 			subName: {},
 			name: { type: "integer" },
+			subConverted: item => `sub: ${item.rootName}`,
+			converted: item => `sub: ${item.subName}`,
 		}, Intermittent );
 	} );
 
@@ -107,7 +113,7 @@ suite( "Deriving a model", function() {
 		Sub.derivesFrom.should.be.equal( Intermittent );
 	} );
 
-	test( "results in a derived model's class exposing non-overloaded attributes of its base classes", function() {
+	test( "results in schema of a derived model exposing non-overloaded attributes of its base classes", function() {
 		Root.schema.attributes.should.have.property( "rootName" );
 		Root.schema.attributes.should.not.have.property( "intermittentName" );
 		Root.schema.attributes.should.not.have.property( "subName" );
@@ -121,7 +127,7 @@ suite( "Deriving a model", function() {
 		Sub.schema.attributes.should.have.property( "subName" );
 	} );
 
-	test( "results in a derived model's class exposing attributes of its base classes overloaded", function() {
+	test( "results in schema of a derived model exposing attributes of its base classes overloaded", function() {
 		Root.schema.attributes.should.have.property( "name" );
 		Intermittent.schema.attributes.should.have.property( "name" );
 		Sub.schema.attributes.should.have.property( "name" );
@@ -129,5 +135,58 @@ suite( "Deriving a model", function() {
 		Root.schema.attributes.name.type.should.be.equal( "string" );
 		Intermittent.schema.attributes.name.type.should.be.equal( "number" );
 		Sub.schema.attributes.name.type.should.be.equal( "integer" );
+	} );
+
+	test( "results in schema of a derived model exposing non-overloaded attributes of its base classes", function() {
+		Root.schema.attributes.should.have.property( "rootName" );
+		Root.schema.attributes.should.not.have.property( "intermittentName" );
+		Root.schema.attributes.should.not.have.property( "subName" );
+
+		Intermittent.schema.attributes.should.have.property( "rootName" );
+		Intermittent.schema.attributes.should.have.property( "intermittentName" );
+		Intermittent.schema.attributes.should.not.have.property( "subName" );
+
+		Sub.schema.attributes.should.have.property( "rootName" );
+		Sub.schema.attributes.should.have.property( "intermittentName" );
+		Sub.schema.attributes.should.have.property( "subName" );
+	} );
+
+	test( "results in schema of a derived model exposing attributes of its base classes overloaded", function() {
+		Root.schema.attributes.should.have.property( "name" );
+		Intermittent.schema.attributes.should.have.property( "name" );
+		Sub.schema.attributes.should.have.property( "name" );
+
+		Root.schema.attributes.name.type.should.be.equal( "string" );
+		Intermittent.schema.attributes.name.type.should.be.equal( "number" );
+		Sub.schema.attributes.name.type.should.be.equal( "integer" );
+	} );
+
+	test( "results in derived model's instances exposing own properties and all non-overloaded properties of derived models", function() {
+		( new Root ).should.have.property( "rootName" );
+		( new Root ).should.have.property( "name" );
+		( new Root ).should.not.have.property( "intermittentName" );
+		( new Root ).should.not.have.property( "subName" );
+
+		( new Intermittent ).should.have.property( "rootName" );
+		( new Intermittent ).should.have.property( "name" );
+		( new Intermittent ).should.have.property( "intermittentName" );
+		( new Intermittent ).should.not.have.property( "subName" );
+
+		( new Sub ).should.have.property( "rootName" );
+		( new Sub ).should.have.property( "name" );
+		( new Sub ).should.have.property( "intermittentName" );
+		( new Sub ).should.have.property( "subName" );
+	} );
+
+	test( "re-defines overloaded properties in prototype of deriving model", function() {
+		Object.getOwnPropertyNames( Root.prototype ).should.containEql( "name" );
+		Object.getOwnPropertyNames( Intermittent.prototype ).should.containEql( "name" );
+		Object.getOwnPropertyNames( Sub.prototype ).should.containEql( "name" );
+	} );
+
+	test( "doesn't re-define non-overloaded properties in prototype of deriving model but relies on prototype chain", function() {
+		Object.getOwnPropertyNames( Root.prototype ).should.containEql( "rootName" );
+		Object.getOwnPropertyNames( Intermittent.prototype ).should.not.containEql( "rootName" );
+		Object.getOwnPropertyNames( Sub.prototype ).should.not.containEql( "rootName" );
 	} );
 } );
