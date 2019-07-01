@@ -26,15 +26,12 @@
  * @author: cepharum
  */
 
-
 const Adapters = require( "./lib/adapter" );
 const Models = require( "./lib/model" );
 const Utilities = require( "./lib/utility" );
+const { processDiscoveredModelDefinitions } = require( "./lib/hitchy-integration" );
 
-const { Model } = Models;
 const { Adapter, MemoryAdapter } = Adapters;
-
-const { String: { kebabToPascal } } = Utilities;
 
 
 module.exports = Object.assign( {},
@@ -59,113 +56,7 @@ module.exports = Object.assign( {},
 				adapter = new MemoryAdapter();
 			}
 
-			// compile exposed definitions of models into model classes
-			const modelNames = Object.keys( models );
-
-			for ( let i = 0, numNames = modelNames.length; i < numNames; i++ ) {
-				const name = modelNames[i];
-				const definition = models[name] || {};
-
-				const modelName = definition.$name || kebabToPascal( name.toLocaleLowerCase() );
-
-				const schema = {};
-
-				mergeAttributes( schema, definition.attributes || {} );
-				mergeComputeds( schema, definition.computeds || {} );
-				mergeHooks( schema, definition.hooks || {} );
-
-				models[name] = Model.define( modelName, schema, null, adapter );
-			}
+			processDiscoveredModelDefinitions( models, adapter );
 		}
 	}
 );
-
-/**
- * Merges separately defined map of static attributes into single schema
- * matching expectations of hitchy-odem.
- *
- * @param {object} target resulting schema for use with hitchy-odem
- * @param {object<string,function>} source maps names of attributes into either one's definition of type and validation requirements
- * @returns {void}
- */
-function mergeAttributes( target, source ) {
-	const propNames = Object.keys( source );
-
-	for ( let i = 0, numNames = propNames.length; i < numNames; i++ ) {
-		const name = propNames[i];
-		const attribute = source[name];
-
-		switch ( typeof attribute ) {
-			case "object" :
-				if ( attribute ) {
-					break;
-				}
-
-			// falls through
-			default :
-				throw new TypeError( `invalid definition of attribute named "${name}": must be object` );
-		}
-
-		target[name] = attribute;
-	}
-}
-
-/**
- * Merges separately defined map of computed attributes into single schema
- * matching expectations of hitchy-odem.
- *
- * @param {object} target resulting schema for use with hitchy-odem
- * @param {object<string,function>} source maps names of computed attributes into the related computing function
- * @returns {void}
- */
-function mergeComputeds( target, source ) {
-	const propNames = Object.keys( source );
-
-	for ( let i = 0, numNames = propNames.length; i < numNames; i++ ) {
-		const name = propNames[i];
-		const computer = source[name];
-
-		switch ( typeof computer ) {
-			case "function" :
-				break;
-
-			default :
-				throw new TypeError( `invalid definition of computed attribute named "${name}": must be a function` );
-		}
-
-		target[name] = computer;
-	}
-}
-
-/**
- * Merges separately defined map of lifecycle hooks into single schema matching
- * expectations of hitchy-odem.
- *
- * @param {object} target resulting schema for use with hitchy-odem
- * @param {object<string,(function|function[])>} source maps names of lifecycle hooks into the related callback or list of callbacks
- * @returns {void}
- */
-function mergeHooks( target, source ) {
-	const propNames = Object.keys( source );
-
-	for ( let i = 0, numNames = propNames.length; i < numNames; i++ ) {
-		const name = propNames[i];
-		let hook = source[name];
-
-		if ( typeof hook === "function" ) {
-			hook = [hook];
-		}
-
-		if ( !Array.isArray( hook ) ) {
-			throw new TypeError( `invalid definition of hook named "${name}": must be a function or list of functions` );
-		}
-
-		for ( let hi = 0, numHooks = hook.length; hi < numHooks; hi++ ) {
-			if ( typeof hook[hi] !== "function" ) {
-				throw new TypeError( `invalid definition of hook named "${name}": not a function at index #${hi}` );
-			}
-		}
-
-		target[name] = hook;
-	}
-}
