@@ -69,7 +69,7 @@ suite( "Model compiler", function() {
 		const fake = new Fake();
 
 		Object.defineProperties( fake, {
-			properties: { value: properties },
+			$properties: { value: properties },
 		} );
 
 		return fake;
@@ -1177,7 +1177,7 @@ suite( "Model compiler", function() {
 
 			map.should.be.Object().which.has.size( 2 );
 
-			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.name.get.should.be.Function().which.has.length( 0 );
 			map.name.set.should.be.Function().which.has.length( 1 );
 
@@ -1185,7 +1185,7 @@ suite( "Model compiler", function() {
 			map.name.set.bind( fakeModelInstance( { properties } ), "Jill Doe" ).should.not.throw();
 			map.name.get.call( fakeModelInstance( { properties } ) ).should.be.equal( "Jill Doe" );
 
-			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.age.get.should.be.Function().which.has.length( 0 );
 			map.age.set.should.be.Function().which.has.length( 1 );
 
@@ -1216,7 +1216,7 @@ suite( "Model compiler", function() {
 
 			map.should.be.Object().which.has.size( 2 );
 
-			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.name.get.should.be.Function().which.has.length( 0 );
 			map.name.set.should.be.Function().which.has.length( 1 );
 
@@ -1224,7 +1224,7 @@ suite( "Model compiler", function() {
 			map.name.set.bind( fakeModelInstance( { properties } ), "Jill Doe" ).should.not.throw();
 			map.name.get.call( fakeModelInstance( { properties } ) ).should.be.equal( "JILL DOE" );
 
-			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.age.get.should.be.Function().which.has.length( 0 );
 			map.age.set.should.be.Function().which.has.length( 1 );
 
@@ -1241,7 +1241,7 @@ suite( "Model compiler", function() {
 
 			map.should.be.Object().which.has.size( 4 );
 
-			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.name.get.should.be.Function().which.has.length( 0 );
 			map.name.set.should.be.Function().which.has.length( 1 );
 
@@ -1249,7 +1249,7 @@ suite( "Model compiler", function() {
 			map.name.set.bind( fakeModelInstance( { properties } ), "Jill Doe" ).should.not.throw();
 			map.name.get.call( fakeModelInstance( { properties } ) ).should.be.equal( "Jill Doe" );
 
-			map.should.have.ownProperty( "altName" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "altName" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.altName.get.should.be.Function().which.has.length( 0 );
 			map.altName.set.should.be.Function().which.has.length( 1 );
 
@@ -1257,7 +1257,7 @@ suite( "Model compiler", function() {
 			map.altName.set.bind( fakeModelInstance( { properties } ), "Jill Doe" ).should.not.throw();
 			map.altName.get.call( fakeModelInstance( { properties } ) ).should.be.equal( "John Doe" );
 
-			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.age.get.should.be.Function().which.has.length( 0 );
 			map.age.set.should.be.Function().which.has.length( 1 );
 
@@ -1265,7 +1265,7 @@ suite( "Model compiler", function() {
 			map.age.set.bind( fakeModelInstance( { properties } ), 25 ).should.not.throw();
 			map.age.get.call( fakeModelInstance( { properties } ) ).should.be.equal( 25 );
 
-			map.should.have.ownProperty( "size" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "size" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.size.get.should.be.Function().which.has.length( 0 );
 			map.size.set.should.be.Function().which.has.length( 1 );
 
