@@ -27,6 +27,7 @@
  */
 
 
+const Path = require( "path" );
 const { Readable } = require( "stream" );
 
 const { suite, test } = require( "mocha" );
@@ -38,13 +39,11 @@ const { ptnUuid } = require( "../../lib/utility/uuid" );
 const { MkDir, RmDir } = require( "file-essentials" );
 
 
-const dataSource = "../data";
+const dataSource = Path.resolve( __dirname, "../data" );
 
 suite( "FileAdapter", function() {
 	suiteSetup( function() {
-		process.chdir( __dirname );
-
-		return MkDir( "..", "data" );
+		return MkDir( Path.resolve( __dirname, ".." ), "data" );
 	} );
 
 	suiteTeardown( function() {

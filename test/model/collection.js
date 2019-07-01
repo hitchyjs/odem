@@ -27,6 +27,8 @@
  */
 
 
+const Path = require( "path" );
+
 const { suite, test } = require( "mocha" );
 const Should = require( "should" );
 
@@ -99,9 +101,7 @@ suite( "Model Collections API", function() {
 		let Person;
 
 		suiteSetup( function() {
-			process.chdir( __dirname );
-
-			return MkDir( "..", "data" );
+			return MkDir( Path.resolve( __dirname, ".." ), "data" );
 		} );
 
 		setup( function() {
