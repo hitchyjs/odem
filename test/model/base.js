@@ -96,7 +96,7 @@ suite( "Abstract Model", function() {
 		instance.should.have.property( "isNew" ).which.is.a.Boolean().which.is.false();
 		instance.should.have.property( "adapter" ).which.is.an.instanceOf( Adapter );
 		instance.should.have.property( "dataKey" ).which.is.a.String().and.not.empty();
-		instance.should.have.property( "properties" ).which.is.an.Object().and.ok();
+		instance.should.have.property( "$properties" ).which.is.an.Object().and.ok();
 		instance.should.have.property( "exists" ).which.is.a.Promise().and.resolvedWith( false );
 	} );
 
