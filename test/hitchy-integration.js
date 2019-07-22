@@ -80,6 +80,9 @@ describe( "Integration with hitchy", () => {
 			models.sole.should.have.property( "prototype" ).which.is.instanceof( Model );
 
 			const sole = new models.sole(); // eslint-disable-line new-cap
+
+			sole.sole = "test";
+			sole.$properties.should.have.property( "sole" ).which.is.equal( "test" );
 		} );
 	} );
 } );

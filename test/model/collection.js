@@ -27,7 +27,7 @@
  */
 
 
-const { describe, it, before, beforeEach } = require( "mocha" );
+const { describe, it, beforeEach } = require( "mocha" );
 require( "should" );
 
 const PromiseUtil = require( "promise-essentials" );
