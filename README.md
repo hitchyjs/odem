@@ -75,14 +75,14 @@ User.create = function( name, secret ) {
 	user.secret = secret;
 	user.level = 0;
 
-	return user.$save();
+	return user.save();
 };
 
 
 User.create( "John Doe", "very-secret" )
 	.then( user => {
 		user.level = 3;
-		return user.$save();
+		return user.save();
 	} )
 	.then( () => User.findByAttribute( "level", 3 ) )
 	.then( list => {

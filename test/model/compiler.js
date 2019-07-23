@@ -313,12 +313,12 @@ describe( "Model compiler module", () => {
 				Should( freshOne.uuid ).be.null();
 
 				// try saving w/ partially invalid property values
-				return freshOne.$save().should.be.Promise().which.is.rejected()
+				return freshOne.save().should.be.Promise().which.is.rejected()
 					.then( () => {
 						Should( freshOne.uuid ).be.null();
 
 						// check validation explicitly
-						return freshOne.$validate().should.be.Promise().which.is.resolvedWith( [
+						return freshOne.validate().should.be.Promise().which.is.resolvedWith( [
 							new Error( ["height is below required minimum"] ),
 							new Error( ["weight is below required minimum"] ),
 						] );
@@ -331,13 +331,13 @@ describe( "Model compiler module", () => {
 						Should( freshOne.uuid ).be.null();
 
 						// try saving w/ fixed values again
-						return freshOne.$save().should.be.Promise().which.is.resolved();
+						return freshOne.save().should.be.Promise().which.is.resolved();
 					} )
 					.then( () => {
 						Should( freshOne.uuid ).not.be.null();
 
 						// check validation explicitly, again
-						return freshOne.$validate().should.be.Promise().which.is.resolvedWith( [] );
+						return freshOne.validate().should.be.Promise().which.is.resolvedWith( [] );
 					} )
 					.then( () => {
 						// check record serialization by reading record from backend directly
@@ -365,7 +365,7 @@ describe( "Model compiler module", () => {
 						// create another instance reading from that record (testing deserializer)
 						const copy = new MyModel( freshOne.uuid );
 
-						return copy.$load()
+						return copy.load()
 							.then( () => {
 								copy.name.should.be.String().which.is.equal( "Jane Doe" );
 								copy.height.should.be.Number().which.is.equal( 46 );
@@ -377,7 +377,7 @@ describe( "Model compiler module", () => {
 								Should( copy.isFriend ).be.null();
 
 								// validate loaded record again (failing again)
-								return copy.$validate().should.be.Promise().which.is.resolvedWith( [
+								return copy.validate().should.be.Promise().which.is.resolvedWith( [
 									new Error( ["height is below required minimum"] ),
 									new Error( ["weight is below required minimum"] ),
 								] );

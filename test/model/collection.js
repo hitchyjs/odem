@@ -64,7 +64,7 @@ describe( "Model API regarding a model's collection of items", () => {
 					item.name = name;
 					item.age = age;
 
-					return item.$save();
+					return item.save();
 				} );
 			} );
 

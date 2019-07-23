@@ -102,11 +102,11 @@ describe( "Abstract Model", () => {
 	it( "exposes instance methods of Model API", () => {
 		const instance = new Model( "01234567-89ab-cdef-fedc-ba9876543210" );
 
-		instance.should.have.property( "$load" ).which.is.a.Function().of.length( 0 );
-		instance.should.have.property( "$save" ).which.is.a.Function().of.length( 0 );
-		instance.should.have.property( "$remove" ).which.is.a.Function().of.length( 0 );
-		instance.should.have.property( "$validate" ).which.is.a.Function().of.length( 0 );
-		instance.should.have.property( "$toObject" ).which.is.a.Function().of.length( 0 );
+		instance.should.have.property( "load" ).which.is.a.Function().of.length( 0 );
+		instance.should.have.property( "save" ).which.is.a.Function().of.length( 0 );
+		instance.should.have.property( "remove" ).which.is.a.Function().of.length( 0 );
+		instance.should.have.property( "validate" ).which.is.a.Function().of.length( 0 );
+		instance.should.have.property( "toObject" ).which.is.a.Function().of.length( 0 );
 	} );
 
 	it( "exposes class/static properties of Model API", () => {
@@ -144,8 +144,8 @@ describe( "Abstract Model", () => {
 
 		promise.should.be.Promise().which.is.resolved();
 
-		instance.$load().should.be.Promise().which.is.equal( promise );
-		instance.$load().should.be.Promise().which.is.equal( promise );
+		instance.load().should.be.Promise().which.is.equal( promise );
+		instance.load().should.be.Promise().which.is.equal( promise );
 
 		return promise.should.be.resolved();
 	} );
@@ -155,28 +155,28 @@ describe( "Abstract Model", () => {
 
 		Should( instance.$loaded ).be.null();
 
-		const promise = instance.$load();
+		const promise = instance.load();
 
 		return instance.$loaded.should.be.Promise().which.is.equal( promise ).and.is.rejected();
 	} );
 
 	it( "rejects to load persistent data of unknown item on invoking Model#load()", () => {
-		return new Model( "01234567-89ab-cdef-fdec-ba9876543210" ).$load().should.be.Promise().which.is.rejected();
+		return new Model( "01234567-89ab-cdef-fdec-ba9876543210" ).load().should.be.Promise().which.is.rejected();
 	} );
 
 	it( "succeeds to 'load' initial data of unbound instance on invoking Model#load()", () => {
-		return new Model().$load().should.be.Promise().which.is.resolved();
+		return new Model().load().should.be.Promise().which.is.resolved();
 	} );
 
 	it( "keeps returning same eventually rejected promise on Model#load() on an instance bound to unknown item", () => {
 		const instance = new Model( "01234567-89ab-cdef-fdec-ba9876543210" );
 
-		const promise = instance.$load();
+		const promise = instance.load();
 
 		instance.$loaded.should.be.Promise().which.is.equal( promise );
 
-		instance.$load().should.be.Promise().which.is.equal( promise );
-		instance.$load().should.be.Promise().which.is.equal( promise );
+		instance.load().should.be.Promise().which.is.equal( promise );
+		instance.load().should.be.Promise().which.is.equal( promise );
 
 		return promise.should.be.rejected();
 	} );
@@ -184,13 +184,13 @@ describe( "Abstract Model", () => {
 	it( "supports saving unbound instance to persistent storage using Model#save()", () => {
 		const instance = new Model( null, { adapter: memory } );
 
-		return instance.$save().should.be.Promise().which.is.resolvedWith( instance );
+		return instance.save().should.be.Promise().which.is.resolvedWith( instance );
 	} );
 
 	it( "rejects saving instance bound to unknown item to persistent storage using Model#save()", () => {
 		const instance = new Model( "01234567-89ab-cdef-fedc-ba9876543210", { adapter: memory } );
 
-		return instance.$save().should.be.Promise().which.is.rejected();
+		return instance.save().should.be.Promise().which.is.rejected();
 	} );
 
 	it( "exposes UUID assigned on saving unbound instance to persistent storage using Model#save()", () => {
@@ -198,7 +198,7 @@ describe( "Abstract Model", () => {
 
 		Should( instance.uuid ).be.null();
 
-		return instance.$save()
+		return instance.save()
 			.then( () => {
 				instance.uuid.should.be.String().which.is.not.empty();
 			} );
@@ -209,7 +209,7 @@ describe( "Abstract Model", () => {
 
 		instance.$isNew.should.be.true();
 
-		return instance.$save()
+		return instance.save()
 			.then( () => {
 				instance.$isNew.should.be.false();
 			} );
@@ -222,27 +222,27 @@ describe( "Abstract Model", () => {
 		before( () => {
 			created = new Model( null, { adapter: memory } );
 
-			return created.$save();
+			return created.save();
 		} );
 
 
 		it( "saves instance bound to known item to persistent storage using Model#save()", () => {
 			const instance = new Model( created.uuid, { adapter: memory } );
 
-			return instance.$save().should.be.Promise().which.is.rejected();
+			return instance.save().should.be.Promise().which.is.rejected();
 		} );
 
 		it( "rejects saving instance bound to known item to persistent storage using Model#save() w/o loading first", () => {
 			const instance = new Model( created.uuid, { adapter: memory } );
 
-			return instance.$load()
-				.then( () => instance.$save().should.be.Promise().which.is.resolvedWith( instance ) );
+			return instance.load()
+				.then( () => instance.save().should.be.Promise().which.is.resolvedWith( instance ) );
 		} );
 
 		it( "clears mark on changed properties after saving to persistent storage using Model#save()", () => {
 			const instance = new Model( created.uuid, { adapter: memory } );
 
-			return instance.$load()
+			return instance.load()
 				.then( () => {
 					instance.$properties.$context.changed.should.be.empty();
 					instance.$properties.$context.hasChanged.should.be.false();
@@ -252,7 +252,7 @@ describe( "Abstract Model", () => {
 					instance.$properties.$context.changed.should.not.be.empty();
 					instance.$properties.$context.hasChanged.should.be.true();
 
-					return instance.$save();
+					return instance.save();
 				} )
 				.then( () => {
 					instance.$properties.$context.changed.should.be.empty();
@@ -271,7 +271,7 @@ describe( "Abstract Model", () => {
 			instance.$properties.$context.changed.should.not.be.empty();
 			instance.$properties.$context.hasChanged.should.be.true();
 
-			return instance.$load()
+			return instance.load()
 				.then( () => {
 					instance.$properties.$context.changed.should.be.empty();
 					instance.$properties.$context.hasChanged.should.be.false();
@@ -284,7 +284,7 @@ describe( "Abstract Model", () => {
 			instanceUnchanged.$properties.$context.changed.should.be.empty();
 			instanceUnchanged.$properties.$context.hasChanged.should.be.false();
 
-			return instanceUnchanged.$load().should.be.Promise().which.is.not.rejected()
+			return instanceUnchanged.load().should.be.Promise().which.is.not.rejected()
 				.then( () => {
 					const instanceChanging = new Model( created.uuid, { adapter: memory, onUnsaved: "fail" } );
 
@@ -296,7 +296,7 @@ describe( "Abstract Model", () => {
 					instanceChanging.$properties.$context.changed.should.not.be.empty();
 					instanceChanging.$properties.$context.hasChanged.should.be.true();
 
-					return instanceChanging.$load().should.be.Promise().which.is.rejected();
+					return instanceChanging.load().should.be.Promise().which.is.rejected();
 				} );
 		} );
 	} );
