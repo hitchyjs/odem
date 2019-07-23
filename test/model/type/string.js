@@ -27,7 +27,7 @@
  */
 
 
-const { suite, test, xit } = require( "mocha" );
+const { suite, test } = require( "mocha" );
 const Should = require( "should" );
 
 const Helper = require( "../../helper" );

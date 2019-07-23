@@ -27,119 +27,54 @@
  */
 
 
-const { suite, test } = require( "mocha" );
-const Should = require( "should" );
+const { describe, it, beforeEach } = require( "mocha" );
+require( "should" );
 
 const PromiseUtil = require( "promise-essentials" );
-const { RmDir, MkDir } = require( "file-essentials" );
 
-const Collection = require( "../../lib/model/collection" );
-const { Model, MemoryAdapter, FileAdapter } = require( "../../" );
+const { Model, MemoryAdapter } = require( "../../" );
 
 
-suite( "Model Collections API", function() {
-	test( "is available", function() {
-		Should.exist( Collection );
-	} );
-
-	suite( "has a static method `injectInto()` which", function() {
-		test( "is a function", function() {
-			Collection.injectInto.should.be.a.Function();
+describe( "Model API regarding a model's collection of items", () => {
+	describe( "has a static method `findByAttribute()` which", () => {
+		it( "is a function", () => {
+			Model.findByAttribute.should.be.a.Function();
 		} );
-	} );
 
-	suite( "has a static method `findByAttribute()` which", function() {
-		test( "is a function", function() {
-			Collection.findByAttribute.should.be.a.Function();
-		} );
-	} );
+		describe( "supports finding instances of model by attribute which", () => {
+			let adapter;
+			let Person;
 
-	suite( "is injected into compiled model relying on MemoryAdapter which", function() {
-		let adapter;
-		let Person;
+			beforeEach( function() {
+				adapter = new MemoryAdapter();
 
-		setup( function() {
-			adapter = new MemoryAdapter();
+				Person = Model.define( "people", {
+					name: { type: "string" },
+					age: { type: "int" },
+				}, null, adapter );
 
-			Person = Model.define( "people", {
-				name: { type: "string" },
-				age: { type: "int" },
-			}, null, adapter );
+				return PromiseUtil.each( [
+					{ name: "Jane Doe", age: 42 },
+					{ name: "John Doe", age: 23 },
+					{ name: "Foo Bar", age: 65 },
+				], ( { name, age } ) => {
+					const item = new Person();
+					item.name = name;
+					item.age = age;
 
-			return PromiseUtil.each( [
-				{ name: "Jane Doe", age: 42 },
-				{ name: "John Doe", age: 23 },
-				{ name: "Foo Bar", age: 65 },
-			], ( { name, age } ) => {
-				const item = new Person();
-				item.name = name;
-				item.age = age;
-
-				return item.save();
+					return item.save();
+				} );
 			} );
-		} );
 
-		test( "is exposing same function `findByAttribute()`", function() {
-			Person.should.have.property( "findByAttribute" ).which.is.a.Function().and.is.equal( Collection.findByAttribute );
-		} );
+			it( "is having value equivalent to some provided one", () => {
+				return Person.findByAttribute( "name", "John Doe" )
+					.then( matches => {
+						matches.should.be.an.Array().which.has.length( 1 );
 
-		test( "supports finding instances of model by attribute", function() {
-			return Person.findByAttribute( "name", "John Doe" )
-				.then( matches => {
-					matches.should.be.an.Array().which.has.length( 1 );
-
-					matches[0].should.be.instanceOf( Person );
-					matches[0].should.have.property( "age" ).which.is.equal( 23 );
-				} );
-		} );
-	} );
-
-	suite( "is injected into compiled model relying on FileAdapter which", function() {
-		let adapter;
-		let Person;
-
-		suiteSetup( function() {
-			process.chdir( __dirname );
-
-			return MkDir( "..", "data" );
-		} );
-
-		setup( function() {
-			return RmDir( "../data", { subsOnly: true } )
-				.then( () => {
-					adapter = new FileAdapter( { dataSource: "../data" } );
-
-					Person = Model.define( "people", {
-						name: { type: "string" },
-						age: { type: "int" },
-					}, null, adapter );
-
-					return PromiseUtil.each( [
-						{ name: "Jane Doe", age: 42 },
-						{ name: "John Doe", age: 23 },
-						{ name: "Foo Bar", age: 65 },
-					], ( { name, age } ) => {
-						const item = new Person();
-						item.name = name;
-						item.age = age;
-
-						return item.save();
+						matches[0].should.be.instanceOf( Person );
+						matches[0].should.have.property( "age" ).which.is.equal( 23 );
 					} );
-				} );
-		} );
-
-		test( "is exposing same function `findByAttribute()`", function() {
-			Person.should.have.property( "findByAttribute" ).which.is.a.Function().and.is.equal( Collection.findByAttribute );
-		} );
-
-		test( "supports finding instances of model by attribute", function() {
-			return Person.findByAttribute( "name", "John Doe" )
-				.then( matches => {
-					matches.should.be.an.Array().which.has.length( 1 );
-
-					matches[0].should.be.instanceOf( Person );
-					matches[0].should.have.property( "age" ).which.is.equal( 23 );
-				} );
+			} );
 		} );
 	} );
 } );

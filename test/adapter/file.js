@@ -27,9 +27,10 @@
  */
 
 
+const Path = require( "path" );
 const { Readable } = require( "stream" );
 
-const { suite, test } = require( "mocha" );
+const { describe, it, before, after, beforeEach, afterEach } = require( "mocha" );
 const Should = require( "should" );
 
 const { FileAdapter, Adapter } = require( "../../index" );
@@ -38,41 +39,32 @@ const { ptnUuid } = require( "../../lib/utility/uuid" );
 const { MkDir, RmDir } = require( "file-essentials" );
 
 
-const dataSource = "../data";
+const dataSource = Path.resolve( __dirname, "../data" );
 
-suite( "FileAdapter", function() {
-	suiteSetup( function() {
-		process.chdir( __dirname );
+describe( "FileAdapter", function() {
+	before( () => MkDir( Path.resolve( __dirname, ".." ), "data" ) );
+	after( () => RmDir( dataSource ) );
 
-		return MkDir( "..", "data" );
-	} );
-
-	suiteTeardown( function() {
-		return RmDir( dataSource );
-	} );
-
-	teardown( function() {
-		return RmDir( dataSource, { subsOnly: true } );
-	} );
+	afterEach( () => RmDir( dataSource, { subsOnly: true } ) );
 
 
-	test( "is exposed in property `FileAdapter`", function() {
+	it( "is exposed in property `FileAdapter`", function() {
 		Should( FileAdapter ).be.ok();
 	} );
 
-	test( "can be used to create instance", function() {
+	it( "can be used to create instance", function() {
 		( () => new FileAdapter() ).should.not.throw();
 	} );
 
-	test( "is derived from basic Adapter", function() {
+	it( "is derived from basic Adapter", function() {
 		new FileAdapter().should.be.instanceOf( Adapter );
 	} );
 
-	test( "is using /data for storing data files by default", function() {
-		new FileAdapter().dataSource.should.be.String().which.is.equal( "/data" );
+	it( "is using ./data for storing data files by default", function() {
+		return new FileAdapter().dataSource.should.be.Promise().which.is.resolvedWith( Path.resolve( "data" ) );
 	} );
 
-	test( "exposes instance methods of Adapter API", function() {
+	it( "exposes instance methods of Adapter API", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		instance.should.have.property( "create" ).which.is.a.Function().of.length( 2 );
@@ -85,12 +77,12 @@ suite( "FileAdapter", function() {
 		instance.should.have.property( "commit" ).which.is.a.Function().of.length( 0 );
 	} );
 
-	test( "exposes class/static methods of Adapter API", function() {
+	it( "exposes class/static methods of Adapter API", function() {
 		FileAdapter.should.have.property( "keyToPath" ).which.is.a.Function().of.length( 1 );
 		FileAdapter.should.have.property( "pathToKey" ).which.is.a.Function().of.length( 1 );
 	} );
 
-	test( "returns promise on invoking create() which is resolved with key of created record", function() {
+	it( "returns promise on invoking create() which is resolved with key of created record", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		const myData = { someProperty: "its value" };
@@ -107,7 +99,7 @@ suite( "FileAdapter", function() {
 			} );
 	} );
 
-	test( "returns promise on invoking read() which is rejected on missing record and resolved with data on existing record", function() {
+	it( "returns promise on invoking read() which is rejected on missing record and resolved with data on existing record", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		const myData = { someProperty: "its value" };
@@ -117,7 +109,7 @@ suite( "FileAdapter", function() {
 			.then( () => instance.read( "model/some-id" ).should.be.Promise().which.is.resolvedWith( myData ) );
 	} );
 
-	test( "promises provided fallback value on trying to read() missing record", function() {
+	it( "promises provided fallback value on trying to read() missing record", function() {
 		const instance = new FileAdapter();
 
 		const myFallbackData = { someProperty: "its value" };
@@ -126,7 +118,7 @@ suite( "FileAdapter", function() {
 			.then( () => instance.read( "model/some-id", { ifMissing: myFallbackData } ).should.be.Promise().which.is.resolvedWith( myFallbackData ) );
 	} );
 
-	test( "returns promise on invoking write() which is resolved with written data", function() {
+	it( "returns promise on invoking write() which is resolved with written data", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		const myData = { someProperty: "its value" };
@@ -137,7 +129,7 @@ suite( "FileAdapter", function() {
 			} );
 	} );
 
-	test( "returns promise on invoking has() which is resolved with information on having selected record or not", function() {
+	it( "returns promise on invoking has() which is resolved with information on having selected record or not", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		return instance.has( "model/some-id" ).should.be.Promise().which.is.resolvedWith( false )
@@ -145,7 +137,7 @@ suite( "FileAdapter", function() {
 			.then( () => instance.has( "model/some-id" ).should.be.Promise().which.is.resolvedWith( true ) );
 	} );
 
-	test( "returns promise on invoking remove() which is resolved with key of record no matter if record exists or not", function() {
+	it( "returns promise on invoking remove() which is resolved with key of record no matter if record exists or not", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		return instance.remove( "model/some-id" ).should.be.Promise().which.is.resolvedWith( "model/some-id" )
@@ -153,32 +145,31 @@ suite( "FileAdapter", function() {
 			.then( instance.remove( "model/some-id" ).should.be.Promise().which.is.resolvedWith( "model/some-id" ) );
 	} );
 
-	test( "returns promise on invoking begin() which is rejected due to lack of support for transactions", function() {
+	it( "returns promise on invoking begin() which is rejected due to lack of support for transactions", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		return instance.begin().should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking rollBack() which is rejected due to lack of support for transactions", function() {
+	it( "returns promise on invoking rollBack() which is rejected due to lack of support for transactions", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		return instance.rollBack().should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking commit() which is rejected due to lack of support for transactions", function() {
+	it( "returns promise on invoking commit() which is rejected due to lack of support for transactions", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		return instance.commit().should.be.Promise().which.is.rejected();
 	} );
 
-	suite( "provides `keyStream()` which", function() {
+	describe( "provides `keyStream()` which", function() {
 		let adapter;
 
-		setup( function() {
+		beforeEach( function() {
 			adapter = new FileAdapter( { dataSource: "../data" } );
 
-			return RmDir( adapter.dataSource )
-				.then( () => MkDir( "..", "data" ) )
+			return adapter.purge().then( () => adapter.dataSource )
 				.then( () => adapter.write( "some/key/without/uuid-1", { id: "first" } ) )
 				.then( () => adapter.write( "some/key/without/uuid-2", { id: "second" } ) )
 				.then( () => adapter.write( "some/other/key/without/uuid-3", { id: "third" } ) )
@@ -186,11 +177,11 @@ suite( "FileAdapter", function() {
 				.then( () => adapter.write( "some/key/with/uuid/00000000-0000-0000-0000-000000000000", { id: "fifth" } ) );
 		} );
 
-		test( "is a function", function() {
+		it( "is a function", function() {
 			adapter.should.have.property( "keyStream" ).which.is.a.Function();
 		} );
 
-		test( "returns a readable stream", function() {
+		it( "returns a readable stream", function() {
 			return new Promise( resolve => {
 				const stream = adapter.keyStream();
 
@@ -200,7 +191,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates keys of all records in selected datasource by default", function() {
+		it( "generates keys of all records in selected datasource by default", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream();
@@ -225,7 +216,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates keys of all records in selected datasource matching some selected prefix", function() {
+		it( "generates keys of all records in selected datasource matching some selected prefix", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -249,7 +240,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates no key if prefix doesn't select any folder or single record in backend", function() {
+		it( "generates no key if prefix doesn't select any folder or single record in backend", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -265,7 +256,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates no key if prefix partially matching key of some folder in backend, only", function() {
+		it( "generates no key if prefix partially matching key of some folder in backend, only", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -281,7 +272,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates some matching record's key used as prefix, only", function() {
+		it( "generates some matching record's key used as prefix, only", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -298,7 +289,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates keys of all records in selected datasource up to some requested maximum depth", function() {
+		it( "generates keys of all records in selected datasource up to some requested maximum depth", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -322,7 +313,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates keys of all records in selected datasource with requested maximum depth considered relative to given prefix", function() {
+		it( "generates keys of all records in selected datasource with requested maximum depth considered relative to given prefix", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -347,7 +338,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "obeys key depth instead of backend path depth which is higher due to splitting contained UUIDs into several segments", function() {
+		it( "obeys key depth instead of backend path depth which is higher due to splitting contained UUIDs into several segments", function() {
 			return adapter.write( "some/12345678-1234-1234-1234-1234567890ab", {} )
 				.then( () => adapter.write( "some/00000000-0000-0000-0000-000000000000", {} ) )
 				.then( () => adapter.write( "some/non-UUID", {} ) )
@@ -378,14 +369,13 @@ suite( "FileAdapter", function() {
 		} );
 	} );
 
-	suite( "provides `valueStream()` which", function() {
+	describe( "provides `valueStream()` which", function() {
 		let adapter;
 
-		setup( function() {
+		beforeEach( function() {
 			adapter = new FileAdapter( { dataSource: "../data" } );
 
-			return RmDir( adapter.dataSource )
-				.then( () => MkDir( "..", "data" ) )
+			return adapter.purge().then( () => adapter.dataSource.then( path => MkDir( path ) ) )
 				.then( () => adapter.write( "some/key/without/uuid-1", { id: "1st" } ) )
 				.then( () => adapter.write( "some/key/without/uuid-2", { id: "2nd" } ) )
 				.then( () => adapter.write( "some/other/key/without/uuid-3", { id: "3rd" } ) )
@@ -393,11 +383,11 @@ suite( "FileAdapter", function() {
 				.then( () => adapter.write( "some/key/with/uuid/00000000-0000-0000-0000-000000000000", { id: "5th" } ) );
 		} );
 
-		test( "is a function", function() {
+		it( "is a function", function() {
 			adapter.should.have.property( "valueStream" ).which.is.a.Function();
 		} );
 
-		test( "returns a readable stream", function() {
+		it( "returns a readable stream", function() {
 			return new Promise( resolve => {
 				const stream = adapter.valueStream();
 
@@ -407,7 +397,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates all records in selected datasource by default", function() {
+		it( "generates all records in selected datasource by default", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.valueStream();
@@ -434,7 +424,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates all records in selected datasource with key matching some selected prefix", function() {
+		it( "generates all records in selected datasource with key matching some selected prefix", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.valueStream( {
@@ -460,7 +450,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates no record if prefix doesn't match key of any folder or single record in backend", function() {
+		it( "generates no record if prefix doesn't match key of any folder or single record in backend", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.valueStream( {
@@ -476,7 +466,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates no record if prefix partially matching key of some folder in backend, only", function() {
+		it( "generates no record if prefix partially matching key of some folder in backend, only", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.valueStream( {
@@ -492,7 +482,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates record exactly matching key used as prefix, only", function() {
+		it( "generates record exactly matching key used as prefix, only", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.valueStream( {
@@ -509,7 +499,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates all records in selected datasource up to some requested maximum depth", function() {
+		it( "generates all records in selected datasource up to some requested maximum depth", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.valueStream( {
@@ -535,7 +525,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "generates all records in selected datasource with requested maximum depth considered relative to given prefix of keys", function() {
+		it( "generates all records in selected datasource with requested maximum depth considered relative to given prefix of keys", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.valueStream( {
@@ -562,7 +552,7 @@ suite( "FileAdapter", function() {
 			} );
 		} );
 
-		test( "obeys key depth instead of backend path depth which is higher due to splitting contained UUIDs into several segments", function() {
+		it( "obeys key depth instead of backend path depth which is higher due to splitting contained UUIDs into several segments", function() {
 			return adapter.write( "some/12345678-1234-1234-1234-1234567890ab", { id: "6th" } )
 				.then( () => adapter.write( "some/00000000-0000-0000-0000-000000000000", { id: "7th" } ) )
 				.then( () => adapter.write( "some/non-UUID", { id: "8th" } ) )
@@ -595,12 +585,12 @@ suite( "FileAdapter", function() {
 		} );
 	} );
 
-	test( "maps empty key empty path name", function() {
+	it( "maps empty key empty path name", function() {
 		FileAdapter.keyToPath( "" ).should.be.String().which.is.empty();
 	} );
 
-	suite( "considers keys segmented by forward slash and thus", function() {
-		test( "prefixes non-UUID segments with letter 's'", function() {
+	describe( "considers keys segmented by forward slash and thus", function() {
+		it( "prefixes non-UUID segments with letter 's'", function() {
 			FileAdapter.keyToPath( "a" ).should.be.String().which.is.equal( "sa" );
 			FileAdapter.keyToPath( "firstSegment" ).should.be.String().which.is.equal( "sfirstSegment" );
 
@@ -608,28 +598,28 @@ suite( "FileAdapter", function() {
 			FileAdapter.keyToPath( "first/Second" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "sfirst/sSecond" );
 		} );
 
-		test( "detects UUID segments to be split into three resulting segments each prefixed with letter 'p'", function() {
+		it( "detects UUID segments to be split into three resulting segments each prefixed with letter 'p'", function() {
 			FileAdapter.keyToPath( "12345678-1234-1234-1234-1234567890ab" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "p1/p23/p45678-1234-1234-1234-1234567890ab" );
 		} );
 
-		test( "properly marks UUID- and non-UUID-segments in a single path", function() {
+		it( "properly marks UUID- and non-UUID-segments in a single path", function() {
 			FileAdapter.keyToPath( "model/item/12345678-1234-1234-1234-1234567890ab/data" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "smodel/sitem/p1/p23/p45678-1234-1234-1234-1234567890ab/sdata" );
 		} );
 	} );
 
-	test( "maps empty path name to empty key", function() {
+	it( "maps empty path name to empty key", function() {
 		FileAdapter.pathToKey( "" ).should.be.String().which.is.empty();
 	} );
 
-	suite( "considers all segments of path name to be marked by prefix 'p' or 's' and thus", function() {
-		test( "rejects segments w/o such prefix", function() {
+	describe( "considers all segments of path name to be marked by prefix 'p' or 's' and thus", function() {
+		it( "rejects segments w/o such prefix", function() {
 			( () => FileAdapter.pathToKey( "a" ) ).should.throw();
 			( () => FileAdapter.pathToKey( "first" ) ).should.throw();
 			( () => FileAdapter.pathToKey( "a/b/c/d/e" ) ).should.throw();
 			( () => FileAdapter.pathToKey( "a\\b\\c\\d\\e" ) ).should.throw();
 		} );
 
-		test( "accepts segments prefixed w/ wrong case of marking letters", function() {
+		it( "accepts segments prefixed w/ wrong case of marking letters", function() {
 			( () => FileAdapter.pathToKey( "Sa" ) ).should.not.throw();
 			( () => FileAdapter.pathToKey( "sa" ) ).should.not.throw();
 			( () => FileAdapter.pathToKey( "Sfirst" ) ).should.not.throw();
@@ -640,7 +630,7 @@ suite( "FileAdapter", function() {
 			( () => FileAdapter.pathToKey( "sa\\sb\\sc\\sd\\se" ) ).should.not.throw();
 		} );
 
-		test( "always requires three successive segments marked with 'p'", function() {
+		it( "always requires three successive segments marked with 'p'", function() {
 			( () => FileAdapter.pathToKey( "Pa" ) ).should.throw();
 			( () => FileAdapter.pathToKey( "pa" ) ).should.throw();
 			( () => FileAdapter.pathToKey( "Pfirst" ) ).should.throw();
@@ -690,7 +680,7 @@ suite( "FileAdapter", function() {
 			( () => FileAdapter.pathToKey( "s0\\pa\\pb\\s1\\pc\\pd\\pe\\pf\\s2" ) ).should.throw();
 		} );
 
-		test( "removes prefix 's' from segments on conversion", function() {
+		it( "removes prefix 's' from segments on conversion", function() {
 			FileAdapter.pathToKey( "sa" ).should.be.String().which.is.equal( "a" );
 			FileAdapter.pathToKey( "sfirstSegment" ).should.be.String().which.is.equal( "firstSegment" );
 			FileAdapter.pathToKey( "Sa" ).should.be.String().which.is.equal( "a" );
@@ -702,28 +692,28 @@ suite( "FileAdapter", function() {
 			FileAdapter.pathToKey( "Sfirst/SSecond" ).should.be.String().which.is.equal( "first/Second" );
 		} );
 
-		test( "maps any OS-specific path name separator to forwards slash", function() {
+		it( "maps any OS-specific path name separator to forwards slash", function() {
 			FileAdapter.pathToKey( "sa\\sb\\sc\\sd\\se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
 			FileAdapter.pathToKey( "sfirst\\sSecond" ).should.be.String().which.is.equal( "first/Second" );
 			FileAdapter.pathToKey( "Sa\\Sb\\Sc\\Sd\\Se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
 			FileAdapter.pathToKey( "Sfirst\\SSecond" ).should.be.String().which.is.equal( "first/Second" );
 		} );
 
-		test( "joins split segments marked with prefix 'p' back into one", function() {
+		it( "joins split segments marked with prefix 'p' back into one", function() {
 			FileAdapter.pathToKey( "p1/p23/p45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
 			FileAdapter.pathToKey( "P1/P23/P45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
 			FileAdapter.pathToKey( "p1\\p23\\p45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
 			FileAdapter.pathToKey( "P1\\P23\\P45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
 		} );
 
-		test( "does not check if joining split segments marked with prefix 'p' back into one results in valid UUID", function() {
+		it( "does not check if joining split segments marked with prefix 'p' back into one results in valid UUID", function() {
 			FileAdapter.pathToKey( "p1/p2/p4" ).should.be.String().which.is.equal( "124" );
 			FileAdapter.pathToKey( "P1/P2/P4" ).should.be.String().which.is.equal( "124" );
 			FileAdapter.pathToKey( "p1\\p2\\p4" ).should.be.String().which.is.equal( "124" );
 			FileAdapter.pathToKey( "P1\\P2\\P4" ).should.be.String().which.is.equal( "124" );
 		} );
 
-		test( "rejects to join split segments on missing some required segments", function() {
+		it( "rejects to join split segments on missing some required segments", function() {
 			( () => FileAdapter.pathToKey( "p1" ) ).should.throw();
 			( () => FileAdapter.pathToKey( "P1" ) ).should.throw();
 			( () => FileAdapter.pathToKey( "p1" ) ).should.throw();
@@ -740,7 +730,7 @@ suite( "FileAdapter", function() {
 			( () => FileAdapter.pathToKey( "P1\\P2\\P4" ) ).should.not.throw();
 		} );
 
-		test( "properly handles path names mixing segments marked with 's' and 'p'", function() {
+		it( "properly handles path names mixing segments marked with 's' and 'p'", function() {
 			FileAdapter.pathToKey( "smodel/sItem/p1/P23/p45678-1234-1234-1234-1234567890ab/Sdata" )
 				.should.be.String().which.is.equal( "model/Item/12345678-1234-1234-1234-1234567890ab/data" );
 			FileAdapter.pathToKey( "smodel\\sItem\\p1\\P23\\p45678-1234-1234-1234-1234567890ab\\Sdata" )
@@ -748,7 +738,7 @@ suite( "FileAdapter", function() {
 		} );
 	} );
 
-	test( "properly recovers provided keys after mapping to path and back on a Linux-like OS", function() {
+	it( "properly recovers provided keys after mapping to path and back on a Linux-like OS", function() {
 		[
 			"01234567-89ab-cdef-fedc-ba9876543210",
 			"item/00000000-1111-2222-4444-888888888888",
@@ -761,7 +751,7 @@ suite( "FileAdapter", function() {
 		} );
 	} );
 
-	test( "properly recovers provided keys after mapping to path and back on a Win32-like OS", function() {
+	it( "properly recovers provided keys after mapping to path and back on a Win32-like OS", function() {
 		[
 			"01234567-89ab-cdef-fedc-ba9876543210",
 			"item/00000000-1111-2222-4444-888888888888",

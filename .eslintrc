@@ -1,6 +1,7 @@
 {
 	"extends": "eslint-config-cepharum",
 	"parserOptions": {
-		"sourceType": "module"
+		"sourceType": "module",
+		"ecmaVersion": 2018
 	}
 }

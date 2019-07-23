@@ -69,7 +69,7 @@ suite( "Model compiler", function() {
 		const fake = new Fake();
 
 		Object.defineProperties( fake, {
-			properties: { value: properties },
+			$properties: { value: properties },
 		} );
 
 		return fake;
@@ -164,7 +164,7 @@ suite( "Model compiler", function() {
 			( () => Compiler( "name", { prop: {} }, CustomBaseClass ) ).should.not.throw();
 		} );
 
-		test( "supports optional provision of base class derived from `Model` to become base class of defined Model implementation", function() {
+		test( "supports optional provision of adapter to use explicitly with resulting implementation of Model", function() {
 			( () => Compiler( "name", { prop: {} }, null ) ).should.not.throw();
 			( () => Compiler( "name", { prop: {} }, null, undefined ) ).should.not.throw();
 			( () => Compiler( "name", { prop: {} }, null, null ) ).should.not.throw();
@@ -779,9 +779,9 @@ suite( "Model compiler", function() {
 			let item = fakeModelInstance( { properties: { name: "John Doe", age: 42 }, attributes } );
 			let coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 2 );
-			item.properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
-			item.properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
+			item.$properties.should.have.size( 2 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
+			item.$properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
 
 
 			attributes = { name: { type: "string" }, age: { type: "int" }, active: { type: "bool" } };
@@ -790,18 +790,18 @@ suite( "Model compiler", function() {
 			item = fakeModelInstance( { properties: { name: "John Doe", age: 42, active: true }, attributes } );
 			coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 3 );
-			item.properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
-			item.properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
-			item.properties.should.have.ownProperty( "active" ).which.is.equal( true );
+			item.$properties.should.have.size( 3 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
+			item.$properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
+			item.$properties.should.have.ownProperty( "active" ).which.is.equal( true );
 
 			item = fakeModelInstance( { properties: { name: null, age: "42", active: 1 }, attributes } );
 			coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 3 );
-			item.properties.should.have.ownProperty( "name" ).which.is.null();
-			item.properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
-			item.properties.should.have.ownProperty( "active" ).which.is.equal( true );
+			item.$properties.should.have.size( 3 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.null();
+			item.$properties.should.have.ownProperty( "age" ).which.is.equal( 42 );
+			item.$properties.should.have.ownProperty( "active" ).which.is.equal( true );
 		} );
 
 		test( "returns non-empty function on non-empty definition adjusting defined properties in provided context, only", function() {
@@ -814,10 +814,10 @@ suite( "Model compiler", function() {
 			const item = fakeModelInstance( { properties: { name: "John Doe", age: "42", active: 1 }, attributes } );
 			const coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 3 );
-			item.properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
-			item.properties.should.have.ownProperty( "age" ).which.is.equal( "42" );
-			item.properties.should.have.ownProperty( "active" ).which.is.equal( 1 );
+			item.$properties.should.have.size( 3 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.equal( "John Doe" );
+			item.$properties.should.have.ownProperty( "age" ).which.is.equal( "42" );
+			item.$properties.should.have.ownProperty( "active" ).which.is.equal( 1 );
 		} );
 
 		test( "returns non-empty function on non-empty definition setting all defined properties `null` if unset", function() {
@@ -827,10 +827,10 @@ suite( "Model compiler", function() {
 			const item = fakeModelInstance( { attributes } );
 			const coerced = coercer.bind( item, attributes )();
 			Should.not.exist( coerced );
-			item.properties.should.have.size( 3 );
-			item.properties.should.have.ownProperty( "name" ).which.is.null();
-			item.properties.should.have.ownProperty( "age" ).which.is.null();
-			item.properties.should.have.ownProperty( "active" ).which.is.null();
+			item.$properties.should.have.size( 3 );
+			item.$properties.should.have.ownProperty( "name" ).which.is.null();
+			item.$properties.should.have.ownProperty( "age" ).which.is.null();
+			item.$properties.should.have.ownProperty( "active" ).which.is.null();
 		} );
 	} );
 
@@ -1102,56 +1102,70 @@ suite( "Model compiler", function() {
 	suite( "contains internal method for compiling definition of getters and setters for conveniently accessing defined and computed attributes of model which", function() {
 		const { compileGettersAndSetters } = Compiler._utility;
 
-		test( "requires two arguments", function() {
-			compileGettersAndSetters.should.be.a.Function().which.has.length( 2 );
+		test( "requires three arguments", function() {
+			compileGettersAndSetters.should.be.a.Function().which.has.length( 3 );
 
 			( () => compileGettersAndSetters() ).should.throw();
 			( () => compileGettersAndSetters( {} ) ).should.throw();
-			( () => compileGettersAndSetters( {}, {} ) ).should.not.throw();
+			( () => compileGettersAndSetters( {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, {} ) ).should.not.throw();
 		} );
 
-		test( "requires both arguments to be suitable for object-like processing", function() {
-			( () => compileGettersAndSetters( undefined, {} ) ).should.throw();
-			( () => compileGettersAndSetters( null, {} ) ).should.throw();
-			( () => compileGettersAndSetters( false, {} ) ).should.throw();
-			( () => compileGettersAndSetters( true, {} ) ).should.throw();
-			( () => compileGettersAndSetters( 0, {} ) ).should.throw();
-			( () => compileGettersAndSetters( 4.5, {} ) ).should.throw();
-			( () => compileGettersAndSetters( -3000, {} ) ).should.throw();
-			( () => compileGettersAndSetters( [], {} ) ).should.throw();
-			( () => compileGettersAndSetters( ["name"], {} ) ).should.throw();
-			( () => compileGettersAndSetters( () => "name", {} ) ).should.throw();
-			( () => compileGettersAndSetters( "", {} ) ).should.throw();
-			( () => compileGettersAndSetters( "name", {} ) ).should.throw();
+		test( "requires all arguments to be suitable for object-like processing", function() {
+			( () => compileGettersAndSetters( undefined, {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( null, {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( false, {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( true, {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( 0, {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( 4.5, {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( -3000, {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( [], {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( ["name"], {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( () => "name", {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( "", {}, {} ) ).should.throw();
+			( () => compileGettersAndSetters( "name", {}, {} ) ).should.throw();
 
-			( () => compileGettersAndSetters( {}, undefined ) ).should.throw();
-			( () => compileGettersAndSetters( {}, null ) ).should.throw();
-			( () => compileGettersAndSetters( {}, false ) ).should.throw();
-			( () => compileGettersAndSetters( {}, true ) ).should.throw();
-			( () => compileGettersAndSetters( {}, 0 ) ).should.throw();
-			( () => compileGettersAndSetters( {}, 4.5 ) ).should.throw();
-			( () => compileGettersAndSetters( {}, -3000 ) ).should.throw();
-			( () => compileGettersAndSetters( {}, [] ) ).should.throw();
-			( () => compileGettersAndSetters( {}, ["name"] ) ).should.throw();
-			( () => compileGettersAndSetters( {}, () => "name" ) ).should.throw();
-			( () => compileGettersAndSetters( {}, "" ) ).should.throw();
-			( () => compileGettersAndSetters( {}, "name" ) ).should.throw();
+			( () => compileGettersAndSetters( {}, undefined, {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, null, {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, false, {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, true, {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, 0, {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, 4.5, {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, -3000, {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, [], {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, ["name"], {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, () => "name", {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, "", {} ) ).should.throw();
+			( () => compileGettersAndSetters( {}, "name", {} ) ).should.throw();
 
-			( () => compileGettersAndSetters( {}, {} ) ).should.not.throw();
-			( () => compileGettersAndSetters( { name: "name" }, {} ) ).should.not.throw();
-			( () => compileGettersAndSetters( { name: {} }, {} ) ).should.not.throw();
-			( () => compileGettersAndSetters( {}, { name: "name" } ) ).should.not.throw();
-			( () => compileGettersAndSetters( {}, { name: {} } ) ).should.not.throw();
+			( () => compileGettersAndSetters( {}, {}, undefined ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, null ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, false ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, true ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, 0 ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, 4.5 ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, -3000 ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, [] ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, ["name"] ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, () => "name" ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, "" ) ).should.throw();
+			( () => compileGettersAndSetters( {}, {}, "name" ) ).should.throw();
+
+			( () => compileGettersAndSetters( {}, {}, {} ) ).should.not.throw();
+			( () => compileGettersAndSetters( {}, { name: "name" }, {} ) ).should.not.throw();
+			( () => compileGettersAndSetters( {}, { name: {} }, {} ) ).should.not.throw();
+			( () => compileGettersAndSetters( {}, {}, { name: "name" } ) ).should.not.throw();
+			( () => compileGettersAndSetters( {}, {}, { name: {} } ) ).should.not.throw();
 		} );
 
 		test( "returns an object", function() {
-			const map = compileGettersAndSetters( {}, {} );
+			const map = compileGettersAndSetters( {}, {}, {} );
 
 			map.should.be.Object();
 		} );
 
 		test( "returns empty object on providing empty sets of attributes and computeds", function() {
-			const map = compileGettersAndSetters( {}, {} );
+			const map = compileGettersAndSetters( {}, {}, {} );
 
 			map.should.be.Object().which.is.empty();
 		} );
@@ -1159,11 +1173,11 @@ suite( "Model compiler", function() {
 		test( "returns non-empty object listing entry for every attribute in provided definition", function() {
 			const attributes = { name: { type: "string" }, age: { type: "int" } };
 			const properties = { name: "Jane Doe", age: 23 };
-			const map = compileGettersAndSetters( attributes, {} );
+			const map = compileGettersAndSetters( {}, attributes, {} );
 
 			map.should.be.Object().which.has.size( 2 );
 
-			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.name.get.should.be.Function().which.has.length( 0 );
 			map.name.set.should.be.Function().which.has.length( 1 );
 
@@ -1171,7 +1185,7 @@ suite( "Model compiler", function() {
 			map.name.set.bind( fakeModelInstance( { properties } ), "Jill Doe" ).should.not.throw();
 			map.name.get.call( fakeModelInstance( { properties } ) ).should.be.equal( "Jill Doe" );
 
-			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.age.get.should.be.Function().which.has.length( 0 );
 			map.age.set.should.be.Function().which.has.length( 1 );
 
@@ -1184,25 +1198,25 @@ suite( "Model compiler", function() {
 			const computeds = {
 				name: function( ...args ) { // eslint-disable-line consistent-return
 					if ( args.length === 0 ) {
-						return this.properties.name.toUpperCase();
+						return this.$properties.name.toUpperCase();
 					}
 
-					this.properties.name = args[0];
+					this.$properties.name = args[0];
 				},
 				age: function( ...args ) { // eslint-disable-line consistent-return
 					if ( args.length === 0 ) {
-						return this.properties.age * 2;
+						return this.$properties.age * 2;
 					}
 
-					this.properties.age = args[0];
+					this.$properties.age = args[0];
 				}
 			};
 			const properties = { name: "Jane Doe", age: 23 };
-			const map = compileGettersAndSetters( {}, computeds );
+			const map = compileGettersAndSetters( {}, {}, computeds );
 
 			map.should.be.Object().which.has.size( 2 );
 
-			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.name.get.should.be.Function().which.has.length( 0 );
 			map.name.set.should.be.Function().which.has.length( 1 );
 
@@ -1210,7 +1224,7 @@ suite( "Model compiler", function() {
 			map.name.set.bind( fakeModelInstance( { properties } ), "Jill Doe" ).should.not.throw();
 			map.name.get.call( fakeModelInstance( { properties } ) ).should.be.equal( "JILL DOE" );
 
-			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.age.get.should.be.Function().which.has.length( 0 );
 			map.age.set.should.be.Function().which.has.length( 1 );
 
@@ -1223,11 +1237,11 @@ suite( "Model compiler", function() {
 			const attributes = { name: {}, age: {} };
 			const computeds = { name: () => "John Doe", age: () => 42, altName: () => "John Doe", size: () => 180 };
 			const properties = { name: "Jane Doe", age: 23 };
-			const map = compileGettersAndSetters( attributes, computeds );
+			const map = compileGettersAndSetters( {}, attributes, computeds );
 
 			map.should.be.Object().which.has.size( 4 );
 
-			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "name" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.name.get.should.be.Function().which.has.length( 0 );
 			map.name.set.should.be.Function().which.has.length( 1 );
 
@@ -1235,7 +1249,7 @@ suite( "Model compiler", function() {
 			map.name.set.bind( fakeModelInstance( { properties } ), "Jill Doe" ).should.not.throw();
 			map.name.get.call( fakeModelInstance( { properties } ) ).should.be.equal( "Jill Doe" );
 
-			map.should.have.ownProperty( "altName" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "altName" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.altName.get.should.be.Function().which.has.length( 0 );
 			map.altName.set.should.be.Function().which.has.length( 1 );
 
@@ -1243,7 +1257,7 @@ suite( "Model compiler", function() {
 			map.altName.set.bind( fakeModelInstance( { properties } ), "Jill Doe" ).should.not.throw();
 			map.altName.get.call( fakeModelInstance( { properties } ) ).should.be.equal( "John Doe" );
 
-			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "age" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.age.get.should.be.Function().which.has.length( 0 );
 			map.age.set.should.be.Function().which.has.length( 1 );
 
@@ -1251,7 +1265,7 @@ suite( "Model compiler", function() {
 			map.age.set.bind( fakeModelInstance( { properties } ), 25 ).should.not.throw();
 			map.age.get.call( fakeModelInstance( { properties } ) ).should.be.equal( 25 );
 
-			map.should.have.ownProperty( "size" ).which.is.an.Object().and.has.size( 2 ).and.has.properties( [ "get", "set" ] );
+			map.should.have.ownProperty( "size" ).which.is.an.Object().and.has.size( 3 ).and.has.properties( [ "get", "set", "enumerable" ] );
 			map.size.get.should.be.Function().which.has.length( 0 );
 			map.size.set.should.be.Function().which.has.length( 1 );
 
@@ -1261,13 +1275,19 @@ suite( "Model compiler", function() {
 		} );
 
 		test( "does not define getter/setter for attributes with names basically used by implementation of Model", function() {
-			compileGettersAndSetters( { prototype: {} }, {} ).should.be.Object().which.has.size( 0 );
-			compileGettersAndSetters( { constructor: {} }, {} ).should.be.Object().which.has.size( 0 );
-			compileGettersAndSetters( { super: {} }, {} ).should.be.Object().which.has.size( 0 );
-			compileGettersAndSetters( { exists: {} }, {} ).should.be.Object().which.has.size( 0 );
-			compileGettersAndSetters( { load: {} }, {} ).should.be.Object().which.has.size( 0 );
-			compileGettersAndSetters( { save: {} }, {} ).should.be.Object().which.has.size( 0 );
-			compileGettersAndSetters( { validate: {} }, {} ).should.be.Object().which.has.size( 0 );
+			compileGettersAndSetters( {}, { prototype: {} }, {} ).should.be.Object().which.has.size( 0 );
+			compileGettersAndSetters( {}, { constructor: {} }, {} ).should.be.Object().which.has.size( 0 );
+			compileGettersAndSetters( {}, { super: {} }, {} ).should.be.Object().which.has.size( 0 );
+			compileGettersAndSetters( {}, { exists: {} }, {} ).should.be.Object().which.has.size( 0 );
+			compileGettersAndSetters( {}, { load: {} }, {} ).should.be.Object().which.has.size( 0 );
+			compileGettersAndSetters( {}, { save: {} }, {} ).should.be.Object().which.has.size( 0 );
+			compileGettersAndSetters( {}, { validate: {} }, {} ).should.be.Object().which.has.size( 0 );
+		} );
+
+		test( "does not define getter/setter for attributes with names already existing in provided context", function() {
+			compileGettersAndSetters( {}, { accepted: {} }, {} ).should.be.Object().which.has.size( 1 );
+			compileGettersAndSetters( { accepted: false }, { accepted: {} }, {} ).should.be.Object().which.has.size( 0 );
+			compileGettersAndSetters( Object.defineProperty( {}, "accepted", { value: false } ), { accepted: {} }, {} ).should.be.Object().which.has.size( 0 );
 		} );
 	} );
 } );
