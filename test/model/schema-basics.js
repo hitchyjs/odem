@@ -27,48 +27,83 @@
  */
 
 
-const { suite, test } = require( "mocha" );
-const Should = require( "should" );
+const { describe, it } = require( "mocha" );
+require( "should" );
 
 const { Model } = require( "../../" );
 
 
-suite( "Models API", function() {
-	suite( "exposes method for defining custom models which", function() {
-		test( "is available", function() {
-			Should.exist( Model.define );
+describe( "Models API", () => {
+	const MostSimpleDefinition = { props: { label: {} } };
+
+	describe( "exposes method for defining custom models which", () => {
+		it( "is a function", () => {
 			Model.define.should.be.Function();
 		} );
 
-		test( "requires valid provision of new model's name", function() {
-			( () => Model.define() ).should.throw( TypeError );
-			( () => Model.define( null ) ).should.throw( TypeError );
-			( () => Model.define( undefined ) ).should.throw( TypeError );
-			( () => Model.define( true ) ).should.throw( TypeError );
-			( () => Model.define( false ) ).should.throw( TypeError );
-			( () => Model.define( 1 ) ).should.throw( TypeError );
-			( () => Model.define( 0.234 ) ).should.throw( TypeError );
-			( () => Model.define( {} ) ).should.throw( TypeError );
-			( () => Model.define( [] ) ).should.throw( TypeError );
-			( () => Model.define( () => {} ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
-			( () => Model.define( "" ) ).should.throw( TypeError );
+		it( "expects two parameters", () => {
+			Model.define.should.have.length( 2 );
 
-			const model = Model.define( "sOmeThingVeRyaRBiTrarY" );
+			( () => Model.define() ).should.throw( TypeError );
+			( () => Model.define( "valid" ) ).should.throw( TypeError );
+
+			( () => Model.define( "valid", MostSimpleDefinition ) ).should.not.throw();
+		} );
+
+		it( "requires valid provision of new model's name", () => {
+			( () => Model.define( null, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( undefined, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( true, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( false, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( 1, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( 0.234, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( {}, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( [], MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( () => {}, MostSimpleDefinition ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
+			( () => Model.define( "", MostSimpleDefinition ) ).should.throw( TypeError );
+
+			( () => Model.define( "sOmeThingVeRyaRBiTrarY", MostSimpleDefinition ) ).should.not.throw();
+		} );
+
+		it( "exposes resulting model's name as provided", () => {
+			const model = Model.define( "sOmeThingVeRyaRBiTrarY", MostSimpleDefinition );
 
 			model.name.should.equal( "sOmeThingVeRyaRBiTrarY" );
 		} );
 
-		test( "works with empty schema descriptor", function() {
-			const Item = Model.define( "Item", {} );
-
-			Item.should.not.equal( Model );
-			Item.prototype.should.be.instanceOf( Model );
-			Item.name.should.equal( "Item" );
+		it( "rejects empty schema definition", () => {
+			( () => Model.define( "Item", {} ) ).should.throw( TypeError );
 		} );
 
-		test( "takes existing model class for deriving new one from", function() {
-			const Stuff = Model.define( "Stuff", {} );
-			const Item = Model.define( "Item", {}, Stuff );
+		it( "rejects schema definition omitting section for defining properties", () => {
+			( () => Model.define( "Item", { methods: { fn: () => 0 } } ) ).should.throw( TypeError );
+
+			( () => Model.define( "Item", { methods: { fn: () => 0 }, props: { label: {} } } ) ).should.not.throw();
+		} );
+
+		it( "rejects schema definition including empty section for defining properties", () => {
+			( () => Model.define( "Item", { props: {} } ) ).should.throw( TypeError );
+
+			( () => Model.define( "Item", { props: { label: {} } } ) ).should.not.throw();
+		} );
+
+		it( "rejects schema definition including definition of property using wrong type of information", () => {
+			( () => Model.define( "Item", { props: { label: null } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: false } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: true } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: 1 } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: "" } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: "string" } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: () => {} } } ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
+			( () => Model.define( "Item", { props: { label: [] } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: ["string"] } } ) ).should.throw( TypeError );
+
+			( () => Model.define( "Item", { props: { label: {} } } ) ).should.not.throw();
+		} );
+
+		it( "supports provision of existing model class for deriving new one from", () => {
+			const Stuff = Model.define( "Stuff", MostSimpleDefinition );
+			const Item = Model.define( "Item", MostSimpleDefinition, Stuff );
 
 			Item.should.not.equal( Stuff );
 			Item.should.not.equal( Model );
@@ -76,38 +111,45 @@ suite( "Models API", function() {
 			Item.prototype.should.be.instanceof( Model );
 		} );
 
-		test( "requires given model class for deriving new one from to inherit from AbstractModel", function() {
-			function OldStyle() {} // eslint-disable-line no-empty-function, require-jsdoc
-			class NewStyle {} // eslint-disable-line require-jsdoc
+		it( "rejects to derive from anything but another model class", () => {
+			function OldStyleBad() {} // eslint-disable-line no-empty-function, require-jsdoc
+			class NewStyleBad {} // eslint-disable-line require-jsdoc
 
-			( () => Model.define( "Item", {}, OldStyle ) ).should.throw();
-			( () => Model.define( "Item", {}, NewStyle ) ).should.throw();
-			( () => Model.define( "Item", {}, Array ) ).should.throw();
-			( () => Model.define( "Item", {}, Date ) ).should.throw();
-			( () => Model.define( "Item", {}, Map ) ).should.throw();
+			class NewStyleGood extends Model {} // eslint-disable-line require-jsdoc
+
+			( () => Model.define( "Stuff", MostSimpleDefinition, Object ) ).should.throw( TypeError );
+			( () => Model.define( "Stuff", MostSimpleDefinition, Array ) ).should.throw( TypeError );
+			( () => Model.define( "Stuff", MostSimpleDefinition, Function ) ).should.throw( TypeError );
+			( () => Model.define( "Stuff", MostSimpleDefinition, Promise ) ).should.throw( TypeError );
+			( () => Model.define( "Stuff", MostSimpleDefinition, Map ) ).should.throw( TypeError );
+
+			( () => Model.define( "Item", MostSimpleDefinition, OldStyleBad ) ).should.throw( TypeError );
+			( () => Model.define( "Item", MostSimpleDefinition, NewStyleBad ) ).should.throw( TypeError );
+
+			( () => Model.define( "Item", MostSimpleDefinition, NewStyleGood ) ).should.not.throw();
 		} );
 
-		test( "returns model exposing processed schema information", function() {
-			const Item = Model.define( "Item" );
+		it( "returns defined model", () => {
+			const Item = Model.define( "Item", { props: { label: {} } } );
 
-			Item.schema.should.be.Object().which.has.properties( "attributes", "computeds", "hooks" );
-			Item.schema.attributes.should.be.empty();
-			Item.schema.computeds.should.be.empty();
-			Item.schema.hooks.should.be.empty();
+			Item.prototype.should.be.instanceOf( Model );
 		} );
 
-		test( "accepts schema defining attributes of type `string`(implicitly)", function() {
+		it( "accepts schema defining attributes of type `string` (implicitly)", () => {
 			const Item = Model.define( "Item", {
-				label: {},
-				alias: {},
+				props: {
+					label: {},
+					alias: {},
+				},
 			} );
 
-			Item.schema.should.be.Object().which.has.properties( "attributes", "computeds", "hooks" );
-			Item.schema.attributes.should.not.be.empty();
-			Item.schema.attributes.should.have.size( 2 );
-			Item.schema.attributes.should.have.ownProperty( "label" ).which.has.property( "type" ).which.is.equal( "string" );
-			Item.schema.attributes.should.have.ownProperty( "alias" ).which.has.property( "type" ).which.is.equal( "string" );
-			Item.schema.computeds.should.be.empty();
+			Item.schema.should.be.Object().which.has.properties( "props", "computed", "methods", "hooks" );
+			Item.schema.props.should.not.be.empty();
+			Item.schema.props.should.have.size( 2 );
+			Item.schema.props.should.have.ownProperty( "label" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.props.should.have.ownProperty( "alias" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.computed.should.be.empty();
+			Item.schema.methods.should.be.empty();
 			Item.schema.hooks.should.be.empty();
 		} );
 	} );
