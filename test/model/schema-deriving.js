@@ -27,141 +27,165 @@
  */
 
 
-const { suite, test } = require( "mocha" );
+const { describe, it, before } = require( "mocha" );
 require( "should" );
 
 const { Model } = require( "../../" );
 
 
-suite( "Deriving a model", function() {
+describe( "Deriving a model", () => {
 	let Root, Intermittent, Sub;
 
-	suiteSetup( "defining models", () => {
+	before( "defining models", () => {
 		Root = Model.define( "root", {
-			rootName: {},
-			name: {},
-			rootConverted: item => `root: ${item.rootName}`,
-			converted: item => `root: ${item.rootName}`,
+			props: {
+				rootName: {},
+				name: {},
+			},
+			computed: {
+				rootConverted() { return `root: ${this.rootName}`; },
+				converted() { return `root: ${this.rootName}`; },
+			},
+			methods: {
+				rootProcessed() { return `root processed: ${this.rootName}`; },
+				processed() { return `root processed: ${this.rootName}`; },
+			},
 		} );
 
 		Intermittent = Model.define( "intermittent", {
-			intermittentName: {},
-			name: { type: "number" },
-			intermittentConverted: item => `intermittent: ${item.rootName}`,
-			converted: item => `intermittent: ${item.intermittentName}`,
+			props: {
+				intermittentName: {},
+				name: { type: "number" },
+			},
+			computed: {
+				intermittentConverted() { return `intermittent: ${this.rootName}`; },
+				converted() { return `intermittent: ${this.intermittentName}`; },
+			},
+			methods: {
+				intermittentProcessed() { return `intermittent processed: ${this.rootName}`; },
+				processed() { return `intermittent processed: ${this.rootName}`; },
+			},
 		}, Root );
 
 		Sub = Model.define( "sub", {
-			subName: {},
-			name: { type: "integer" },
-			subConverted: item => `sub: ${item.rootName}`,
-			converted: item => `sub: ${item.subName}`,
+			props: {
+				subName: {},
+				name: { type: "integer" },
+			},
+			computed: {
+				subConverted() { return `sub: ${this.rootName}`; },
+				converted() { return `sub: ${this.subName}`; },
+			},
+			methods: {
+				subProcessed() { return `sub processed: ${this.rootName}`; },
+				processed() { return `sub processed: ${this.subName}`; },
+			},
 		}, Intermittent );
 	} );
 
-	test( "results in all defined models derive from Model", function() {
+	it( "results in all defined models derive from Model", () => {
 		Root.prototype.should.be.instanceOf( Model );
 		Intermittent.prototype.should.be.instanceOf( Model );
 		Sub.prototype.should.be.instanceOf( Model );
 	} );
 
-	test( "results in derived models derive from Root", function() {
+	it( "results in derived models derive from Root", () => {
 		Root.prototype.should.not.be.instanceOf( Root );
 		Intermittent.prototype.should.be.instanceOf( Root );
 		Sub.prototype.should.be.instanceOf( Root );
 	} );
 
-	test( "results in deepest model derive from Intermittent", function() {
+	it( "results in deepest model derive from Intermittent", () => {
 		Root.prototype.should.not.be.instanceOf( Intermittent );
 		Intermittent.prototype.should.not.be.instanceOf( Intermittent );
 		Sub.prototype.should.be.instanceOf( Intermittent );
 	} );
 
-	test( "results in instance of either model being instance of Model", function() {
+	it( "results in instance of either model being instance of Model", () => {
 		( new Root ).should.be.instanceOf( Model );
 		( new Intermittent ).should.be.instanceOf( Model );
 		( new Sub ).should.be.instanceOf( Model );
 	} );
 
-	test( "results in instance of either model being instance of Root", function() {
+	it( "results in instance of either model being instance of Root", () => {
 		( new Root ).should.be.instanceOf( Root );
 		( new Intermittent ).should.be.instanceOf( Root );
 		( new Sub ).should.be.instanceOf( Root );
 	} );
 
-	test( "results in instance of derived models being instance of Intermittent", function() {
+	it( "results in instance of derived models being instance of Intermittent", () => {
 		( new Root ).should.not.be.instanceOf( Intermittent );
 		( new Intermittent ).should.be.instanceOf( Intermittent );
 		( new Sub ).should.be.instanceOf( Intermittent );
 	} );
 
-	test( "results in instance of deepest model being instance of Sub, only", function() {
+	it( "results in instance of deepest model being instance of Sub, only", () => {
 		( new Root ).should.not.be.instanceOf( Sub );
 		( new Intermittent ).should.not.be.instanceOf( Sub );
 		( new Sub ).should.be.instanceOf( Sub );
 	} );
 
-	test( "results in either model's class exposing its defined name", function() {
+	it( "results in either model's class exposing its defined name", () => {
 		Root.name.should.be.equal( "root" );
 		Intermittent.name.should.be.equal( "intermittent" );
 		Sub.name.should.be.equal( "sub" );
 	} );
 
-	test( "results in either model's class exposing reference on class it derives from", function() {
+	it( "results in either model's class exposing reference on class it derives from", () => {
 		Root.derivesFrom.should.be.equal( Model );
 		Intermittent.derivesFrom.should.be.equal( Root );
 		Sub.derivesFrom.should.be.equal( Intermittent );
 	} );
 
-	test( "results in schema of a derived model exposing non-overloaded attributes of its base classes", function() {
-		Root.schema.attributes.should.have.property( "rootName" );
-		Root.schema.attributes.should.not.have.property( "intermittentName" );
-		Root.schema.attributes.should.not.have.property( "subName" );
+	it( "results in schema of a derived model exposing non-overloaded properties of its base classes", () => {
+		Root.schema.props.should.have.property( "rootName" );
+		Root.schema.props.should.not.have.property( "intermittentName" );
+		Root.schema.props.should.not.have.property( "subName" );
 
-		Intermittent.schema.attributes.should.have.property( "rootName" );
-		Intermittent.schema.attributes.should.have.property( "intermittentName" );
-		Intermittent.schema.attributes.should.not.have.property( "subName" );
+		Intermittent.schema.props.should.have.property( "rootName" );
+		Intermittent.schema.props.should.have.property( "intermittentName" );
+		Intermittent.schema.props.should.not.have.property( "subName" );
 
-		Sub.schema.attributes.should.have.property( "rootName" );
-		Sub.schema.attributes.should.have.property( "intermittentName" );
-		Sub.schema.attributes.should.have.property( "subName" );
+		Sub.schema.props.should.have.property( "rootName" );
+		Sub.schema.props.should.have.property( "intermittentName" );
+		Sub.schema.props.should.have.property( "subName" );
 	} );
 
-	test( "results in schema of a derived model exposing attributes of its base classes overloaded", function() {
-		Root.schema.attributes.should.have.property( "name" );
-		Intermittent.schema.attributes.should.have.property( "name" );
-		Sub.schema.attributes.should.have.property( "name" );
+	it( "results in schema of a derived model exposing properties of its base classes overloaded", () => {
+		Root.schema.props.should.have.property( "name" );
+		Intermittent.schema.props.should.have.property( "name" );
+		Sub.schema.props.should.have.property( "name" );
 
-		Root.schema.attributes.name.type.should.be.equal( "string" );
-		Intermittent.schema.attributes.name.type.should.be.equal( "number" );
-		Sub.schema.attributes.name.type.should.be.equal( "integer" );
+		Root.schema.props.name.type.should.be.equal( "string" );
+		Intermittent.schema.props.name.type.should.be.equal( "number" );
+		Sub.schema.props.name.type.should.be.equal( "integer" );
 	} );
 
-	test( "results in schema of a derived model exposing non-overloaded attributes of its base classes", function() {
-		Root.schema.attributes.should.have.property( "rootName" );
-		Root.schema.attributes.should.not.have.property( "intermittentName" );
-		Root.schema.attributes.should.not.have.property( "subName" );
+	it( "results in schema of a derived model exposing non-overloaded properties of its base classes", () => {
+		Root.schema.props.should.have.property( "rootName" );
+		Root.schema.props.should.not.have.property( "intermittentName" );
+		Root.schema.props.should.not.have.property( "subName" );
 
-		Intermittent.schema.attributes.should.have.property( "rootName" );
-		Intermittent.schema.attributes.should.have.property( "intermittentName" );
-		Intermittent.schema.attributes.should.not.have.property( "subName" );
+		Intermittent.schema.props.should.have.property( "rootName" );
+		Intermittent.schema.props.should.have.property( "intermittentName" );
+		Intermittent.schema.props.should.not.have.property( "subName" );
 
-		Sub.schema.attributes.should.have.property( "rootName" );
-		Sub.schema.attributes.should.have.property( "intermittentName" );
-		Sub.schema.attributes.should.have.property( "subName" );
+		Sub.schema.props.should.have.property( "rootName" );
+		Sub.schema.props.should.have.property( "intermittentName" );
+		Sub.schema.props.should.have.property( "subName" );
 	} );
 
-	test( "results in schema of a derived model exposing attributes of its base classes overloaded", function() {
-		Root.schema.attributes.should.have.property( "name" );
-		Intermittent.schema.attributes.should.have.property( "name" );
-		Sub.schema.attributes.should.have.property( "name" );
+	it( "results in schema of a derived model exposing properties of its base classes overloaded", () => {
+		Root.schema.props.should.have.property( "name" );
+		Intermittent.schema.props.should.have.property( "name" );
+		Sub.schema.props.should.have.property( "name" );
 
-		Root.schema.attributes.name.type.should.be.equal( "string" );
-		Intermittent.schema.attributes.name.type.should.be.equal( "number" );
-		Sub.schema.attributes.name.type.should.be.equal( "integer" );
+		Root.schema.props.name.type.should.be.equal( "string" );
+		Intermittent.schema.props.name.type.should.be.equal( "number" );
+		Sub.schema.props.name.type.should.be.equal( "integer" );
 	} );
 
-	test( "results in derived model's instances exposing own properties and all non-overloaded properties of derived models", function() {
+	it( "results in derived model's instances exposing own properties and all non-overloaded properties of derived models", () => {
 		( new Root ).should.have.property( "rootName" );
 		( new Root ).should.have.property( "name" );
 		( new Root ).should.not.have.property( "intermittentName" );
@@ -178,13 +202,30 @@ suite( "Deriving a model", function() {
 		( new Sub ).should.have.property( "subName" );
 	} );
 
-	test( "re-defines overloaded properties in prototype of deriving model", function() {
+	it( "results in derived model's instances exposing own computed properties and all non-overloaded computed properties of derived models", () => {
+		( new Root ).should.have.property( "rootConverted" );
+		( new Root ).should.have.property( "converted" );
+		( new Root ).should.not.have.property( "intermittentConverted" );
+		( new Root ).should.not.have.property( "subConverted" );
+
+		( new Intermittent ).should.have.property( "rootConverted" );
+		( new Intermittent ).should.have.property( "converted" );
+		( new Intermittent ).should.have.property( "intermittentConverted" );
+		( new Intermittent ).should.not.have.property( "subConverted" );
+
+		( new Sub ).should.have.property( "rootConverted" );
+		( new Sub ).should.have.property( "converted" );
+		( new Sub ).should.have.property( "intermittentConverted" );
+		( new Sub ).should.have.property( "subConverted" );
+	} );
+
+	it( "re-defines overloaded properties in prototype of deriving model", () => {
 		Object.getOwnPropertyNames( Root.prototype ).should.containEql( "name" );
 		Object.getOwnPropertyNames( Intermittent.prototype ).should.containEql( "name" );
 		Object.getOwnPropertyNames( Sub.prototype ).should.containEql( "name" );
 	} );
 
-	test( "doesn't re-define non-overloaded properties in prototype of deriving model but relies on prototype chain", function() {
+	it( "doesn't re-define non-overloaded properties in prototype of deriving model but relies on prototype chain", () => {
 		Object.getOwnPropertyNames( Root.prototype ).should.containEql( "rootName" );
 		Object.getOwnPropertyNames( Intermittent.prototype ).should.not.containEql( "rootName" );
 		Object.getOwnPropertyNames( Sub.prototype ).should.not.containEql( "rootName" );

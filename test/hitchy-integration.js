@@ -57,7 +57,7 @@ describe( "Integration with hitchy", () => {
 
 		it( "replaces existing models in provided set of model definitions with either model's implementation", () => {
 			const models = {
-				SomeModel: {},
+				SomeModel: { props: { a: {} } },
 			};
 
 			const defined = processDiscoveredModelDefinitions( Object.assign( {}, models ), new MemoryAdapter() );
@@ -71,9 +71,9 @@ describe( "Integration with hitchy", () => {
 			( () => processDiscoveredModelDefinitions( {}, new MemoryAdapter() ) ).should.not.throw();
 		} );
 
-		it( "defines single model `sole` with single string attribute named `sole` using old style with separate sections", () => {
+		it( "defines single model `sole` with single string attribute named `sole`", () => {
 			const models = processDiscoveredModelDefinitions( {
-				sole: { attributes: { sole: {} } },
+				sole: { props: { sole: {} } },
 			}, new MemoryAdapter() );
 
 			models.should.have.property( "sole" );

@@ -30,10 +30,12 @@ module.exports = {
 	evergreen: true,
 	title: "Hitchy ODM Manual",
 	themeConfig: {
+		displayAllHeaders: true,
 		sidebar: "auto",
 		nav: [
-			{ name: "Home", link: "/" },
-			{ name: "Guides", link: "guides/" },
+			{ text: "Home", link: "/" },
+			{ text: "Guides", link: "guides/" },
+			{ text: "API", link: "api/" },
 		],
 	},
 };

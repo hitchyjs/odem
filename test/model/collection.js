@@ -49,8 +49,10 @@ describe( "Model API regarding a model's collection of items", () => {
 				adapter = new MemoryAdapter();
 
 				Person = Model.define( "people", {
-					name: { type: "string" },
-					age: { type: "int" },
+					props: {
+						name: { type: "string" },
+						age: { type: "int" },
+					},
 				}, null, adapter );
 
 				return PromiseUtil.each( [
