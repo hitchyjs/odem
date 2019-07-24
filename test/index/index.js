@@ -26,13 +26,13 @@
  * @author: cepharum
  */
 
-const { suite, test } = require( "mocha" );
+const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 const uuid = require( "../../lib/utility/uuid" );
 
 const Index = require( "../../lib/index/index" );
 
-suite( "Index", function() {
+describe( "Index", function() {
 	const uuids = new Array( 6 );
 	before( "generating uuids", function() {
 		const Promises = new Array( 6 );
@@ -44,51 +44,53 @@ suite( "Index", function() {
 		return Promise.all( Promises );
 	} );
 
-	test( "is exposed`", function() {
+	it( "is exposed`", function() {
 		Should( Index ).be.ok();
 	} );
 
-	test( "can be used to create instance", function() {
-		( () => new Index() ).should.not.throw();
+	it( "can be used to create instance", function() {
+		( () => new Index( { revision: 0 } ) ).should.not.throw();
 	} );
 
-	test( "exposes instance methods", function() {
-		const instance = new Index();
+	it( "exposes instance methods", function() {
+		const instance = new Index( { revision: 0 } );
 		instance.should.have.property( "add" ).which.is.a.Function().of.length( 2 );
 		instance.should.have.property( "find" ).which.is.a.Function().of.length( 1 );
 		instance.should.have.property( "delete" ).which.is.a.Function().of.length( 2 );
 		instance.should.have.property( "findBetween" ).which.is.a.Function().of.length( 0 );
+		instance.should.have.property( "checkRevision" ).which.is.a.Function().of.length( 0 );
+		instance.should.have.property( "reOrg" ).which.is.a.Function().of.length( 1 );
 	} );
 
-	suite( "returns 0 or 1 when on invoking insert", function() {
-		const instance = new Index();
-		test( "0 if new index entry was added", () => {
+	describe( "returns 0 or 1 when on invoking insert", function() {
+		const instance = new Index( { revision: 0 }  );
+		it( "0 if new index entry was added", () => {
 			instance.add( 1, uuids[1] ).should.be.equal( 1 );
 		} );
 
-		test( "1 if existing index entry was modified", () => {
+		it( "1 if existing index entry was modified", () => {
 			instance.add( 1, uuids[2] ).should.be.equal( 0 );
 		} );
 	} );
 
-	suite( "find", function() {
-		const instance = new Index();
+	describe( "find", function() {
+		const instance = new Index( { revision: 0 } );
 		before( "", function() {
 			instance.add( 2, uuids[3] );
 			instance.add( 2, uuids[4] );
 		} );
-		test( "returns generator on invoking " ,function f() {
+		it( "returns generator on invoking " ,function f() {
 			const gen = instance.find( 2 );
 			gen.should.be.a.Function();
 		} );
-		test( "that returns values in ascending order", function() {
+		it( "that returns values in ascending order", function() {
 			const gen = instance.find( 2 );
 			const generator = gen();
 			generator.next().value[0].should.be.equal( uuids[3] );
 			generator.next().value[0].should.be.equal( uuids[4] );
 		} );
 
-		test( "that can return values in descending order", function() {
+		it( "that can return values in descending order", function() {
 			const gen = instance.find( 2, true );
 			const generator = gen();
 			generator.next().value[0].should.be.equal( uuids[4] );
@@ -96,8 +98,8 @@ suite( "Index", function() {
 		} );
 	} );
 
-	suite( "findBetween", function() {
-		const instance = new Index();
+	describe( "findBetween", function() {
+		const instance = new Index( { revision: 0 } );
 		before( "", function() {
 			instance.add( 1, uuids[1] );
 			instance.add( 2, uuids[2] );
@@ -105,11 +107,11 @@ suite( "Index", function() {
 			instance.add( 4, uuids[4] );
 			instance.add( 4, uuids[5] );
 		} );
-		test( "returns generator on invoking " ,function f() {
+		it( "returns generator on invoking " ,function f() {
 			const gen = instance.findBetween( { lowerLimit: 0, upperLimit: 6 } );
 			gen.should.be.a.Function();
 		} );
-		test( "that returns values in ascending order", function() {
+		it( "that returns values in ascending order", function() {
 			const gen = instance.findBetween();
 			const generator = gen();
 			generator.next().value[0].should.be.equal( uuids[1] );
@@ -118,7 +120,7 @@ suite( "Index", function() {
 			generator.next().value[0].should.be.equal( uuids[4] );
 			generator.next().value[0].should.be.equal( uuids[5] );
 		} );
-		test( "that returns values in a range", function() {
+		it( "that returns values in a range", function() {
 			const gen = instance.findBetween( { lowerLimit: 2, upperLimit: 6 } );
 			const generator = gen();
 			generator.next().value[0].should.be.equal( uuids[2] );
@@ -126,7 +128,7 @@ suite( "Index", function() {
 			generator.next().value[0].should.be.equal( uuids[4] );
 			generator.next().value[0].should.be.equal( uuids[5] );
 		} );
-		test( "that returns values in descending order", function() {
+		it( "that returns values in descending order", function() {
 			const gen = instance.findBetween( { descending: true } );
 			const generator = gen();
 			generator.next().value[0].should.be.equal( uuids[5] );
@@ -135,7 +137,7 @@ suite( "Index", function() {
 			generator.next().value[0].should.be.equal( uuids[2] );
 			generator.next().value[0].should.be.equal( uuids[1] );
 		} );
-		test( "that returns values in a range in descending order", function() {
+		it( "that returns values in a range in descending order", function() {
 			const gen = instance.findBetween( { lowerLimit: 1, upperLimit: 3, descending: true } );
 			const generator = gen();
 			generator.next().value[0].should.be.equal( uuids[3] );
@@ -144,8 +146,8 @@ suite( "Index", function() {
 		} );
 	} );
 
-	suite( "delete", function() {
-		const instance = new Index();
+	describe( "delete", function() {
+		const instance = new Index( { revision: 0 } );
 		before( "", function() {
 			instance.add( 1,uuids[1] );
 			instance.add( 2,uuids[2] );
@@ -153,21 +155,72 @@ suite( "Index", function() {
 			instance.add( 4,uuids[4] );
 			instance.add( 4,uuids[5] );
 		} );
-		test( "returns 0 or 1 on invoke", function() {
+		it( "returns 0 or 1 on invoke", function() {
 			instance.delete( 4,uuids[5] ).should.be.equal( 1 );
 			instance.delete( 4,uuids[5] ).should.be.equal( 0 );
 			instance.delete( 5,uuids[5] ).should.be.equal( 0 );
 		} );
-		test( "deletes entry from index with multiple entrie", function() {
+		it( "deletes entry from index with multiple entrie", function() {
 			instance.delete( 2, uuids[3] );
 			const gen = instance.find( 2 )();
 			gen.next().value[0].should.be.equal( uuids[2] );
 			Should( gen.next().value ).be.undefined();
 		} );
-		test( "deletes index if value is empty", function() {
+		it( "deletes index if value is empty", function() {
 			instance.delete( 1, uuids[1] );
 			const gen = instance.find( 1 )();
 			Should( gen.next().value ).be.undefined();
+		} );
+	} );
+
+	describe( "checkRevision", function() {
+		describe( "Index can be constructed with revision", function() {
+			const instanceWithRevision = new Index( { revision: 10 } );
+			Should( instanceWithRevision.revision ).be.equal( 10 );
+			it( "does not throw if right revision is used", function() {
+				instanceWithRevision.checkRevision( 10 );
+				Should( () => instanceWithRevision.checkRevision() ).not.throw();
+			} );
+			it( "does throw if wrong revision is used", function() {
+				Should( () => instanceWithRevision.checkRevision( 11 ) ).throw();
+				Should( () => instanceWithRevision.checkRevision( 9 ) ).throw();
+			} );
+			it( "can be used to update revision", function() {
+				Should( instanceWithRevision.checkRevision( 11, true ) ).not.throw();
+				Should( instanceWithRevision.checkRevision( 11 ) ).not.throw();
+			} );
+			it( "does throw if update value is not exactly 1 bigger ", function() {
+				Should( () => instanceWithRevision.checkRevision( 11.2, true ) ).not.throw();
+				Should( () => instanceWithRevision.checkRevision( 13 ) ).throw();
+			} );
+		} );
+	} );
+
+	describe( "reOrg", function() {
+		const instance = new Index( { revision: 0 } );
+		const instanceWithRevision = new Index( { revision: 10 } );
+		before( "filling instances with values", function() {
+			instance.add( 1, uuids[1] );
+			instance.add( 2, uuids[2] );
+			instance.add( 2, uuids[3] );
+			instance.add( 4, uuids[4] );
+			instance.add( 4, uuids[5] );
+
+			instanceWithRevision.add( 1, uuids[1] );
+			instanceWithRevision.add( 2, uuids[2] );
+			instanceWithRevision.add( 2, uuids[3] );
+			instanceWithRevision.add( 4, uuids[4] );
+			instanceWithRevision.add( 4, uuids[5] );
+		} );
+		it( "with revision", function() {
+			[].concat.apply( [], instanceWithRevision.tree.values ).length.should.be.equal( 5 );
+			Should( instanceWithRevision.revision ).be.eql( 10 );
+			instanceWithRevision.reOrg( instanceWithRevision.revision );
+			instanceWithRevision.tree.values.length.should.be.equal( 0 );
+			Should( instanceWithRevision.revision ).be.eql( 10 );
+			instanceWithRevision.reOrg( 12 );
+			instanceWithRevision.tree.values.length.should.be.equal( 0 );
+			Should( instanceWithRevision.revision ).be.eql( 12 );
 		} );
 	} );
 } );
