@@ -60,10 +60,11 @@ describe( "Index", function() {
 		instance.should.have.property( "findBetween" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "checkRevision" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "reOrg" ).which.is.a.Function().of.length( 1 );
+		instance.should.have.property( "updateIndex" ).which.is.a.Function().of.length( 3 );
 	} );
 
 	describe( "returns 0 or 1 when on invoking insert", function() {
-		const instance = new Index( { revision: 0 }  );
+		const instance = new Index( { revision: 0 } );
 		it( "0 if new index entry was added", () => {
 			instance.add( 1, uuids[1] ).should.be.equal( 1 );
 		} );
@@ -221,6 +222,27 @@ describe( "Index", function() {
 			instanceWithRevision.reOrg( 12 );
 			instanceWithRevision.tree.values.length.should.be.equal( 0 );
 			Should( instanceWithRevision.revision ).be.eql( 12 );
+		} );
+	} );
+
+	describe( "update", function() {
+		const instance = new Index( { revision: 0 } );
+		before( "", function() {
+			instance.add( 1,uuids[1] );
+			instance.add( 2,uuids[2] );
+			instance.add( 2,uuids[3] );
+			instance.add( 4,uuids[4] );
+			instance.add( 4,uuids[5] );
+		} );
+		it( "should throw error if item is not in index",function() {
+			Should( () => instance.updateIndex( 1, uuids[2], 1 ) ).throw();
+		} );
+		it( "updates index if oldIndex and newIndex are valid", function() {
+			instance.updateIndex( 2, uuids[2], 1 );
+			const gen = instance.find( 1 )();
+			Should( gen.next().value[0] ).eql( uuids[1] );
+			Should( gen.next().value[0] ).eql( uuids[2] );
+
 		} );
 	} );
 } );
