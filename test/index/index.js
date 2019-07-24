@@ -230,9 +230,6 @@ describe( "Index", function() {
 		before( "", function() {
 			instance.add( 1,uuids[1] );
 			instance.add( 2,uuids[2] );
-			instance.add( 2,uuids[3] );
-			instance.add( 4,uuids[4] );
-			instance.add( 4,uuids[5] );
 		} );
 		it( "should throw error if item is not in index",function() {
 			Should( () => instance.updateIndex( 1, uuids[2], 1 ) ).throw();
@@ -242,7 +239,6 @@ describe( "Index", function() {
 			const gen = instance.find( 1 )();
 			Should( gen.next().value[0] ).eql( uuids[1] );
 			Should( gen.next().value[0] ).eql( uuids[2] );
-
 		} );
 	} );
 } );
