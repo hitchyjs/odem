@@ -130,8 +130,6 @@ Every definition of a module needs to contain at least one property. As demonstr
 
 * **hooks** provides lists of functions to be registered as handlers for a limited set of life cycle event.
 
-* **indices** contains definition of indices for improving performance on finding and sorting instances.
-
 Either part is described in detail below.
 
 ### Actual Properties
@@ -278,35 +276,38 @@ For improved readability of resulting definition hooks may use prefix `on` prece
 
 ### Indices
 
-Defining a model might include definition of indices to use. Indices are improving performance on searching items by redundantly saving values per attribute and associating them with references on matching records' UUIDs.
+Defining a model basically does not require definition of indices. However, managing large amounts of instances strongly benefits from indices that support common operations used to search and sort instances by the property covered by either index. Indices result in redundantly stored information and thus shouldn't be created for every property and every operation probably used for searching instances some day. Managing indices has an impact on saving data. Temporary indices also result in Hitchy applications taking more time to come up full. That's why you should explicitly define the indices you need, only.
 
-Indices are configured in section `indices` of definition object. This section is an array with every item defining another index. Every defined index selects the name of an actual `property` of model it is applied on. In addition it might choose a particular `type` of comparison operation for creating the index, though in most cases this will be _equality_ which is the default operation used.
-
-::: warning
-Defining index works with actual, non-computed properties, only. Currently, there is no support for multi-property indices.
+Indices are defined in conjunction with either property just like its type and optional constraints. A property's indices are defined in another definition property named `index` there. This definition property is listing comparison operations presumably used on finding instances by this particular property.
+ 
+::: warning  
+Defining indices work with actual, non-computed properties, only.  
+::: 
+ 
+::: warning  
+Currently, there is no support for multi-property indices.  
 ::: 
 
 ```javascript
 module.exports = {
     props: {
-        firstName: {},
+        firstName: {
+            index: "eq"
+        },
         lastName: {},
-        age: { type: "number" },
+        age: { 
+            type: "number",
+            index: ["gt", "lt"]
+        },
     },
-    indices: [
-        {
-            property: "firstName",
-            type: "eq"
-        },
-        {
-            property: "lastName",
-        },
-        {
-            property: "age"
-        },
-    ],
 };
 ```
+
+This example is declaring indices for the properties `firstName` and `age`. It doesn't define an index for property `lastName`. 
+
+In case of `firstName` an index for finding instances having the exactly same value as searched (a.k.a. equality, thus using abbreviation `eq`) is defined. Since there is only one index defined the comparison operation may be given as string. When compiling model its schema is always exposing this string converted into a single-item array.
+
+The second case of `age` is defining two separate indices to be managed for searching instances with `age` being **g**reater **t**han (thus `gt`) or **l**ess **t**han (thus `lt`) some given value. Defining multiple indices requires provision of an array listing either one's operation.
 
 ### Naming Models
 
