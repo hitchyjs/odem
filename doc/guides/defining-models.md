@@ -519,21 +519,29 @@ This boolean attaches constraint controlling whether this attribute requires a v
 
 ## Life Cycle Events
 
-When working with a model's instance it passes several stages of its life cycle. In either stage callbacks can be registered to be notified as soon as the related life cycle event occurs.
+When working with a model's instance it passes several stages of its _life cycle_. In either stage callbacks can be registered to be invoked as soon as the related _life cycle event_ occurs.
+
+:::tip Are there real events?  
+The term _event_ has been chosen explicitly to help understanding the intention. However, in difference to other systems using events there is no actual event emitted and dispatched. Instead any callback defined for listening to a _life cycle event_ is exclusively invoked when available. If there is no callback then there is no _event_ handling at all.
+
+This is why the section is actually named **hooks** for this term is closer to the real functionality.  
+:::
 
 ```javascript
 module.exports = {
-	onSaved: [
-		item => {
-			// invoked when instance has been saved in database ...
-		},
-	],
+    hooks: {
+        afterSave() {
+            // invoked when instance has been saved in database ...
+        },
+    },
 };
 ```
 
-This example declares a list of callbacks to be invoked sequentially after having saved an instance of this model. Even though there is a single callback, only, this must be provided as array of callbacks to distinguish this declaration of a life-cycle event listener from declaration of a computed attribute
+This example declares a callback to be invoked after having saved an instance of this model. `this` is referring to the affected instance.
 
-Here comes a list of life-cycle events supported by basic implementation of models:
+In a derived model callbacks of superordinated classes aren't invoked implicitly. You need to invoke them explicitly using `this.$super.hooks.afterSave()`.
+
+Here comes a list of supported life-cycle events:
 
 ### beforeCreate( properties ) : properties
 
@@ -546,6 +554,8 @@ The result is always passed through validation before creating instance.
 Right after creating a new instance of a model the **afterCreate** event is dispatched. Listeners are invoked providing access on created instance via `this`.
 
 ### beforeValidate()
+
+When validating current properties of an instance this event is emitted.
 
 ### afterValidate( errors ): errors
 
