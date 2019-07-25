@@ -346,10 +346,10 @@ describe( "Model compiler module", () => {
 		} );
 	} );
 
-	describe( "contains internal method for compiling code serializing all attributes of model in a row which", () => {
+	describe( "contains internal method for compiling code serializing all properties of model in a row which", () => {
 		const { compileSerializer } = Compiler._utility;
 
-		it( "requires provision of apparently valid and qualified definition of attributes in first argument", () => {
+		it( "requires provision of apparently valid and qualified definition of properties in first argument", () => {
 			( () => compileSerializer() ).should.throw();
 			( () => compileSerializer( undefined ) ).should.throw();
 			( () => compileSerializer( null ) ).should.throw();
@@ -370,7 +370,7 @@ describe( "Model compiler module", () => {
 			( () => compileSerializer( { name: { type: "int" } } ) ).should.not.throw();
 		} );
 
-		describe( "can be invoked with empty definition of attributes so it returns a function which", () => {
+		describe( "can be invoked with empty definition of properties so it returns a function which", () => {
 			let serializer;
 
 			beforeEach( () => {
@@ -403,7 +403,7 @@ describe( "Model compiler module", () => {
 			} );
 		} );
 
-		describe( "can be invoked with non-empty definition of attributes so it returns a function which", () => {
+		describe( "can be invoked with non-empty definition of properties so it returns a function which", () => {
 			let serializer;
 
 			beforeEach( () => {
@@ -421,7 +421,7 @@ describe( "Model compiler module", () => {
 				serializer.should.not.throw();
 			} );
 
-			describe( "is returning non-empty object containing all defined attributes as properties with _serialized_ values when it", () => {
+			describe( "is returning non-empty object containing all defined properties with _serialized_ values when it", () => {
 				it( "is invoked w/o argument", () => {
 					serializer().should.be.Object().which.has.size( 2 ).and.has.properties( "name", "age" );
 				} );
@@ -430,7 +430,7 @@ describe( "Model compiler module", () => {
 					serializer( {} ).should.be.Object().which.has.size( 2 ).and.has.properties( "name", "age" );
 				} );
 
-				it( "is invoked w/ non-empty object providing some defined attributes, only", () => {
+				it( "is invoked w/ non-empty object providing some defined properties, only", () => {
 					let serialized = serializer( {
 						name: 23,
 					} );
@@ -448,7 +448,7 @@ describe( "Model compiler module", () => {
 					serialized.age.should.be.Number().which.is.equal( 23 );
 				} );
 
-				it( "is invoked w/ non-empty object providing all defined attributes, only", () => {
+				it( "is invoked w/ non-empty object providing all defined properties, only", () => {
 					const serialized = serializer( {
 						name: 23,
 						age: 23,
@@ -459,7 +459,7 @@ describe( "Model compiler module", () => {
 					serialized.age.should.be.Number().which.is.equal( 23 );
 				} );
 
-				it( "is invoked w/ non-empty object providing properties in addition to defined attributes", () => {
+				it( "is invoked w/ non-empty object providing properties in addition to defined properties", () => {
 					const serialized = serializer( {
 						name: 23,
 						age: 23,
@@ -474,10 +474,10 @@ describe( "Model compiler module", () => {
 		} );
 	} );
 
-	describe( "contains internal method for compiling code deserializing all attributes of model in a row which", () => {
+	describe( "contains internal method for compiling code deserializing all properties of model in a row which", () => {
 		const { compileDeserializer } = Compiler._utility;
 
-		it( "requires provision of apparently valid and qualified definition of attributes in first argument", () => {
+		it( "requires provision of apparently valid and qualified definition of properties in first argument", () => {
 			( () => compileDeserializer() ).should.throw();
 			( () => compileDeserializer( undefined ) ).should.throw();
 			( () => compileDeserializer( null ) ).should.throw();
@@ -498,7 +498,7 @@ describe( "Model compiler module", () => {
 			( () => compileDeserializer( { name: { type: "int" } } ) ).should.not.throw();
 		} );
 
-		describe( "can be invoked with empty definition of attributes so it returns a function which", () => {
+		describe( "can be invoked with empty definition of properties so it returns a function which", () => {
 			let deserializer;
 
 			beforeEach( () => {
@@ -522,11 +522,11 @@ describe( "Model compiler module", () => {
 			} );
 
 			describe( "is returning empty object of deserialized values when it", () => {
-				it( "is invoked w/ empty object of data and empty set attributes", () => {
+				it( "is invoked w/ empty object of data and empty set properties", () => {
 					deserializer( {}, {} ).should.be.Object().which.is.empty();
 				} );
 
-				it( "is invoked w/ non-empty object of data and empty set of attributes", () => {
+				it( "is invoked w/ non-empty object of data and empty set of properties", () => {
 					deserializer( {
 						name: "John Doe",
 						age: "23",
@@ -535,15 +535,15 @@ describe( "Model compiler module", () => {
 			} );
 		} );
 
-		describe( "can be invoked with non-empty definition of attributes so it returns a function which", () => {
+		describe( "can be invoked with non-empty definition of properties so it returns a function which", () => {
 			let deserializer;
-			const attributes = {
+			const properties = {
 				name: { type: "string" },
 				age: { type: "int" },
 			};
 
 			beforeEach( () => {
-				deserializer = compileDeserializer( attributes );
+				deserializer = compileDeserializer( properties );
 			} );
 
 			it( "is expecting two arguments on invocation", () => {
@@ -559,18 +559,18 @@ describe( "Model compiler module", () => {
 			} );
 
 			it( "is instantly invocable w/ two proper arguments", () => {
-				( () => deserializer( {}, attributes ) ).should.not.throw();
+				( () => deserializer( {}, properties ) ).should.not.throw();
 			} );
 
-			describe( "is returning non-empty object containing all defined attributes as properties with _deserialized_ values when it", () => {
-				it( "is invoked w/ empty object and proper attributes definition", () => {
-					deserializer( {}, attributes ).should.be.Object().which.has.size( 2 ).and.has.properties( "name", "age" );
+			describe( "is returning non-empty object containing all defined properties with _deserialized_ values when it", () => {
+				it( "is invoked w/ empty object and proper properties definition", () => {
+					deserializer( {}, properties ).should.be.Object().which.has.size( 2 ).and.has.properties( "name", "age" );
 				} );
 
-				it( "is invoked w/ non-empty object providing some defined attributes, only, and proper attributes definition", () => {
+				it( "is invoked w/ non-empty object providing some defined properties, only, and proper properties definition", () => {
 					let deserialized = deserializer( {
 						name: 23,
-					}, attributes );
+					}, properties );
 
 					deserialized.should.be.Object().which.has.size( 2 ).and.has.properties( "name", "age" );
 					deserialized.name.should.be.String().which.is.equal( "23" );
@@ -578,30 +578,30 @@ describe( "Model compiler module", () => {
 
 					deserialized = deserializer( {
 						age: 23,
-					}, attributes );
+					}, properties );
 
 					deserialized.should.be.Object().which.has.size( 2 ).and.has.properties( "name", "age" );
 					Should( deserialized.name ).be.null();
 					deserialized.age.should.be.Number().which.is.equal( 23 );
 				} );
 
-				it( "is invoked w/ non-empty object providing all defined attributes, only, and proper attributes definition", () => {
+				it( "is invoked w/ non-empty object providing all defined properties, only, and proper properties definition", () => {
 					const deserialized = deserializer( {
 						name: 23,
 						age: 23,
-					}, attributes );
+					}, properties );
 
 					deserialized.should.be.Object().which.has.size( 2 ).and.has.properties( "name", "age" );
 					deserialized.name.should.be.String().which.is.equal( "23" );
 					deserialized.age.should.be.Number().which.is.equal( 23 );
 				} );
 
-				it( "is invoked w/ non-empty object providing properties in addition to defined attributes and proper attributes definition", () => {
+				it( "is invoked w/ non-empty object providing properties in addition to defined properties and proper properties definition", () => {
 					const deserialized = deserializer( {
 						name: 23,
 						age: 23,
 						additional: true,
-					}, attributes );
+					}, properties );
 
 					deserialized.should.be.Object().which.has.size( 2 ).and.has.properties( "name", "age" );
 					deserialized.name.should.be.String().which.is.equal( "23" );
