@@ -34,8 +34,8 @@ module.exports = {
 		sidebar: "auto",
 		nav: [
 			{ text: "Home", link: "/" },
-			{ text: "Guides", link: "guides/" },
-			{ text: "API", link: "api/" },
+			{ text: "Guides", link: "/guides/" },
+			{ text: "API", link: "/api/" },
 		],
 	},
 };

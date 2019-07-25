@@ -64,6 +64,16 @@ The exposed list is empty if there was no index defined for any of current model
 
 This property refers to the class current model is derived from. The resulting class is always `Model` or some class derived from `Model`.
 
+This reference can be used to invoked static methods of a model current one is deriving from:
+
+```javascript
+static createRecord() {
+    this.derivesFrom.createRecord();
+
+    // add your code here
+}
+```
+
 
 ## Instance Methods
 
@@ -142,7 +152,11 @@ This property exposes object sharing prototype with the the class this model's c
 The reference doesn't work like ES6 `super` keyword but requires slightly more complex code when trying to invoke instance methods of parent class:
 
 ```javascript
-this.$super.replacedMethod.call( this, arg1, arg2 );
+someMethod( arg1, arg2 ) {
+    this.$super.someMethod.call( this, arg1, arg2 );
+
+    // add your code here
+}
 ```
 
 ### instance.uuid

@@ -550,32 +550,4 @@ module.exports = {
 
 This example declares a callback to be invoked after having saved an instance of this model. `this` is referring to the affected instance.
 
-In a derived model callbacks of superordinated classes aren't invoked implicitly. You need to invoke them explicitly using `this.$super.hooks.afterSave()`.
-
-Here comes a list of supported life-cycle events:
-
-### beforeCreate( properties ) : properties
-
-Whenever creating a new instance of a model the **beforecreate** event is dispatched. Registered listeners are invoked with set of new item's properties. It is assumed to return the eventually desired set of new item's properties.
-
-The result is always passed through validation before creating instance.
-
-### afterCreate()
-
-Right after creating a new instance of a model the **afterCreate** event is dispatched. Listeners are invoked providing access on created instance via `this`.
-
-### beforeValidate()
-
-When validating current properties of an instance this event is emitted.
-
-### afterValidate( errors ): errors
-
-After 
-
-### beforeSave
-
-### afterSave
-
-### beforeRemove
-
-### afterRemove
+See the [Model API regarding hooks](../api/model#hooks) for a full list of supported life cycle events.
