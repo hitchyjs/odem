@@ -31,6 +31,17 @@ This property exposes the adapter selected to persistently store instances of th
 
 The qualified definition of model is exposed as its _schema_.
 
+### Model.indices
+
+This array is a concise list of indices defined in context of current model. Every item in this list provides the property either index is used for and the type of index or comparison operation. Every item looks like this one.
+
+```javascript
+{ property: "loginName", type: "eq" }
+```
+
+The exposed list is empty if there was no index defined for any of current model's properties.
+
+
 ### Model.derivesFrom
 
 This property refers to the class current model is derived from. The resulting class is always `Model` or some class derived from `Model`.
@@ -61,7 +72,13 @@ Extracts values of all properties of current instance. By default, this includes
 
 ## Instance Properties
 
-Basically, an instance of a model exposes every actual or computed property according to the model's definition. Those properties' names must not start with a `$` by intention to prevent naming conflicts with implicitly available properties described here.
+Basically, an instance of a model exposes every actual or computed property according to the model's definition. Those properties' names must not start with a `$` by intention to prevent naming conflicts with any implicitly available property described here.
+
+:::warning Note!
+There is one exclusion from this rule of prefixing implicit properties with `$`.
+
+Every instance of a model is assumed to have a unique UUID for safely addressing it. This property is exposed as `instance.uuid`. A model's definition mustn't use this name for any element in turn.
+:::
 
 ### instance.$properties
 
@@ -75,6 +92,10 @@ It does not matter which way you access properties, but for the sake of simplici
 
 This property exposes adapter used to persistently store this instance of model. It might be different from the adapter defined for use with the model as a whole, though it won't be different in most cases.
 
+### instance.$isNew
+
+This property indicates whether current instance has been freshly created. This is assumed in case of missing UUID associated with current instance.
+
 ### instance.$exists
 
 This property exposes promise for indicator whether data storage contains representation of instance currently.
@@ -82,3 +103,13 @@ This property exposes promise for indicator whether data storage contains repres
 ### instance.$super
 
 This property exposes object sharing prototype with the the class this model's class is derived from. Thus, it exposes that one's instance-related methods and properties.
+
+### instance.$hooks
+
+For every supported life cycle event the model definition might provide a particular callback to be used whenever the related event is emitted. Those _hooks_ are exposed concisely via this property of every model's instance. Accessing any hook by name results in a function returned so it is safe to blindly invoke any hook you like. If you need to know whether some hook has been defined, though, you could inspect the schema via `Model.schema.hooks` or use `in` operator here like this:
+
+```javascript
+if ( "beforeCreate" in this.$hooks ) {
+	// implement your code here
+}
+``` 

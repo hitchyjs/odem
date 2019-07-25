@@ -1,3 +1,8 @@
+---
+prev: ../glossary.md
+next: ./using-models.md
+---
+
 # Model Definition
 
 ## How To Define
@@ -11,7 +16,11 @@ Both scenarios are described below.
 
 ### Defining in Server-Side Code
 
-The preferred way of defining models in a Hitchy application is [via Filesystem](./defining-models-filesystem.md). For sure, there is code reading and processing those files. That code is using API to be described in this chapter. You might want to use this API in testing your code e.g. to mock models your code is relying on.
+:::tip  
+The preferred way of defining models in a Hitchy application is via filesystem as described below.  
+:::
+
+For sure, there is code reading and processing those files. That code is using API to be described in this chapter. You might want to use this API in testing your code e.g. to mock models your code is relying on.
 
 The main module of hitchy-odem library exposes several classes. One of them is `Model`.
 
@@ -23,7 +32,9 @@ This class is providing static method `Model.define()` accepting these arguments
 
 * First there is the name of the desired model. 
 
-  When [defining models via filesystem](./defining-models-filesystem.md) this name is derived from the file's basename without extension and it is converted from kebab-case to PascalCase there. Here you are responsible for applying any such derivation.
+  When defining models via filesystem this name is derived from the file's basename without extension and it is converted from kebab-case to PascalCase there. The resulting model's name is used to expose the model in context of Hitchy's runtime API there.
+  
+  When defining in code you are responsible for applying any such derivations as desired. In this case the model's name isn't used in any sort of registry implicitly and thus might be ignored as well.
   
   ::: tip Reminder  
   The definition in second argument might contain property [`name`](./defining-models-filesystem.md#naming-models) to define a different name. This information is always used in favour of the name provided in first argument here.  
@@ -137,7 +148,7 @@ Either part is described in detail below.
 Defining at least one actual property in **props** is mandatory. Every such property definition consists of a unique name for the property and an object describing its type and optional constraints.
 
 :::warning
-The name of an actual property mustn't be used by any other actual or computed property or method of same model.
+The name of an actual property mustn't be used by any other actual or computed property or method of same model. In addition it mustn't start with `$` and the following keywords are prohibited as well: `prototype`, `super`, `constructor`, `uuid`.  
 :::
 
 ```javascript
@@ -178,7 +189,7 @@ Either types comes with a set of specific constraints to be defined in addition.
 Computed properties are defined in section **computed** by either one's unique name and the implementation as a function. Those functions are invoked in context of an instance of current model when reading the related computed property. The function is assumed to return any value which is provided as the 
 
 :::warning
-The name of an computed property mustn't be used by any other actual or computed property or method of same model.
+The name of an computed property mustn't be used by any other actual or computed property or method of same model. In addition it mustn't start with `$` and the following keywords are prohibited as well: `prototype`, `super`, `constructor`, `uuid`.  
 :::
 
 ```javascript
@@ -233,7 +244,7 @@ Arrow functions don't work here for lacking support for `this`.
 :::
 
 :::warning
-The name of a method mustn't be used by any other actual or computed property or method of same model.
+The name of a method mustn't be used by any other actual or computed property or method of same model. In addition it mustn't start with `$` and the following keywords are prohibited as well: `prototype`, `super`, `constructor`, `uuid`.  
 :::
 
 ```javascript
