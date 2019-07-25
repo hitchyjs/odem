@@ -36,6 +36,8 @@ const { Model } = require( "../../" );
 describe( "Models API", () => {
 	const MostSimpleDefinition = { props: { label: {} } };
 
+	class CustomBaseClass extends Model {} // eslint-disable-line require-jsdoc
+
 	describe( "exposes method for defining custom models which", () => {
 		it( "is a function", () => {
 			Model.define.should.be.Function();
@@ -109,6 +111,36 @@ describe( "Models API", () => {
 			Item.should.not.equal( Model );
 			Item.prototype.should.be.instanceof( Stuff );
 			Item.prototype.should.be.instanceof( Model );
+		} );
+
+		it( "accepts empty schema definition when defining derived model", () => {
+			( () => Model.define( "Item", {}, CustomBaseClass ) ).should.not.throw();
+		} );
+
+		it( "accepts schema definition omitting section for defining properties when defining derived model", () => {
+			( () => Model.define( "Item", { methods: { fn: () => 0 } }, CustomBaseClass ) ).should.not.throw();
+
+			( () => Model.define( "Item", { methods: { fn: () => 0 }, props: { label: {} } }, CustomBaseClass ) ).should.not.throw();
+		} );
+
+		it( "accepts schema definition including empty section for defining properties when defining derived model", () => {
+			( () => Model.define( "Item", { props: {} }, CustomBaseClass ) ).should.not.throw();
+
+			( () => Model.define( "Item", { props: { label: {} } }, CustomBaseClass ) ).should.not.throw();
+		} );
+
+		it( "rejects schema definition including definition of property using wrong type of information when defining derived model", () => {
+			( () => Model.define( "Item", { props: { label: null } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: false } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: true } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: 1 } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: "" } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: "string" } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: () => {} } }, CustomBaseClass ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
+			( () => Model.define( "Item", { props: { label: [] } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: ["string"] } }, CustomBaseClass ) ).should.throw( TypeError );
+
+			( () => Model.define( "Item", { props: { label: {} } }, CustomBaseClass ) ).should.not.throw();
 		} );
 
 		it( "rejects to derive from anything but another model class", () => {
