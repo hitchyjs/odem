@@ -1,3 +1,8 @@
+---
+prev: false
+next: glossary.md
+---
+
 # About Hitchy's ODM
 
 Hitchy is a server-side framework purely written in Javascript. It consists of a core which comes with limited abilities as it is basically capable of essentially handling requests via HTTP and discovering extensions to provide some actual request handlers.
@@ -26,5 +31,3 @@ Some attributes are meant to be _unique_ or to be _always_ there. Such keywords 
 
 All this describes similarities in records of actual data. It doesn't describe any actual data of your application, though, such as a user named Bob or Alice or any of either user's posts in particular. Information describing Bob and Alice as users are instances of the model _user_.
 :::
-
-* [How To Define Models](guides/defining-models.md)

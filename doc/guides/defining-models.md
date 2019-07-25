@@ -1,3 +1,8 @@
+---
+prev: ../glossary.md
+next: ./using-models.md
+---
+
 # Model Definition
 
 ## How To Define
@@ -11,7 +16,11 @@ Both scenarios are described below.
 
 ### Defining in Server-Side Code
 
-The preferred way of defining models in a Hitchy application is [via Filesystem](./defining-models-filesystem.md). For sure, there is code reading and processing those files. That code is using API to be described in this chapter. You might want to use this API in testing your code e.g. to mock models your code is relying on.
+:::tip  
+The preferred way of defining models in a Hitchy application is via filesystem as described below.  
+:::
+
+For sure, there is code reading and processing those files. That code is using API to be described in this chapter. You might want to use this API in testing your code e.g. to mock models your code is relying on.
 
 The main module of hitchy-odem library exposes several classes. One of them is `Model`.
 
@@ -23,7 +32,9 @@ This class is providing static method `Model.define()` accepting these arguments
 
 * First there is the name of the desired model. 
 
-  When [defining models via filesystem](./defining-models-filesystem.md) this name is derived from the file's basename without extension and it is converted from kebab-case to PascalCase there. Here you are responsible for applying any such derivation.
+  When defining models via filesystem this name is derived from the file's basename without extension and it is converted from kebab-case to PascalCase there. The resulting model's name is used to expose the model in context of Hitchy's runtime API there.
+  
+  When defining in code you are responsible for applying any such derivations as desired. In this case the model's name isn't used in any sort of registry implicitly and thus might be ignored as well.
   
   ::: tip Reminder  
   The definition in second argument might contain property [`name`](./defining-models-filesystem.md#naming-models) to define a different name. This information is always used in favour of the name provided in first argument here.  
@@ -130,8 +141,6 @@ Every definition of a module needs to contain at least one property. As demonstr
 
 * **hooks** provides lists of functions to be registered as handlers for a limited set of life cycle event.
 
-* **indices** contains definition of indices for improving performance on finding and sorting instances.
-
 Either part is described in detail below.
 
 ### Actual Properties
@@ -139,7 +148,7 @@ Either part is described in detail below.
 Defining at least one actual property in **props** is mandatory. Every such property definition consists of a unique name for the property and an object describing its type and optional constraints.
 
 :::warning
-The name of an actual property mustn't be used by any other actual or computed property or method of same model.
+The name of an actual property mustn't be used by any other actual or computed property or method of same model. In addition it mustn't start with `$` and the following keywords are prohibited as well: `prototype`, `super`, `constructor`, `uuid`.  
 :::
 
 ```javascript
@@ -180,7 +189,7 @@ Either types comes with a set of specific constraints to be defined in addition.
 Computed properties are defined in section **computed** by either one's unique name and the implementation as a function. Those functions are invoked in context of an instance of current model when reading the related computed property. The function is assumed to return any value which is provided as the 
 
 :::warning
-The name of an computed property mustn't be used by any other actual or computed property or method of same model.
+The name of an computed property mustn't be used by any other actual or computed property or method of same model. In addition it mustn't start with `$` and the following keywords are prohibited as well: `prototype`, `super`, `constructor`, `uuid`.  
 :::
 
 ```javascript
@@ -235,7 +244,7 @@ Arrow functions don't work here for lacking support for `this`.
 :::
 
 :::warning
-The name of a method mustn't be used by any other actual or computed property or method of same model.
+The name of a method mustn't be used by any other actual or computed property or method of same model. In addition it mustn't start with `$` and the following keywords are prohibited as well: `prototype`, `super`, `constructor`, `uuid`.  
 :::
 
 ```javascript
@@ -278,35 +287,38 @@ For improved readability of resulting definition hooks may use prefix `on` prece
 
 ### Indices
 
-Defining a model might include definition of indices to use. Indices are improving performance on searching items by redundantly saving values per attribute and associating them with references on matching records' UUIDs.
+Defining a model basically does not require definition of indices. However, managing large amounts of instances strongly benefits from indices that support common operations used to search and sort instances by the property covered by either index. Indices result in redundantly stored information and thus shouldn't be created for every property and every operation probably used for searching instances some day. Managing indices has an impact on saving data. Temporary indices also result in Hitchy applications taking more time to come up full. That's why you should explicitly define the indices you need, only.
 
-Indices are configured in section `indices` of definition object. This section is an array with every item defining another index. Every defined index selects the name of an actual `property` of model it is applied on. In addition it might choose a particular `type` of comparison operation for creating the index, though in most cases this will be _equality_ which is the default operation used.
-
-::: warning
-Defining index works with actual, non-computed properties, only. Currently, there is no support for multi-property indices.
+Indices are defined in conjunction with either property just like its type and optional constraints. A property's indices are defined in another definition property named `index` there. This definition property is listing comparison operations presumably used on finding instances by this particular property.
+ 
+::: warning  
+Defining indices work with actual, non-computed properties, only.  
+::: 
+ 
+::: warning  
+Currently, there is no support for multi-property indices.  
 ::: 
 
 ```javascript
 module.exports = {
     props: {
-        firstName: {},
+        firstName: {
+            index: "eq"
+        },
         lastName: {},
-        age: { type: "number" },
+        age: { 
+            type: "number",
+            index: ["gt", "lt"]
+        },
     },
-    indices: [
-        {
-            property: "firstName",
-            type: "eq"
-        },
-        {
-            property: "lastName",
-        },
-        {
-            property: "age"
-        },
-    ],
 };
 ```
+
+This example is declaring indices for the properties `firstName` and `age`. It doesn't define an index for property `lastName`. 
+
+In case of `firstName` an index for finding instances having the exactly same value as searched (a.k.a. equality, thus using abbreviation `eq`) is defined. Since there is only one index defined the comparison operation may be given as string. When compiling model its schema is always exposing this string converted into a single-item array.
+
+The second case of `age` is defining two separate indices to be managed for searching instances with `age` being **g**reater **t**han (thus `gt`) or **l**ess **t**han (thus `lt`) some given value. Defining multiple indices requires provision of an array listing either one's operation.
 
 ### Naming Models
 
@@ -518,21 +530,29 @@ This boolean attaches constraint controlling whether this attribute requires a v
 
 ## Life Cycle Events
 
-When working with a model's instance it passes several stages of its life cycle. In either stage callbacks can be registered to be notified as soon as the related life cycle event occurs.
+When working with a model's instance it passes several stages of its _life cycle_. In either stage callbacks can be registered to be invoked as soon as the related _life cycle event_ occurs.
+
+:::tip Are there real events?  
+The term _event_ has been chosen explicitly to help understanding the intention. However, in difference to other systems using events there is no actual event emitted and dispatched. Instead any callback defined for listening to a _life cycle event_ is exclusively invoked when available. If there is no callback then there is no _event_ handling at all.
+
+This is why the section is actually named **hooks** for this term is closer to the real functionality.  
+:::
 
 ```javascript
 module.exports = {
-	onSaved: [
-		item => {
-			// invoked when instance has been saved in database ...
-		},
-	],
+    hooks: {
+        afterSave() {
+            // invoked when instance has been saved in database ...
+        },
+    },
 };
 ```
 
-This example declares a list of callbacks to be invoked sequentially after having saved an instance of this model. Even though there is a single callback, only, this must be provided as array of callbacks to distinguish this declaration of a life-cycle event listener from declaration of a computed attribute
+This example declares a callback to be invoked after having saved an instance of this model. `this` is referring to the affected instance.
 
-Here comes a list of life-cycle events supported by basic implementation of models:
+In a derived model callbacks of superordinated classes aren't invoked implicitly. You need to invoke them explicitly using `this.$super.hooks.afterSave()`.
+
+Here comes a list of supported life-cycle events:
 
 ### beforeCreate( properties ) : properties
 
@@ -545,6 +565,8 @@ The result is always passed through validation before creating instance.
 Right after creating a new instance of a model the **afterCreate** event is dispatched. Listeners are invoked providing access on created instance via `this`.
 
 ### beforeValidate()
+
+When validating current properties of an instance this event is emitted.
 
 ### afterValidate( errors ): errors
 

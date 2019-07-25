@@ -1,3 +1,8 @@
+---
+prev: introduction.md
+next: guides/defining-models.md
+---
+
 # Glossary
 
 The documentation _tries to_ stick with certain terminology. This glossary is provided to help with understanding those terms.
@@ -28,28 +33,29 @@ The address book might support different kinds of persons, such as _friends_ and
 
 ### Schema
 
-When using a model's API the definition of attributes and behaviour per model is exposed as the model's schema.
+When using a model's API the definition of properties and behaviour per model is exposed as the model's schema.
 
-### Attributes
+### Properties
 
-In context of a model attributes are used to describe the common structure of information found in instances of that model.
+In context of a model properties are used to describe the common structure of information found in instances of that model.
 
-Attributes provide 
+A definition of a property includes 
 
- * a name for identifying either information, 
- * a definition by means of selecting a type of that information and 
- * constraints to be applied.
+ * its name for identifying related information in context of instances of the model, 
+ * its type of information used in every instance,
+ * constraints to be applied to detect valid/invalid information and
+ * indices used to improve performance on searching for/sorting by this property.
 
 ::: tip Example
-One attribute of model _person_ in the address book application will declare to have a _last name_ (which is the identifying name of some information) as a _string of characters_ (that's the type of information) and that _providing a last name is required_ (which is a constraint applied to this information). 
+One property of model _person_ in the address book application will declare to have a _last name_ (which is the identifying name of some information) as a _string of characters_ (that's the type of information) and that _providing a last name is required_ (which is a constraint applied to this information). 
 :::
 
-### Computed Attributes
+### Computed Properties
 
-A model might define virtual attributes that don't have to be stored but may be derived from other attributes of model on demand.
+A model might define virtual properties that won't be stored persistently but will derive their information from other information of an instance on demand.
 
 ::: tip Example
-When having regular attributes _last name_ and _first name_ there might be a computed attribute _full name_ that is combining the former two attributes.
+When having actual properties _last name_ and _first name_ there might be a computed property _full name_ that is combining the former two attributes.
 :::
 
 ### Methods
@@ -69,7 +75,7 @@ Sending mail to a particular person requires information of that particular pers
 
 ## Item _or_ Instance
 
-A single set of values complying with the structure of a particular model may be called an item or instance of that model. 
+A single set of values complying with the structure of a particular model may be called an item or instance of that model.
 
 In code, instances aren't just _complying_ with one of the models, but have a strong relationship with the model instead for the model's API is used to actually access and manage some of its instances.
 
@@ -77,10 +83,10 @@ In code, instances aren't just _complying_ with one of the models, but have a st
 The address book application will be populated with information on several actual persons. Each particular person's individual data is an instance or item of the model.
 :::
 
-### Properties
+### Property Values
 
-In opposition to attributes every instance of a model consists of properties. The structure of properties complies with the structure described by the model's attributes. Properties have a value that has to comply with the type of data and the constraints both defined in the related attribute.
+Every instance of a model is grouping values for the properties defined for the model. Either value has to comply with the type and constraints as defined.
 
 ::: tip Example
-In address book application there might be a record for a person named "John Doe". This record will have a property named _last name_ with value "Doe" which is a _string of characters_ and _is present_, thus complying with the definition of related attribute.
+In address book application there might be a record for a person named "John Doe". This record will have a value "Doe" for the property named _last name_ which is a _string of characters_ and _is present_, thus complying with the definition of this property.
 :::
