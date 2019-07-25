@@ -37,47 +37,6 @@ const { Adapter, MemoryAdapter, FileAdapter } = require( "../../lib/adapter" );
 
 
 describe( "Model compiler module", () => {
-	/**
-	 * Creates some "class" imitating parts of `Model`.
-	 *
-	 * @param {object<string,object>} props attributes' definitions to be exposed in fake model's schema
-	 * @param {object<string,function>} computed computed attributes' definitions to be exposed in fake model's schema
-	 * @param {object<string,function>} methods methods' definitions to be exposed in fake model's schema
-	 * @param {object<string,function[]>} hooks hook definitions to be exposed in fake model's schema
-	 * @returns {Function} class faking essential parts of Model's API
-	 */
-	function fakeModel( { props = {}, computed = {}, methods = {}, hooks = {} } = {} ) {
-		const fake = function FakeModel() {}; // eslint-disable-line no-empty-function, func-style
-
-		Object.defineProperties( fake, {
-			schema: { value: { props, computed, methods, hooks } },
-		} );
-
-		return fake;
-	}
-
-	/**
-	 * Creates instance of some "class" imitating parts of `Model`.
-	 *
-	 * @param {object<string,*>} properties properties of instance of fake model
-	 * @param {object<string,object>} props properties' definitions to be exposed in fake model's schema
-	 * @param {object<string,function>} computed computed attributes' definitions to be exposed in fake model's schema
-	 * @param {object<string,function>} methods methods' definitions to be exposed in fake model's schema
-	 * @param {object<string,function[]>} hooks hook definitions to be exposed in fake model's schema
-	 * @returns {object} instance imitating essential parts of a Model's item's API
-	 */
-	function fakeModelInstance( { properties = {}, props = {}, computed = {}, methods = {}, hooks = {} } = {} ) {
-		const Fake = fakeModel( { props, computed, methods, hooks } );
-		const fake = new Fake();
-
-		Object.defineProperties( fake, {
-			$properties: { value: properties },
-		} );
-
-		return fake;
-	}
-
-
 	it( "exposes internally used functions for unit-testing", () => {
 		Compiler.should.have.property( "_utility" ).which.is.an.Object();
 

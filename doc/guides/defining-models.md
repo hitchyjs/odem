@@ -148,7 +148,7 @@ Either part is described in detail below.
 Defining at least one actual property in **props** is mandatory. Every such property definition consists of a unique name for the property and an object describing its type and optional constraints.
 
 :::warning
-The name of an actual property mustn't be used by any other actual or computed property or method of same model. In addition it mustn't start with `$` and the following keywords are prohibited as well: `prototype`, `super`, `constructor`, `uuid`.  
+The name of an actual property mustn't be used by any other actual or computed property or method of same model. In addition it may neither start with `$` nor match name of any life cycle event nor match any of following keywords: `prototype`, `super`, `constructor`, `uuid`.  
 :::
 
 ```javascript
@@ -189,7 +189,7 @@ Either types comes with a set of specific constraints to be defined in addition.
 Computed properties are defined in section **computed** by either one's unique name and the implementation as a function. Those functions are invoked in context of an instance of current model when reading the related computed property. The function is assumed to return any value which is provided as the 
 
 :::warning
-The name of an computed property mustn't be used by any other actual or computed property or method of same model. In addition it mustn't start with `$` and the following keywords are prohibited as well: `prototype`, `super`, `constructor`, `uuid`.  
+The name of an computed property mustn't be used by any other actual or computed property or method of same model. In addition it may neither start with `$` nor match name of any life cycle event nor match any of following keywords: `prototype`, `super`, `constructor`, `uuid`.  
 :::
 
 ```javascript
@@ -244,7 +244,7 @@ Arrow functions don't work here for lacking support for `this`.
 :::
 
 :::warning
-The name of a method mustn't be used by any other actual or computed property or method of same model. In addition it mustn't start with `$` and the following keywords are prohibited as well: `prototype`, `super`, `constructor`, `uuid`.  
+The name of a method mustn't be used by any other actual or computed property or method of same model. In addition it may neither start with `$` nor match name of any life cycle event nor match any of following keywords: `prototype`, `super`, `constructor`, `uuid`.   
 :::
 
 ```javascript
