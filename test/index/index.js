@@ -59,7 +59,7 @@ describe( "Index", function() {
 		instance.should.have.property( "remove" ).which.is.a.Function().of.length( 2 );
 		instance.should.have.property( "findBetween" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "checkRevision" ).which.is.a.Function().of.length( 0 );
-		instance.should.have.property( "reOrg" ).which.is.a.Function().of.length( 1 );
+		instance.should.have.property( "reOrg" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "updateIndex" ).which.is.a.Function().of.length( 3 );
 	} );
 
@@ -161,7 +161,7 @@ describe( "Index", function() {
 			instance.remove( uuids[5], 4 ).should.be.equal( 0 );
 			instance.remove( uuids[5], 5 ).should.be.equal( 0 );
 		} );
-		it( "removes entry from index with multiple entrie", function() {
+		it( "removes entry from index with multiple entries", function() {
 			instance.remove( uuids[3], 2 );
 			const gen = instance.find( 2 )();
 			gen.next().value[0].should.be.equal( uuids[2] );
