@@ -66,19 +66,19 @@ describe( "Index", function() {
 	describe( "returns 0 or 1 when on invoking insert", function() {
 		const instance = new Index( { revision: 0 } );
 		it( "0 if new index entry was added", () => {
-			instance.add( 1, uuids[1] ).should.be.equal( 1 );
+			instance.add( uuids[1], 1 ).should.be.equal( 1 );
 		} );
 
 		it( "1 if existing index entry was modified", () => {
-			instance.add( 1, uuids[2] ).should.be.equal( 0 );
+			instance.add( uuids[2],1 ).should.be.equal( 0 );
 		} );
 	} );
 
 	describe( "find", function() {
 		const instance = new Index( { revision: 0 } );
 		before( "", function() {
-			instance.add( 2, uuids[3] );
-			instance.add( 2, uuids[4] );
+			instance.add( uuids[3], 2 );
+			instance.add( uuids[4], 2 );
 		} );
 		it( "returns generator on invoking " ,function f() {
 			const gen = instance.find( 2 );
@@ -102,11 +102,11 @@ describe( "Index", function() {
 	describe( "findBetween", function() {
 		const instance = new Index( { revision: 0 } );
 		before( "", function() {
-			instance.add( 1, uuids[1] );
-			instance.add( 2, uuids[2] );
-			instance.add( 2, uuids[3] );
-			instance.add( 4, uuids[4] );
-			instance.add( 4, uuids[5] );
+			instance.add( uuids[1], 1 );
+			instance.add( uuids[2], 2 );
+			instance.add( uuids[3], 2 );
+			instance.add( uuids[4], 4 );
+			instance.add( uuids[5], 4 );
 		} );
 		it( "returns generator on invoking " ,function f() {
 			const gen = instance.findBetween( { lowerLimit: 0, upperLimit: 6 } );
@@ -150,25 +150,25 @@ describe( "Index", function() {
 	describe( "remove", function() {
 		const instance = new Index( { revision: 0 } );
 		before( "", function() {
-			instance.add( 1,uuids[1] );
-			instance.add( 2,uuids[2] );
-			instance.add( 2,uuids[3] );
-			instance.add( 4,uuids[4] );
-			instance.add( 4,uuids[5] );
+			instance.add( uuids[1], 1 );
+			instance.add( uuids[2], 2 );
+			instance.add( uuids[3], 2 );
+			instance.add( uuids[4], 4 );
+			instance.add( uuids[5], 4 );
 		} );
 		it( "returns 0 or 1 on invoke", function() {
-			instance.remove( 4,uuids[5] ).should.be.equal( 1 );
-			instance.remove( 4,uuids[5] ).should.be.equal( 0 );
-			instance.remove( 5,uuids[5] ).should.be.equal( 0 );
+			instance.remove( uuids[5], 4 ).should.be.equal( 1 );
+			instance.remove( uuids[5], 4 ).should.be.equal( 0 );
+			instance.remove( uuids[5], 5 ).should.be.equal( 0 );
 		} );
 		it( "removes entry from index with multiple entrie", function() {
-			instance.remove( 2, uuids[3] );
+			instance.remove( uuids[3], 2 );
 			const gen = instance.find( 2 )();
 			gen.next().value[0].should.be.equal( uuids[2] );
 			Should( gen.next().value ).be.undefined();
 		} );
 		it( "removes index if value is empty", function() {
-			instance.remove( 1, uuids[1] );
+			instance.remove( uuids[1],1 );
 			const gen = instance.find( 1 )();
 			Should( gen.next().value ).be.undefined();
 		} );
@@ -201,17 +201,17 @@ describe( "Index", function() {
 		const instance = new Index( { revision: 0 } );
 		const instanceWithRevision = new Index( { revision: 10 } );
 		before( "filling instances with values", function() {
-			instance.add( 1, uuids[1] );
-			instance.add( 2, uuids[2] );
-			instance.add( 2, uuids[3] );
-			instance.add( 4, uuids[4] );
-			instance.add( 4, uuids[5] );
+			instance.add( uuids[1], 1 );
+			instance.add( uuids[2], 2 );
+			instance.add( uuids[3], 2 );
+			instance.add( uuids[4], 4 );
+			instance.add( uuids[5], 4 );
 
-			instanceWithRevision.add( 1, uuids[1] );
-			instanceWithRevision.add( 2, uuids[2] );
-			instanceWithRevision.add( 2, uuids[3] );
-			instanceWithRevision.add( 4, uuids[4] );
-			instanceWithRevision.add( 4, uuids[5] );
+			instanceWithRevision.add( uuids[1], 1 );
+			instanceWithRevision.add( uuids[2], 2 );
+			instanceWithRevision.add( uuids[3], 2 );
+			instanceWithRevision.add( uuids[4], 4 );
+			instanceWithRevision.add( uuids[5], 4 );
 		} );
 		it( "with revision", function() {
 			[].concat.apply( [], instanceWithRevision.tree.values ).length.should.be.equal( 5 );
@@ -228,8 +228,8 @@ describe( "Index", function() {
 	describe( "update", function() {
 		const instance = new Index( { revision: 0 } );
 		before( "", function() {
-			instance.add( 1,uuids[1] );
-			instance.add( 2,uuids[2] );
+			instance.add( uuids[1], 1 );
+			instance.add( uuids[2], 2 );
 		} );
 		it( "should throw error if item is not in index",function() {
 			Should( () => instance.updateIndex( uuids[2], 1, 1 ) ).throw();

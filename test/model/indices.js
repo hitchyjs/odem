@@ -26,8 +26,13 @@
  * @author: cepharum
  */
 
+/* eslint-disable max-nested-callbacks */
 
-const { describe, it } = require( "mocha" );
+
+const { describe, it, before } = require( "mocha" );
+const PromiseUtil = require( "promise-essentials" );
+const uuid = require( "../../lib/utility/uuid" );
+const process = require( "process" );
 require( "should" );
 
 const { Model } = require( "../../" );
@@ -148,5 +153,140 @@ describe( "A model-related index", () => {
 		MyModel.indices.should.be.Array().which.has.length( 2 );
 		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
 		MyModel.indices[1].should.be.Object().which.is.deepEqual( { property: "b", type: "eq" } );
+	} );
+
+	describe( "can be index a properties using type eq", () => {
+		const MyModel = Model.define( "MyModel", {
+			props: {
+				index: { index: "eq", type: "integer" },
+				noIndex: { type: "integer" },
+				num: { type: "integer" },
+				value: {},
+			},
+		} );
+		[ 1, 2, 10, 100, 1000 ].forEach( mod => {
+			describe( `using ${mod} different values for the index`, () => {
+				const entries = new Array( 1000 );
+				before( "", () => {
+					for( let i = 0; i < 1000; i++ ) {
+						Promises[i] = uuid().then( value => {
+							entries[i] = {
+								index: i % mod,
+								number: i,
+								value,
+							};
+						} );
+					}
+					return Promise.all( Promises );
+				} );
+				after( "clear", () => {
+					MyModel.adapter.purge();
+					MyModel.indices.forEach( index => index.handler.reOrg() );
+				} );
+
+				it( "filling the index", () => {
+					return PromiseUtil.each( entries,
+						( { index, number, value, } ) => {
+							const item = new MyModel();
+							item.index = index;
+							item.noIndex = index;
+							item.number = number;
+							item.value = value;
+							return item.save();
+						} ).then( () => {
+						MyModel.indices[0].handler.tree.values.length.should.eql( mod );
+					} );
+
+				} );
+
+				describe( "list entries using index", () => {
+					let memoryBefore;
+					before( "saving memoryUsage", () => {
+						memoryBefore = process.memoryUsage();
+					} );
+					after( "logging memoryUsage", () => {
+						const memoryAfter = process.memoryUsage();
+						console.log( {
+							rss: memoryAfter.rss - memoryBefore.rss,
+							heapTotal: memoryAfter.heapTotal - memoryBefore.heapTotal,
+							heapUsed: memoryAfter.heapUsed - memoryBefore.heapUsed,
+							external: memoryAfter.external - memoryBefore.external,
+						} );
+					} );
+					it( "works", () => {
+						// eslint-disable-next-line max-nested-callbacks
+						return PromiseUtil.each( [ 0, Math.floor( mod / 2 ), mod - 1 ], value => {
+							return MyModel.findByAttribute( "index", value, "eq" ).then( items => {
+								items.length.should.be.eql( 1000 / mod );
+							} );
+						} );
+					} );
+				} );
+
+				describe( "filling index from memory", () => {
+					const NewModel = Model.define( "MyModel", {
+						props: {
+							index: { index: "eq", type: "integer" },
+							noIndex: { type: "integer" },
+							num: { type: "integer" },
+							value: {},
+						},
+					} );
+					let memoryBefore;
+					before( "saving memoryUsage", () => {
+						memoryBefore = process.memoryUsage();
+					} );
+					after( "logging memoryUsage", () => {
+						const memoryAfter = process.memoryUsage();
+						console.log( {
+							rss: memoryAfter.rss - memoryBefore.rss,
+							heapTotal: memoryAfter.heapTotal - memoryBefore.heapTotal,
+							heapUsed: memoryAfter.heapUsed - memoryBefore.heapUsed,
+							external: memoryAfter.external - memoryBefore.external,
+						} );
+					} );
+					it( "works", () => {
+						// eslint-disable-next-line max-nested-callbacks
+						return PromiseUtil.each( [ 0, Math.floor( mod / 2 ), mod - 1 ], value => {
+							return NewModel.findByAttribute( "index", value, "eq" ).then( items => {
+								items.length.should.be.eql( 1000 / mod );
+							} );
+						} );
+					} );
+				} );
+
+				describe( "list entries not using index", () => {
+					let memoryBefore;
+					before( "saving memoryUsage", () => {
+						memoryBefore = process.memoryUsage();
+					} );
+					after( "logging memoryUsage", () => {
+						const memoryAfter = process.memoryUsage();
+						console.log( {
+							rss: memoryAfter.rss - memoryBefore.rss,
+							heapTotal: memoryAfter.heapTotal - memoryBefore.heapTotal,
+							heapUsed: memoryAfter.heapUsed - memoryBefore.heapUsed,
+							external: memoryAfter.external - memoryBefore.external,
+						} );
+					} );
+					it( "works", () => {
+						// eslint-disable-next-line max-nested-callbacks
+						return PromiseUtil.each( [ 0, Math.floor( mod / 2 ), mod - 1 ], value => {
+							return MyModel.findByAttribute( "noIndex", value, "eq" ).then( items => {
+								items.length.should.be.eql( 1000 / mod );
+							} );
+						} );
+					} );
+				} );
+			} );
+		} );
+
+		MyModel.indices.should.be.Array().which.has.length( 1 );
+		MyModel.adapter.should.be.ok();
+
+		const Promises = [];
+		Promises.push( MyModel.indexLoaded.then( indices => indices[0].handler.should.be.ok() ) );
+		Promises.push( MyModel.indexLoaded.then( indices => indices[0].handler.should.be.ok() ) );
+		return Promise.all( Promises );
 	} );
 } );
