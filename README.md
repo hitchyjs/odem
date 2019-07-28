@@ -8,4 +8,4 @@ MIT
 
 ## Documentation
 
-Read the separate [set of documentation files](./doc/README.md). 
+The latest documentation is available at https://hitchyjs.github.io/odem/. 
