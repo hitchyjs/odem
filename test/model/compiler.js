@@ -138,8 +138,8 @@ describe( "Model compiler module", () => {
 		it( "supports optional provision of adapter to use explicitly with resulting implementation of Model", () => {
 			( () => Compiler( "name", MostSimpleSchema, null ) ).should.not.throw();
 			( () => Compiler( "name", MostSimpleSchema, null, undefined ) ).should.not.throw();
-			( () => Compiler( "name", MostSimpleSchema, null, null ) ).should.not.throw();
 
+			( () => Compiler( "name", MostSimpleSchema, null, null ) ).should.throw( TypeError );
 			( () => Compiler( "name", MostSimpleSchema, null, false ) ).should.throw( TypeError );
 			( () => Compiler( "name", MostSimpleSchema, null, true ) ).should.throw( TypeError );
 			( () => Compiler( "name", MostSimpleSchema, null, 5 ) ).should.throw( TypeError );

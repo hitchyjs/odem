@@ -26,11 +26,14 @@
  * @author: cepharum
  */
 
+/* eslint-disable max-nested-callbacks */
 
-const { describe, it } = require( "mocha" );
+const Path = require( "path" );
+
+const { describe, it, before, after } = require( "mocha" );
 require( "should" );
 
-const { Model } = require( "../../" );
+const { Model, FileAdapter } = require( "../../" );
 
 
 describe( "A model-related index", () => {
@@ -64,7 +67,10 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
 	} );
 
 	it( "can be defined using single-item array listing sole operation", () => {
@@ -75,7 +81,10 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
 	} );
 
 	[ [], null, undefined, 0, "", false ].forEach( value => {
@@ -111,8 +120,14 @@ describe( "A model-related index", () => {
 		} );
 
 		MyModel.indices.should.be.Array().which.has.length( 2 );
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
-		MyModel.indices[1].should.be.Object().which.is.deepEqual( { property: "a", type: "neq" } );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
+		MyModel.indices[1].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "neq"
+		} );
 	} );
 
 	it( "rejects definition of multiple indices per property using same type of index", () => {
@@ -133,8 +148,14 @@ describe( "A model-related index", () => {
 		} );
 
 		MyModel.indices.should.be.Array().which.has.length( 2 );
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
-		MyModel.indices[1].should.be.Object().which.is.deepEqual( { property: "b", type: "neq" } );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
+		MyModel.indices[1].should.be.Object().which.is.deepEqual( {
+			property: "b",
+			type: "neq"
+		} );
 	} );
 
 	it( "can be defined multiple times on separate properties using same type for different properties", () => {
@@ -146,7 +167,186 @@ describe( "A model-related index", () => {
 		} );
 
 		MyModel.indices.should.be.Array().which.has.length( 2 );
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
-		MyModel.indices[1].should.be.Object().which.is.deepEqual( { property: "b", type: "eq" } );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
+		MyModel.indices[1].should.be.Object().which.is.deepEqual( {
+			property: "b",
+			type: "eq"
+		} );
+	} );
+
+	describe( "on a model using", function() {
+		this.timeout( 120000 );
+
+		const NumRecords = 1000;
+
+		const Adapters = [
+			[ "default (memory) adapter", undefined ],
+			[ "FileAdapter", new FileAdapter( {
+				dataSource: Path.resolve( __dirname, "../../data" ),
+			} ) ],
+		];
+
+		const Values = [
+			[ "integer", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => index ) ],
+			[ "string", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => `prefix${index}suffix` ) ],
+		];
+
+		Adapters.forEach( ( [ adapterLabel, adapter ] ) => {
+			describe( adapterLabel, () => {
+				[ 1, 2, 10, 100, 1000, 10000, 100000 ].forEach( numValues => {
+					if ( numValues > NumRecords ) {
+						return;
+					}
+
+					Values.forEach( ( [ valueType, valueGenerator ] ) => {
+						const values = valueGenerator( numValues );
+
+						describe( `having ${NumRecords} records with ${numValues} different value(s) on a property of type ${valueType}`, () => {
+							let MyModel;
+
+							before( () => {
+								MyModel = Model.define( "MyModel", {
+									props: {
+										index: { type: valueType, index: "eq" },
+										noIndex: { type: valueType },
+										number: { type: "integer" },
+									},
+								}, undefined, adapter );
+
+								Boolean( MyModel.indexPromise ).should.be.eql( false );
+							} );
+
+							after( () => MyModel.adapter.purge() );
+
+
+							it( `is updated while adding ${NumRecords} records`, () => {
+								return new Promise( ( resolve, reject ) => {
+									const create = index => {
+										if ( index >= NumRecords ) {
+											resolve();
+										} else {
+											const item = new MyModel();
+											item.index = item.noIndex = values[index % numValues];
+											item.number = index;
+											item.save()
+												.then( () => create( index + 1 ) )
+												.catch( reject );
+										}
+									};
+
+									create( 0 );
+								} );
+							} );
+
+							describe( "has as many", () => {
+								it( "nodes as different values used for property while adding records before", () => {
+									MyModel.indices[0].handler.tree.values.length.should.eql( numValues );
+								} );
+
+								it( "values attached to all its nodes as records created before", () => {
+									MyModel.indices[0].handler.tree.values
+										.reduce( ( accumulator, currentValue ) => accumulator + currentValue.length, 0 ).should.be.eql( NumRecords );
+								} );
+							} );
+
+							describe( "lists all matches when searching by property with index for", () => {
+								it( `smallest used value ${values[0]}`, () => {
+									return MyModel.findByAttribute( "index", values[0], "eq" )
+										.then( items => {
+											items.length.should.be.eql( NumRecords / numValues );
+										} );
+								} );
+
+								it( `midrange value ${values[Math.floor( numValues / 2 )]}`, () => {
+									return MyModel.findByAttribute( "index", values[Math.floor( numValues / 2 )], "eq" )
+										.then( items => {
+											items.length.should.be.eql( NumRecords / numValues );
+										} );
+								} );
+
+								it( `biggest used value ${values[numValues - 1]}`, () => {
+									return MyModel.findByAttribute( "index", values[numValues - 1], "eq" )
+										.then( items => {
+											items.length.should.be.eql( NumRecords / numValues );
+										} );
+								} );
+							} );
+
+
+
+							describe( "accessed via separate model relying on data existing in backend", () => {
+								let NewModel;
+
+								it( "is restored from existing data backend", () => {
+									NewModel = Model.define( "MyModel", {
+										props: {
+											index: { type: valueType, index: "eq" },
+											noIndex: { type: valueType },
+											number: { type: "integer" },
+										},
+									}, undefined, adapter );
+
+									return NewModel.indexLoaded;
+								} );
+
+								[ [ true, "and loading records" ], [ false, "without loading records" ] ].forEach( ( [ loadRecords, label ] ) => {
+									describe( `lists all matches when searching by property ${label}`, () => {
+										describe( "with index for", () => {
+											it( `smallest used value ${values[0]}`, () => {
+												return NewModel.findByAttribute( "index", values[0], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+
+											it( `mid-range value ${values[Math.floor( numValues / 2 )]}`, () => {
+												return NewModel.findByAttribute( "index", values[Math.floor( numValues / 2 )], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+
+											it( `for biggest used value ${values[numValues - 1]}`, () => {
+												return NewModel.findByAttribute( "index", values[numValues - 1], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+										} );
+
+										describe( "without index for", () => {
+											it( `smallest used value ${values[0]}`, () => {
+												return NewModel.findByAttribute( "noIndex", values[0], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+
+											it( `mid-range value ${values[Math.floor( numValues / 2 )]}`, () => {
+												return NewModel.findByAttribute( "noIndex", values[Math.floor( numValues / 2 )], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+
+											it( `biggest used value ${values[numValues - 1]}`, () => {
+												return NewModel.findByAttribute( "noIndex", values[numValues - 1], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+										} );
+									} );
+								} );
+							} );
+						} );
+					} );
+				} );
+			} );
+
+		} );
 	} );
 } );
