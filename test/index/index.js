@@ -34,13 +34,15 @@ const Index = require( "../../lib/index/index" );
 
 describe( "Index", function() {
 	const uuids = new Array( 6 );
+
 	before( "generating uuids", function() {
 		const Promises = new Array( 6 );
 		for( let i = 0; i < 6; i++ ) {
-			Promises[i] = uuid().then( uuid => {
-				uuids[i] = uuid;
+			Promises[i] = uuid().then( _uuid => {
+				uuids[i] = _uuid;
 			} );
 		}
+
 		return Promise.all( Promises );
 	} );
 
@@ -213,8 +215,9 @@ describe( "Index", function() {
 			instanceWithRevision.add( uuids[4], 4 );
 			instanceWithRevision.add( uuids[5], 4 );
 		} );
+
 		it( "with revision", function() {
-			[].concat.apply( [], instanceWithRevision.tree.values ).length.should.be.equal( 5 );
+			[].concat( ...instanceWithRevision.tree.values ).length.should.be.equal( 5 );
 			Should( instanceWithRevision.revision ).be.eql( 10 );
 			instanceWithRevision.reOrg( instanceWithRevision.revision );
 			instanceWithRevision.tree.values.length.should.be.equal( 0 );
