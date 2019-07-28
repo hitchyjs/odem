@@ -28,6 +28,8 @@
 
 module.exports = {
 	evergreen: true,
+	base: "/odem/",
+	dest: "docs",
 	title: "Hitchy ODM Manual",
 	themeConfig: {
 		displayAllHeaders: true,
