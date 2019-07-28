@@ -35,6 +35,13 @@ const { Model, Adapter, MemoryAdapter } = require( "../../index" );
 describe( "Abstract Model", () => {
 	let memory;
 
+	/**
+	 * Derives from abstract model w/o changing anything to test abstract base
+	 * class without causing side-effects in upcoming tests due to adjusting
+	 * static properties in scope of shared base class.
+	 */
+	class DerivedModel extends Model {}
+
 	before( () => {
 		memory = new MemoryAdapter();
 	} );
@@ -44,51 +51,51 @@ describe( "Abstract Model", () => {
 	} );
 
 	it( "can be used to create instance", () => {
-		( () => new Model( "01234567-89ab-cdef-fedc-ba9876543210" ) ).should.not.throw();
+		( () => new DerivedModel( "01234567-89ab-cdef-fedc-ba9876543210" ) ).should.not.throw();
 	} );
 
 	it( "does not require UUID on creating instance", () => {
-		( () => new Model() ).should.not.throw();
+		( () => new DerivedModel() ).should.not.throw();
 	} );
 
 	it( "supports provision of UUID on creating instance", () => {
-		( () => new Model( "12345678-9abc-def0-0fed-cba987654321" ) ).should.not.throw();
+		( () => new DerivedModel( "12345678-9abc-def0-0fed-cba987654321" ) ).should.not.throw();
 	} );
 
 	it( "requires any UUID provided on creating instance to be valid", () => {
-		( () => new Model( "123456789abc-def0-0fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-9abcdef0-0fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-9abc-def00fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-9abc-def0-0fedcba987654321" ) ).should.throw();
-		( () => new Model( "2345678-9abc-def0-0fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-abc-def0-0fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-9abc-ef0-0fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-9abc-def0-fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-9abc-def0-0fed-ba987654321" ) ).should.throw();
-		( () => new Model( "012345678-9abc-def0-0fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-89abc-def0-0fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-9abc-cdef0-0fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-9abc-def0-00fed-cba987654321" ) ).should.throw();
-		( () => new Model( "12345678-9abc-def0-0fed-dcba987654321" ) ).should.throw();
+		( () => new DerivedModel( "123456789abc-def0-0fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-9abcdef0-0fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-9abc-def00fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-9abc-def0-0fedcba987654321" ) ).should.throw();
+		( () => new DerivedModel( "2345678-9abc-def0-0fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-abc-def0-0fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-9abc-ef0-0fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-9abc-def0-fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-9abc-def0-0fed-ba987654321" ) ).should.throw();
+		( () => new DerivedModel( "012345678-9abc-def0-0fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-89abc-def0-0fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-9abc-cdef0-0fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-9abc-def0-00fed-cba987654321" ) ).should.throw();
+		( () => new DerivedModel( "12345678-9abc-def0-0fed-dcba987654321" ) ).should.throw();
 	} );
 
 	it( "supports provision of options in second parameter on creating instance", () => {
-		( () => new Model( "12345678-9abc-def0-0fed-cba987654321", { adapter: new MemoryAdapter() } ) ).should.not.throw();
-		( () => new Model( null, { adapter: new MemoryAdapter() } ) ).should.not.throw();
+		( () => new DerivedModel( "12345678-9abc-def0-0fed-cba987654321", { adapter: new MemoryAdapter() } ) ).should.not.throw();
+		( () => new DerivedModel( null, { adapter: new MemoryAdapter() } ) ).should.not.throw();
 
-		( () => new Model( { adapter: new MemoryAdapter() } ) ).should.throw();
+		( () => new DerivedModel( { adapter: new MemoryAdapter() } ) ).should.throw();
 	} );
 
 	it( "supports provision of empty options in second parameter on creating instance", () => {
-		( () => new Model( "12345678-9abc-def0-0fed-cba987654321", {} ) ).should.not.throw();
-		( () => new Model( null, {} ) ).should.not.throw();
+		( () => new DerivedModel( "12345678-9abc-def0-0fed-cba987654321", {} ) ).should.not.throw();
+		( () => new DerivedModel( null, {} ) ).should.not.throw();
 
-		( () => new Model( {} ) ).should.throw();
+		( () => new DerivedModel( {} ) ).should.throw();
 	} );
 
 	it( "exposes instance properties of Model API", () => {
 		const uuid = "01234567-89ab-cdef-fedc-ba9876543210";
-		const instance = new Model( uuid );
+		const instance = new DerivedModel( uuid );
 
 		instance.should.have.property( "uuid" ).which.is.a.String().and.equal( uuid );
 		instance.should.have.property( "$loaded" ).which.is.null();
@@ -100,7 +107,7 @@ describe( "Abstract Model", () => {
 	} );
 
 	it( "exposes instance methods of Model API", () => {
-		const instance = new Model( "01234567-89ab-cdef-fedc-ba9876543210" );
+		const instance = new DerivedModel( "01234567-89ab-cdef-fedc-ba9876543210" );
 
 		instance.should.have.property( "load" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "save" ).which.is.a.Function().of.length( 0 );
@@ -114,30 +121,30 @@ describe( "Abstract Model", () => {
 	} );
 
 	it( "exposes class/static methods of Model API", () => {
-		Model.should.have.property( "keyToUuid" ).which.is.a.Function().of.length( 1 );
-		Model.should.have.property( "keyToModelName" ).which.is.a.Function().of.length( 1 );
+		DerivedModel.should.have.property( "keyToUuid" ).which.is.a.Function().of.length( 1 );
+		DerivedModel.should.have.property( "keyToModelName" ).which.is.a.Function().of.length( 1 );
 	} );
 
 	it( "exposes context of monitoring properties for changes", () => {
-		const instance = new Model( "01234567-89ab-cdef-fedc-ba9876543210" );
+		const instance = new DerivedModel( "01234567-89ab-cdef-fedc-ba9876543210" );
 
 		Should( instance.$properties.$context ).be.an.Object().which.is.ok().and.has.property( "changed" ).which.is.ok().and.empty();
 	} );
 
 	it( "marks initially unbound instance as new", () => {
-		const instance = new Model( null );
+		const instance = new DerivedModel( null );
 
 		instance.$isNew.should.be.true();
 	} );
 
 	it( "does not mark initially bound instance as new", () => {
-		const instance = new Model( "01234567-89ab-cdef-fedc-ba9876543210" );
+		const instance = new DerivedModel( "01234567-89ab-cdef-fedc-ba9876543210" );
 
 		instance.$isNew.should.be.false();
 	} );
 
 	it( "considers unbound instance loaded instantly, thus setting property `loaded` prior to invoking Model#load()", () => {
-		const instance = new Model();
+		const instance = new DerivedModel();
 		const promise = instance.$loaded;
 
 		Should( promise ).not.be.null();
@@ -151,7 +158,7 @@ describe( "Abstract Model", () => {
 	} );
 
 	it( "sets property `loaded` on invoking Model#load() on a bound instance", () => {
-		const instance = new Model( "01234567-89ab-cdef-fdec-ba9876543210" );
+		const instance = new DerivedModel( "01234567-89ab-cdef-fdec-ba9876543210" );
 
 		Should( instance.$loaded ).be.null();
 
@@ -161,15 +168,15 @@ describe( "Abstract Model", () => {
 	} );
 
 	it( "rejects to load persistent data of unknown item on invoking Model#load()", () => {
-		return new Model( "01234567-89ab-cdef-fdec-ba9876543210" ).load().should.be.Promise().which.is.rejected();
+		return new DerivedModel( "01234567-89ab-cdef-fdec-ba9876543210" ).load().should.be.Promise().which.is.rejected();
 	} );
 
 	it( "succeeds to 'load' initial data of unbound instance on invoking Model#load()", () => {
-		return new Model().load().should.be.Promise().which.is.resolved();
+		return new DerivedModel().load().should.be.Promise().which.is.resolved();
 	} );
 
 	it( "keeps returning same eventually rejected promise on Model#load() on an instance bound to unknown item", () => {
-		const instance = new Model( "01234567-89ab-cdef-fdec-ba9876543210" );
+		const instance = new DerivedModel( "01234567-89ab-cdef-fdec-ba9876543210" );
 
 		const promise = instance.load();
 
@@ -182,19 +189,19 @@ describe( "Abstract Model", () => {
 	} );
 
 	it( "supports saving unbound instance to persistent storage using Model#save()", () => {
-		const instance = new Model( null, { adapter: memory } );
+		const instance = new DerivedModel( null, { adapter: memory } );
 
 		return instance.save().should.be.Promise().which.is.resolvedWith( instance );
 	} );
 
 	it( "rejects saving instance bound to unknown item to persistent storage using Model#save()", () => {
-		const instance = new Model( "01234567-89ab-cdef-fedc-ba9876543210", { adapter: memory } );
+		const instance = new DerivedModel( "01234567-89ab-cdef-fedc-ba9876543210", { adapter: memory } );
 
 		return instance.save().should.be.Promise().which.is.rejected();
 	} );
 
 	it( "exposes UUID assigned on saving unbound instance to persistent storage using Model#save()", () => {
-		const instance = new Model( null, { adapter: memory } );
+		const instance = new DerivedModel( null, { adapter: memory } );
 
 		Should( instance.uuid ).be.null();
 
@@ -205,7 +212,7 @@ describe( "Abstract Model", () => {
 	} );
 
 	it( "stops marking initially unbound instance as new after having saved to persistent storage using Model#save()", () => {
-		const instance = new Model( null, { adapter: memory } );
+		const instance = new DerivedModel( null, { adapter: memory } );
 
 		instance.$isNew.should.be.true();
 
@@ -220,27 +227,27 @@ describe( "Abstract Model", () => {
 		let created;
 
 		before( () => {
-			created = new Model( null, { adapter: memory } );
+			created = new DerivedModel( null, { adapter: memory } );
 
 			return created.save();
 		} );
 
 
 		it( "saves instance bound to known item to persistent storage using Model#save()", () => {
-			const instance = new Model( created.uuid, { adapter: memory } );
+			const instance = new DerivedModel( created.uuid, { adapter: memory } );
 
 			return instance.save().should.be.Promise().which.is.rejected();
 		} );
 
 		it( "rejects saving instance bound to known item to persistent storage using Model#save() w/o loading first", () => {
-			const instance = new Model( created.uuid, { adapter: memory } );
+			const instance = new DerivedModel( created.uuid, { adapter: memory } );
 
 			return instance.load()
 				.then( () => instance.save().should.be.Promise().which.is.resolvedWith( instance ) );
 		} );
 
 		it( "clears mark on changed properties after saving to persistent storage using Model#save()", () => {
-			const instance = new Model( created.uuid, { adapter: memory } );
+			const instance = new DerivedModel( created.uuid, { adapter: memory } );
 
 			return instance.load()
 				.then( () => {
@@ -261,7 +268,7 @@ describe( "Abstract Model", () => {
 		} );
 
 		it( "clears mark on changed properties after loaded from persistent storage using Model#load()", () => {
-			const instance = new Model( created.uuid, { adapter: memory, onUnsaved: "ignore" } );
+			const instance = new DerivedModel( created.uuid, { adapter: memory, onUnsaved: "ignore" } );
 
 			instance.$properties.$context.changed.should.be.empty();
 			instance.$properties.$context.hasChanged.should.be.false();
@@ -279,14 +286,14 @@ describe( "Abstract Model", () => {
 		} );
 
 		it( "rejects to load after having changed properties of bound item using Model#load()", () => {
-			const instanceUnchanged = new Model( created.uuid, { adapter: memory, onUnsaved: "fail" } );
+			const instanceUnchanged = new DerivedModel( created.uuid, { adapter: memory, onUnsaved: "fail" } );
 
 			instanceUnchanged.$properties.$context.changed.should.be.empty();
 			instanceUnchanged.$properties.$context.hasChanged.should.be.false();
 
 			return instanceUnchanged.load().should.be.Promise().which.is.not.rejected()
 				.then( () => {
-					const instanceChanging = new Model( created.uuid, { adapter: memory, onUnsaved: "fail" } );
+					const instanceChanging = new DerivedModel( created.uuid, { adapter: memory, onUnsaved: "fail" } );
 
 					instanceChanging.$properties.$context.changed.should.be.empty();
 					instanceChanging.$properties.$context.hasChanged.should.be.false();
