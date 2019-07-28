@@ -28,10 +28,9 @@
 
 /* eslint-disable max-nested-callbacks */
 
+const Path = require( "path" );
 
 const { describe, it, before, after } = require( "mocha" );
-const PromiseUtil = require( "promise-essentials" );
-const uuid = require( "../../lib/utility/uuid" );
 require( "should" );
 
 const { Model, FileAdapter } = require( "../../" );
@@ -68,7 +67,10 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
 	} );
 
 	it( "can be defined using single-item array listing sole operation", () => {
@@ -79,7 +81,10 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
 	} );
 
 	[ [], null, undefined, 0, "", false ].forEach( value => {
@@ -115,8 +120,14 @@ describe( "A model-related index", () => {
 		} );
 
 		MyModel.indices.should.be.Array().which.has.length( 2 );
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
-		MyModel.indices[1].should.be.Object().which.is.deepEqual( { property: "a", type: "neq" } );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
+		MyModel.indices[1].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "neq"
+		} );
 	} );
 
 	it( "rejects definition of multiple indices per property using same type of index", () => {
@@ -137,8 +148,14 @@ describe( "A model-related index", () => {
 		} );
 
 		MyModel.indices.should.be.Array().which.has.length( 2 );
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
-		MyModel.indices[1].should.be.Object().which.is.deepEqual( { property: "b", type: "neq" } );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
+		MyModel.indices[1].should.be.Object().which.is.deepEqual( {
+			property: "b",
+			type: "neq"
+		} );
 	} );
 
 	it( "can be defined multiple times on separate properties using same type for different properties", () => {
@@ -150,154 +167,164 @@ describe( "A model-related index", () => {
 		} );
 
 		MyModel.indices.should.be.Array().which.has.length( 2 );
-		MyModel.indices[0].should.be.Object().which.is.deepEqual( { property: "a", type: "eq" } );
-		MyModel.indices[1].should.be.Object().which.is.deepEqual( { property: "b", type: "eq" } );
-	} );
-
-	describe( "filling index",() => {
-		[ 1, 2, 10, 100, 1000 ].forEach( mod => {
-			describe( `using ${mod} different values for the index`, () => {
-				const MyModel = Model.define( "MyModel", {
-					props: {
-						index: { index: "eq", type: "integer" },
-						noIndex: { type: "integer" },
-						num: { type: "integer" },
-						value: {},
-					}
-				} );
-
-				const entries = new Array( 1000 );
-				before( "", () => {
-					const Promises = [];
-					for( let i = 0; i < 1000; i++ ) {
-						Promises[i] = uuid().then( value => {
-							entries[i] = {
-								index: i % mod,
-								number: i,
-								value,
-							};
-						} );
-					}
-					return Promise.all( Promises );
-				} );
-				after( "", () => {
-					MyModel.adapter.purge();
-				} );
-
-				it( "filling the index", () => {
-					entries.length.should.be.eql( 1000 );
-					return PromiseUtil.each( entries,
-						( { index, number, value, } ) => {
-							const item = new MyModel();
-							item.index = index;
-							item.number = number;
-							item.value = value;
-							return item.save();
-						} ).then( () => {
-						const values = MyModel.indices[0].handler.tree.values;
-						values.length.should.eql( mod );
-						values.forEach( entry => {
-							entry.length.should.be.eql( 1000 / mod );
-						} );
-						values.reduce( ( accumulator, currentValue ) => accumulator + currentValue.length, 0 ).should.be.eql( 1000 );
-					} );
-				} );
-
-			} );
+		MyModel.indices[0].should.be.Object().which.is.deepEqual( {
+			property: "a",
+			type: "eq"
+		} );
+		MyModel.indices[1].should.be.Object().which.is.deepEqual( {
+			property: "b",
+			type: "eq"
 		} );
 	} );
 
-	describe( "can be index a properties using type eq", () => {
-		[ undefined, FileAdapter ].forEach( adapter => {
-			describe( adapter == null ? "default" : "fileAdapter", () => {
-				[ 1, 2, 10, 100, 1000 ].forEach( mod => {
-					describe( `using ${mod} different values for the index`, () => {
-						const MyModel = Model.define( "MyModel", {
-							props: {
-								index: { index: "eq", type: "integer" },
-								noIndex: { type: "integer" },
-								num: { type: "integer" },
-								value: {},
-							},
-							undefined,
-							adapter,
-						} );
+	describe( "on a model using", function() {
+		this.timeout( 120000 );
 
-						MyModel.indices.should.be.Array().which.has.length( 1 );
-						MyModel.adapter.should.be.ok();
-						Boolean( MyModel.indexPromise ).should.be.eql( false );
+		const NumRecords = 1000;
 
-						const entries = new Array( 1000 );
-						before( "", () => {
-							const Promises = [];
-							for( let i = 0; i < 1000; i++ ) {
-								Promises[i] = uuid().then( value => {
-									entries[i] = {
-										index: i % mod,
-										number: i,
-										value,
-									};
-								} );
-							}
-							return Promise.all( Promises );
-						} );
-						after( "clear", () => {
-							MyModel.adapter.purge();
-						} );
+		const fileAdapter = new FileAdapter( {
+			dataSource: Path.resolve( __dirname, "../../data" ),
+		} );
 
-						it( "filling the index", () => {
-							return PromiseUtil.each( entries,
-								( { index, number, value, } ) => {
-									const item = new MyModel();
-									item.index = index;
-									item.noIndex = index;
-									item.number = number;
-									item.value = value;
-									return item.save();
-								} ).then( () => {
-								const values = MyModel.indices[0].handler.tree.values;
-								values.length.should.eql( mod );
-								values.reduce( ( accumulator, currentValue ) => accumulator + currentValue.length, 0 ).should.be.eql( 1000 );
-							} );
-						} );
+		[ undefined, fileAdapter ].forEach( adapter => {
+			describe( adapter == null ? "default (memory) adapter" : "file-based adapter", () => {
+				[ 1, 2, 10, 100, 1000, 10000, 100000 ].forEach( mod => {
+					if ( mod > NumRecords ) {
+						return;
+					}
 
-						describe( "list entries using index", () => {
-							it( "works", () => {
-								// eslint-disable-next-line max-nested-callbacks
-								return PromiseUtil.each( [ 0, Math.floor( mod / 2 ), mod - 1 ], value => {
-									return MyModel.findByAttribute( "index", value, "eq" ).then( items => {
-										console.log( value );
-										items.length.should.be.eql( 1000 / mod );
-									} );
-								} );
-							} );
-						} );
+					describe( `having ${NumRecords} records with ${mod} different value(s) on a numeric property`, () => {
+						let MyModel;
 
-						describe( "filling index from memory", () => {
-							const NewModel = Model.define( "MyModel", {
+						before( () => {
+							MyModel = Model.define( "MyModel", {
 								props: {
-									index: { index: "eq", type: "integer" },
+									index: { type: "integer", index: "eq" },
 									noIndex: { type: "integer" },
 									num: { type: "integer" },
-									value: {},
 								},
-							} );
-							it( "works", () => {
-								// eslint-disable-next-line max-nested-callbacks
-								return PromiseUtil.each( [ 0, Math.floor( mod / 2 ), mod - 1 ], value => {
-									return NewModel.findByAttribute( "index", value, "eq" ).then( items => {
-										items.length.should.be.eql( 1000 / mod );
-									} );
-								} );
+							}, undefined, adapter );
+
+							Boolean( MyModel.indexPromise ).should.be.eql( false );
+						} );
+
+						after( () => MyModel.adapter.purge() );
+
+
+						it( `is updated while adding ${NumRecords} records`, () => {
+							return new Promise( ( resolve, reject ) => {
+								const create = index => {
+									if ( index >= NumRecords ) {
+										resolve();
+									} else {
+										const item = new MyModel();
+										item.index = item.noIndex = index % mod;
+										item.number = index;
+										item.save()
+											.then( () => create( index + 1 ) )
+											.catch( reject );
+									}
+								};
+
+								create( 0 );
 							} );
 						} );
 
-						describe( "list entries not using index", () => {
-							it( "works", () => {
-								// eslint-disable-next-line max-nested-callbacks
-								return PromiseUtil.each( [ 0, Math.floor( mod / 2 ), mod - 1 ], value => {
-									return MyModel.findByAttribute( "noIndex", value, "eq" ).then( items => {
-										items.length.should.be.eql( 1000 / mod );
+						describe( "has as many", () => {
+							it( "nodes as different values used for property while adding records before", () => {
+								MyModel.indices[0].handler.tree.values.length.should.eql( mod );
+							} );
+
+							it( "values attached to all its nodes as records created before", () => {
+								MyModel.indices[0].handler.tree.values
+									.reduce( ( accumulator, currentValue ) => accumulator + currentValue.length, 0 ).should.be.eql( NumRecords );
+							} );
+						} );
+
+						describe( "lists all matches when searching by property with index for", () => {
+							it( "smallest used value 0", () => {
+								return MyModel.findByAttribute( "index", 0, "eq" )
+									.then( items => {
+										items.length.should.be.eql( NumRecords / mod );
+									} );
+							} );
+
+							it( `midrange value ${Math.floor( mod / 2 )}`, () => {
+								return MyModel.findByAttribute( "index", Math.floor( mod / 2 ), "eq" )
+									.then( items => {
+										items.length.should.be.eql( NumRecords / mod );
+									} );
+							} );
+
+							it( `biggest used value ${mod - 1}`, () => {
+								return MyModel.findByAttribute( "index", mod - 1, "eq" )
+									.then( items => {
+										items.length.should.be.eql( NumRecords / mod );
+									} );
+							} );
+						} );
+
+
+
+						describe( "accessed via separate model relying on data existing in backend", () => {
+							let NewModel;
+
+							it( "is restored from existing data backend", () => {
+								NewModel = Model.define( "MyModel", {
+									props: {
+										index: { type: "integer", index: "eq" },
+										noIndex: { type: "integer" },
+										number: { type: "integer" },
+									},
+								}, undefined, adapter );
+
+								return NewModel.indexLoaded;
+							} );
+
+							describe( "lists all matches when searching by property", () => {
+								describe( "with index for", () => {
+									it( "smallest used value 0", () => {
+										return NewModel.findByAttribute( "index", 0, "eq" )
+											.then( items => {
+												items.length.should.be.eql( NumRecords / mod );
+											} );
+									} );
+
+									it( `mid-range value ${Math.floor( mod / 2 )}`, () => {
+										return NewModel.findByAttribute( "index", Math.floor( mod / 2 ), "eq" )
+											.then( items => {
+												items.length.should.be.eql( NumRecords / mod );
+											} );
+									} );
+
+									it( `for biggest used value ${mod - 1}`, () => {
+										return NewModel.findByAttribute( "index", mod - 1, "eq" )
+											.then( items => {
+												items.length.should.be.eql( NumRecords / mod );
+											} );
+									} );
+								} );
+
+								describe( "without index for", () => {
+									it( "smallest used value 0", () => {
+										return NewModel.findByAttribute( "noIndex", 0, "eq" )
+											.then( items => {
+												items.length.should.be.eql( NumRecords / mod );
+											} );
+									} );
+
+									it( `mid-range value ${Math.floor( mod / 2 )}`, () => {
+										return NewModel.findByAttribute( "noIndex", Math.floor( mod / 2 ), "eq" )
+											.then( items => {
+												items.length.should.be.eql( NumRecords / mod );
+											} );
+									} );
+
+									it( `biggest used value ${mod - 1}`, () => {
+										return NewModel.findByAttribute( "noIndex", mod - 1, "eq" )
+											.then( items => {
+												items.length.should.be.eql( NumRecords / mod );
+											} );
 									} );
 								} );
 							} );
