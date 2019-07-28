@@ -182,149 +182,163 @@ describe( "A model-related index", () => {
 
 		const NumRecords = 1000;
 
-		const fileAdapter = new FileAdapter( {
-			dataSource: Path.resolve( __dirname, "../../data" ),
-		} );
+		const Adapters = [
+			[ "default (memory) adapter", undefined ],
+			[ "FileAdapter", new FileAdapter( {
+				dataSource: Path.resolve( __dirname, "../../data" ),
+			} ) ],
+		];
 
-		[ undefined, fileAdapter ].forEach( adapter => {
-			describe( adapter == null ? "default (memory) adapter" : "file-based adapter", () => {
-				[ 1, 2, 10, 100, 1000, 10000, 100000 ].forEach( mod => {
-					if ( mod > NumRecords ) {
+		const Values = [
+			[ "integer", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => index ) ],
+			[ "string", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => `prefix${index}suffix` ) ],
+		];
+
+		Adapters.forEach( ( [ adapterLabel, adapter ] ) => {
+			describe( adapterLabel, () => {
+				[ 1, 2, 10, 100, 1000, 10000, 100000 ].forEach( numValues => {
+					if ( numValues > NumRecords ) {
 						return;
 					}
 
-					describe( `having ${NumRecords} records with ${mod} different value(s) on a numeric property`, () => {
-						let MyModel;
+					Values.forEach( ( [ valueType, valueGenerator ] ) => {
+						const values = valueGenerator( numValues );
 
-						before( () => {
-							MyModel = Model.define( "MyModel", {
-								props: {
-									index: { type: "integer", index: "eq" },
-									noIndex: { type: "integer" },
-									num: { type: "integer" },
-								},
-							}, undefined, adapter );
+						describe( `having ${NumRecords} records with ${numValues} different value(s) on a property of type ${valueType}`, () => {
+							let MyModel;
 
-							Boolean( MyModel.indexPromise ).should.be.eql( false );
-						} );
-
-						after( () => MyModel.adapter.purge() );
-
-
-						it( `is updated while adding ${NumRecords} records`, () => {
-							return new Promise( ( resolve, reject ) => {
-								const create = index => {
-									if ( index >= NumRecords ) {
-										resolve();
-									} else {
-										const item = new MyModel();
-										item.index = item.noIndex = index % mod;
-										item.number = index;
-										item.save()
-											.then( () => create( index + 1 ) )
-											.catch( reject );
-									}
-								};
-
-								create( 0 );
-							} );
-						} );
-
-						describe( "has as many", () => {
-							it( "nodes as different values used for property while adding records before", () => {
-								MyModel.indices[0].handler.tree.values.length.should.eql( mod );
-							} );
-
-							it( "values attached to all its nodes as records created before", () => {
-								MyModel.indices[0].handler.tree.values
-									.reduce( ( accumulator, currentValue ) => accumulator + currentValue.length, 0 ).should.be.eql( NumRecords );
-							} );
-						} );
-
-						describe( "lists all matches when searching by property with index for", () => {
-							it( "smallest used value 0", () => {
-								return MyModel.findByAttribute( "index", 0, "eq" )
-									.then( items => {
-										items.length.should.be.eql( NumRecords / mod );
-									} );
-							} );
-
-							it( `midrange value ${Math.floor( mod / 2 )}`, () => {
-								return MyModel.findByAttribute( "index", Math.floor( mod / 2 ), "eq" )
-									.then( items => {
-										items.length.should.be.eql( NumRecords / mod );
-									} );
-							} );
-
-							it( `biggest used value ${mod - 1}`, () => {
-								return MyModel.findByAttribute( "index", mod - 1, "eq" )
-									.then( items => {
-										items.length.should.be.eql( NumRecords / mod );
-									} );
-							} );
-						} );
-
-
-
-						describe( "accessed via separate model relying on data existing in backend", () => {
-							let NewModel;
-
-							it( "is restored from existing data backend", () => {
-								NewModel = Model.define( "MyModel", {
+							before( () => {
+								MyModel = Model.define( "MyModel", {
 									props: {
-										index: { type: "integer", index: "eq" },
-										noIndex: { type: "integer" },
+										index: { type: valueType, index: "eq" },
+										noIndex: { type: valueType },
 										number: { type: "integer" },
 									},
 								}, undefined, adapter );
 
-								return NewModel.indexLoaded;
+								Boolean( MyModel.indexPromise ).should.be.eql( false );
 							} );
 
-							describe( "lists all matches when searching by property", () => {
-								describe( "with index for", () => {
-									it( "smallest used value 0", () => {
-										return NewModel.findByAttribute( "index", 0, "eq" )
-											.then( items => {
-												items.length.should.be.eql( NumRecords / mod );
-											} );
-									} );
+							after( () => MyModel.adapter.purge() );
 
-									it( `mid-range value ${Math.floor( mod / 2 )}`, () => {
-										return NewModel.findByAttribute( "index", Math.floor( mod / 2 ), "eq" )
-											.then( items => {
-												items.length.should.be.eql( NumRecords / mod );
-											} );
-									} );
 
-									it( `for biggest used value ${mod - 1}`, () => {
-										return NewModel.findByAttribute( "index", mod - 1, "eq" )
-											.then( items => {
-												items.length.should.be.eql( NumRecords / mod );
-											} );
-									} );
+							it( `is updated while adding ${NumRecords} records`, () => {
+								return new Promise( ( resolve, reject ) => {
+									const create = index => {
+										if ( index >= NumRecords ) {
+											resolve();
+										} else {
+											const item = new MyModel();
+											item.index = item.noIndex = values[index % numValues];
+											item.number = index;
+											item.save()
+												.then( () => create( index + 1 ) )
+												.catch( reject );
+										}
+									};
+
+									create( 0 );
+								} );
+							} );
+
+							describe( "has as many", () => {
+								it( "nodes as different values used for property while adding records before", () => {
+									MyModel.indices[0].handler.tree.values.length.should.eql( numValues );
 								} );
 
-								describe( "without index for", () => {
-									it( "smallest used value 0", () => {
-										return NewModel.findByAttribute( "noIndex", 0, "eq" )
-											.then( items => {
-												items.length.should.be.eql( NumRecords / mod );
-											} );
-									} );
+								it( "values attached to all its nodes as records created before", () => {
+									MyModel.indices[0].handler.tree.values
+										.reduce( ( accumulator, currentValue ) => accumulator + currentValue.length, 0 ).should.be.eql( NumRecords );
+								} );
+							} );
 
-									it( `mid-range value ${Math.floor( mod / 2 )}`, () => {
-										return NewModel.findByAttribute( "noIndex", Math.floor( mod / 2 ), "eq" )
-											.then( items => {
-												items.length.should.be.eql( NumRecords / mod );
-											} );
-									} );
+							describe( "lists all matches when searching by property with index for", () => {
+								it( `smallest used value ${values[0]}`, () => {
+									return MyModel.findByAttribute( "index", values[0], "eq" )
+										.then( items => {
+											items.length.should.be.eql( NumRecords / numValues );
+										} );
+								} );
 
-									it( `biggest used value ${mod - 1}`, () => {
-										return NewModel.findByAttribute( "noIndex", mod - 1, "eq" )
-											.then( items => {
-												items.length.should.be.eql( NumRecords / mod );
+								it( `midrange value ${values[Math.floor( numValues / 2 )]}`, () => {
+									return MyModel.findByAttribute( "index", values[Math.floor( numValues / 2 )], "eq" )
+										.then( items => {
+											items.length.should.be.eql( NumRecords / numValues );
+										} );
+								} );
+
+								it( `biggest used value ${values[numValues - 1]}`, () => {
+									return MyModel.findByAttribute( "index", values[numValues - 1], "eq" )
+										.then( items => {
+											items.length.should.be.eql( NumRecords / numValues );
+										} );
+								} );
+							} );
+
+
+
+							describe( "accessed via separate model relying on data existing in backend", () => {
+								let NewModel;
+
+								it( "is restored from existing data backend", () => {
+									NewModel = Model.define( "MyModel", {
+										props: {
+											index: { type: valueType, index: "eq" },
+											noIndex: { type: valueType },
+											number: { type: "integer" },
+										},
+									}, undefined, adapter );
+
+									return NewModel.indexLoaded;
+								} );
+
+								[ [ true, "and loading records" ], [ false, "without loading records" ] ].forEach( ( [ loadRecords, label ] ) => {
+									describe( `lists all matches when searching by property ${label}`, () => {
+										describe( "with index for", () => {
+											it( `smallest used value ${values[0]}`, () => {
+												return NewModel.findByAttribute( "index", values[0], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
 											} );
+
+											it( `mid-range value ${values[Math.floor( numValues / 2 )]}`, () => {
+												return NewModel.findByAttribute( "index", values[Math.floor( numValues / 2 )], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+
+											it( `for biggest used value ${values[numValues - 1]}`, () => {
+												return NewModel.findByAttribute( "index", values[numValues - 1], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+										} );
+
+										describe( "without index for", () => {
+											it( `smallest used value ${values[0]}`, () => {
+												return NewModel.findByAttribute( "noIndex", values[0], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+
+											it( `mid-range value ${values[Math.floor( numValues / 2 )]}`, () => {
+												return NewModel.findByAttribute( "noIndex", values[Math.floor( numValues / 2 )], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+
+											it( `biggest used value ${values[numValues - 1]}`, () => {
+												return NewModel.findByAttribute( "noIndex", values[numValues - 1], "eq", undefined, { loadRecords } )
+													.then( items => {
+														items.length.should.be.eql( NumRecords / numValues );
+													} );
+											} );
+										} );
 									} );
 								} );
 							} );
