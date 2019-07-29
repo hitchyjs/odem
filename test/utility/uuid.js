@@ -114,7 +114,7 @@ suite( "UUIDv4 generator", function() {
 		Uuid.isUUID( "01234567-89AB-CDEF-FEDC-BA9876543210" ).should.be.Boolean().which.is.true();
 
 		// due to coercion:
-		Uuid.isUUID( ["01234567-89ab-cdef-fedc-ba9876543210"] ).should.be.Boolean().which.is.true();
+		Uuid.isUUID( ["01234567-89ab-cdef-fedc-ba9876543210"] ).should.be.Boolean().which.is.false();
 	} );
 
 } );
