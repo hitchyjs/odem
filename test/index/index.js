@@ -67,11 +67,15 @@ describe( "Index", function() {
 
 	describe( "returns 0 or 1 when on invoking insert", function() {
 		const instance = new Index( { revision: 0 } );
-		it( "0 if new index entry was added", () => {
+		it( "1 if new index entry was added", () => {
 			instance.add( uuids[1], 1 ).should.be.equal( 1 );
 		} );
 
 		it( "1 if existing index entry was modified", () => {
+			instance.add( uuids[2],1 ).should.be.equal( 1 );
+		} );
+
+		it( "0 if existing index entry allready contained the value", () => {
 			instance.add( uuids[2],1 ).should.be.equal( 0 );
 		} );
 	} );

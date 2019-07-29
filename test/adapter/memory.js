@@ -51,7 +51,7 @@ suite( "MemoryAdapter", function() {
 
 	test( "exposes instance methods of Adapter API", function() {
 		const instance = new MemoryAdapter();
-
+	
 		instance.should.have.property( "create" ).which.is.a.Function().of.length( 2 );
 		instance.should.have.property( "has" ).which.is.a.Function().of.length( 1 );
 		instance.should.have.property( "read" ).which.is.a.Function().of.length( 1 );

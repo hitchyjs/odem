@@ -247,8 +247,9 @@ describe( "A model-related index", () => {
 								} );
 
 								it( "values attached to all its nodes as records created before", () => {
-									MyModel.indices[0].handler.tree.values
-										.reduce( ( accumulator, currentValue ) => accumulator + currentValue.length, 0 ).should.be.eql( NumRecords );
+									MyModel.indices[0].handler.tree.values.reduce( ( accumulator, currentValue ) => {
+										return accumulator + currentValue.length;
+									}, 0 ).should.be.eql( NumRecords );
 								} );
 							} );
 
