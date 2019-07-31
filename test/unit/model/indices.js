@@ -185,7 +185,7 @@ describe( "A model-related index", () => {
 		const Adapters = [
 			[ "default (memory) adapter", undefined ],
 			[ "FileAdapter", new FileAdapter( {
-				dataSource: Path.resolve( __dirname, "../../data" ),
+				dataSource: Path.resolve( __dirname, "../../../data" ),
 			} ) ],
 		];
 
