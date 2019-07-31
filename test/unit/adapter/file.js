@@ -42,7 +42,7 @@ const { MkDir, RmDir } = require( "file-essentials" );
 const dataSource = Path.resolve( __dirname, "../../data" );
 
 describe( "FileAdapter", function() {
-	before( () => MkDir( Path.resolve( __dirname, ".." ), "data" ) );
+	before( () => MkDir( dataSource ) );
 
 	afterEach( () => RmDir( dataSource, { subsOnly: true } ) );
 
