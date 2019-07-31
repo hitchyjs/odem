@@ -28,8 +28,12 @@
 
 const Uuid = require( "../../../lib/utility/uuid" );
 const Index = require( "../../../lib/index/index" );
-const PromisUtils = require( "promise-essentials" );
+const PromiseUtils = require( "promise-essentials" );
 
+/**
+ * runs an resilience test with different values and types
+ * @return {Promise<Array>} resolves if test is finished
+ */
 function test() {
 	console.log( '"records"; "different values"; "type"; "rss"; "heapTotal"; "heapUsed"; "external"' );
 	const Values = [
@@ -37,7 +41,7 @@ function test() {
 		[ "string", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => `prefix${index}suffix` ) ],
 	];
 
-	return PromisUtils.each( [ 1000, 10000, 100000, 500000 ], NumRecords => {
+	return PromiseUtils.each( [ 1000, 10000, 100000, 500000 ], NumRecords => {
 		const uuids = new Array( NumRecords );
 		return new Promise( ( resolve, reject ) => {
 			const create = index => {
@@ -54,12 +58,12 @@ function test() {
 			};
 			create( 0 );
 		} ).then( () => {
-			return PromisUtils.each( [ 1, 1, 2, 10, 100, 1000, 10000, 100000, 500000 ], numValues => {
+			return PromiseUtils.each( [ 1, 1, 2, 10, 100, 1000, 10000, 100000, 500000 ], numValues => {
 				if ( numValues > NumRecords ) {
 					return Promise.resolve();
 				}
 
-				return PromisUtils.each( Values,( [ valueType, valueGenerator ] ) => {
+				return PromiseUtils.each( Values,( [ valueType, valueGenerator ] ) => {
 					const values = valueGenerator( numValues );
 					let memoryUsageBefore;
 
@@ -75,7 +79,7 @@ function test() {
 						process.exit();
 					}
 
-					return PromisUtils.delay( 5000 )
+					return PromiseUtils.delay( 5000 )
 						.then( function() {
 							memoryUsageBefore = process.memoryUsage();
 							for ( let i = 0; i < NumRecords; i++ ) {
