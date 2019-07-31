@@ -43,9 +43,10 @@ const dataSource = Path.resolve( __dirname, "../../data" );
 
 describe( "FileAdapter", function() {
 	before( () => MkDir( Path.resolve( __dirname, ".." ), "data" ) );
-	after( () => RmDir( dataSource ) );
 
 	afterEach( () => RmDir( dataSource, { subsOnly: true } ) );
+
+	after( () => RmDir( dataSource ) );
 
 
 	it( "is exposed in property `FileAdapter`", function() {
