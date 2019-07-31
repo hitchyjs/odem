@@ -31,9 +31,9 @@ const { describe, it, beforeEach } = require( "mocha" );
 const Should = require( "should" );
 
 
-const Model = require( "../../lib/model/base" );
-const Compiler = require( "../../lib/model/compiler" );
-const { Adapter, MemoryAdapter, FileAdapter } = require( "../../lib/adapter" );
+const Model = require( "../../../lib/model/base" );
+const Compiler = require( "../../../lib/model/compiler" );
+const { Adapter, MemoryAdapter, FileAdapter } = require( "../../../lib/adapter" );
 
 
 describe( "Model compiler module", () => {

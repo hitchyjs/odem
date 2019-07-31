@@ -32,9 +32,9 @@ const Should = require( "should" );
 
 const Helper = require( "../../helper" );
 
-const AllTypes = require( "../../../lib/model/type" );
-const Base = require( "../../../lib/model/type/base" );
-const Type = require( "../../../lib/model/type/number" );
+const AllTypes = require( "../../../../lib/model/type" );
+const Base = require( "../../../../lib/model/type/base" );
+const Type = require( "../../../../lib/model/type/number" );
 
 
 suite( "Model Attribute Type `number`", function() {

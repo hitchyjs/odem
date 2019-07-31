@@ -33,13 +33,13 @@ const { Readable } = require( "stream" );
 const { describe, it, before, after, beforeEach, afterEach } = require( "mocha" );
 const Should = require( "should" );
 
-const { FileAdapter, Adapter } = require( "../../index" );
-const { ptnUuid } = require( "../../lib/utility/uuid" );
+const { FileAdapter, Adapter } = require( "../../../index" );
+const { ptnUuid } = require( "../../../lib/utility/uuid" );
 
 const { MkDir, RmDir } = require( "file-essentials" );
 
 
-const dataSource = Path.resolve( __dirname, "../data" );
+const dataSource = Path.resolve( __dirname, "../../data" );
 
 describe( "FileAdapter", function() {
 	before( () => MkDir( Path.resolve( __dirname, ".." ), "data" ) );

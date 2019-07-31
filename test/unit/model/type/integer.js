@@ -32,9 +32,9 @@ const Should = require( "should" );
 
 const Helper = require( "../../helper" );
 
-const AllTypes = require( "../../../lib/model/type" );
-const Base = require( "../../../lib/model/type/base" );
-const Type = require( "../../../lib/model/type/integer" );
+const AllTypes = require( "../../../../lib/model/type" );
+const Base = require( "../../../../lib/model/type/base" );
+const Type = require( "../../../../lib/model/type/integer" );
 
 
 suite( "Model Attribute Type `integer`", function() {

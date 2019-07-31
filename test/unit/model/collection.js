@@ -32,7 +32,7 @@ require( "should" );
 
 const PromiseUtil = require( "promise-essentials" );
 
-const { Model, MemoryAdapter } = require( "../../" );
+const { Model, MemoryAdapter } = require( "../../../" );
 
 
 describe( "Model API regarding a model's collection of items", () => {

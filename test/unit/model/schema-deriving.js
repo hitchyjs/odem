@@ -30,7 +30,7 @@
 const { describe, it, before } = require( "mocha" );
 require( "should" );
 
-const { Model } = require( "../../" );
+const { Model } = require( "../../../" );
 
 
 describe( "Deriving a model", () => {

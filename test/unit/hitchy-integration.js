@@ -29,8 +29,8 @@
 const { describe, it } = require( "mocha" );
 require( "should" );
 
-const { Model, MemoryAdapter } = require( "../" );
-const { processDiscoveredModelDefinitions } = require( "../lib/hitchy-integration" );
+const { Model, MemoryAdapter } = require( "../../" );
+const { processDiscoveredModelDefinitions } = require( "../../lib/hitchy-integration" );
 
 
 describe( "Integration with hitchy", () => {

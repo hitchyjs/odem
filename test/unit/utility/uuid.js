@@ -30,7 +30,7 @@
 const { suite, test } = require( "mocha" );
 const Should = require( "should" );
 
-const { Uuid } = require( "../../lib/utility" );
+const { Uuid } = require( "../../../lib/utility" );
 
 
 suite( "UUIDv4 generator", function() {

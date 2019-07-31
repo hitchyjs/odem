@@ -26,89 +26,80 @@
  * @author: cepharum
  */
 
-const { describe, it, before } = require( "mocha" );
-
 const Uuid = require( "../../../lib/utility/uuid" );
 const Index = require( "../../../lib/index/index" );
+const PromisUtils = require( "promise-essentials" );
 
-describe( "Resilience Test for the Index Implementation", function() {
-	this.timeout( 120000 );
-
+function test() {
+	console.log( '"records"; "different values"; "type"; "rss"; "heapTotal"; "heapUsed"; "external"' );
 	const Values = [
 		[ "integer", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => index ) ],
 		[ "string", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => `prefix${index}suffix` ) ],
 	];
 
-	[ 1, 2, 10, 100, 1000, 10000, 100000, 500000 ].forEach( NumRecords => {
+	return PromisUtils.each( [ 1000, 10000, 100000, 500000 ], NumRecords => {
 		const uuids = new Array( NumRecords );
-		before( `creating ${NumRecords} items`, () => {
-			return new Promise( ( resolve, reject ) => {
-				const create = index => {
-					if ( index >= NumRecords ) {
-						resolve();
-					} else {
-						Uuid( { binary: true } )
-							.then( id => {
-								uuids[index] = id;
-								create( index + 1 );
-							} )
-							.catch( reject );
-					}
-				};
-				create( 0 );
-			} );
-		} );
-		[ 1, 2, 10, 100, 1000, 10000, 100000, 500000 ].forEach( numValues => {
-			if ( numValues > NumRecords ) {
-				return;
-			}
+		return new Promise( ( resolve, reject ) => {
+			const create = index => {
+				if ( index >= NumRecords ) {
+					resolve();
+				} else {
+					Uuid( { binary: true } )
+						.then( id => {
+							uuids[index] = id;
+							create( index + 1 );
+						} )
+						.catch( reject );
+				}
+			};
+			create( 0 );
+		} ).then( () => {
+			return PromisUtils.each( [ 1, 1, 2, 10, 100, 1000, 10000, 100000, 500000 ], numValues => {
+				if ( numValues > NumRecords ) {
+					return Promise.resolve();
+				}
 
-			Values.forEach( ( [ valueType, valueGenerator ] ) => {
-				const values = valueGenerator( numValues );
-				let memoryUsageBefore;
+				return PromisUtils.each( Values,( [ valueType, valueGenerator ] ) => {
+					const values = valueGenerator( numValues );
+					let memoryUsageBefore;
 
-				describe( `having ${NumRecords} records with ${numValues} different value(s) on a property of type ${valueType}`, () => {
 					const MyIndex = new Index( { revision: 0 } );
 
-					before( "garbage collection", () => {
-						try {
-							if ( global.gc ) {
-								console.log( "collecting garbage" );
-								global.gc();
+					try {
+						if ( global.gc ) {
+							global.gc( true );
+							console.error( "collecting garbage and waiting 5000ms" );
+						}
+					} catch ( e ) {
+						console.error( "`node --expose-gc index.js`" );
+						process.exit();
+					}
+
+					return PromisUtils.delay( 5000 )
+						.then( function() {
+							memoryUsageBefore = process.memoryUsage();
+							for ( let i = 0; i < NumRecords; i++ ) {
+								MyIndex.add( uuids[i], values[i % numValues], { checkDuplicate: false } );
 							}
-						} catch ( e ) {
-							console.log( "`node --expose-gc index.js`" );
-							process.exit();
-						}
-					} );
-
-					before( "saving memory Usage", () => {
-						memoryUsageBefore = process.memoryUsage();
-					} );
-
-					it( "fills the Index", () => {
-						for( let i = 0; i < NumRecords; i++ ) {
-							MyIndex.add( uuids[i], values[i % numValues], { checkDuplicate: false } );
-						}
-					} );
-
-					it( "adds another value", () => {
-						return Uuid( { binary: true } ).then( id => {
-							MyIndex.add( id, values[0] );
+							return Uuid( { binary: true } )
+								.then( id => {
+									MyIndex.add( id, values[0] );
+								} ).then( () => {
+									const memoryUsage = process.memoryUsage();
+									console.error( "computing:", `${NumRecords} records with ${numValues} different Values of type ${valueType}` );
+									const diff = {
+										rss: memoryUsage.rss - memoryUsageBefore.rss,
+										heapTotal: memoryUsage.heapTotal - memoryUsageBefore.heapTotal,
+										heapUsed: memoryUsage.heapUsed - memoryUsageBefore.heapUsed,
+										external: memoryUsage.external - memoryUsageBefore.external,
+									};
+									console.log( `${NumRecords}; ${numValues}; ${valueType}; ${diff.rss}; ${diff.heapTotal}; ${diff.heapUsed}; ${diff.external}` );
+								} );
 						} );
-					} );
-
-					after( "logging memory Usage", () => {
-						const memoryUsage = process.memoryUsage();
-						console.log( `${NumRecords} records with ${numValues} values with type ${valueType}`, {
-							rss: memoryUsage.rss - memoryUsageBefore.rss,
-							heapTotal: memoryUsage.heapTotal - memoryUsageBefore.heapTotal,
-							heapUsed: memoryUsage.heapUsed - memoryUsageBefore.heapUsed,
-							external: memoryUsage.external - memoryUsageBefore.external,
-						} );
-					} );
 				} );
 			} );
 		} );
 	} );
-} );
+}
+
+test();

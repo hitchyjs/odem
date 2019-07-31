@@ -28,9 +28,9 @@
 
 const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
-const uuid = require( "../../lib/utility/uuid" );
+const uuid = require( "../../../lib/utility/uuid" );
 
-const Index = require( "../../lib/index/index" );
+const Index = require( "../../../lib/index/index" );
 
 describe( "Index", function() {
 	const uuids = new Array( 6 );
