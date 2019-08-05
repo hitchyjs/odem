@@ -46,7 +46,7 @@ const Properties = [
 	[ "fastInteger", "integers" ],
 	[ "slowInteger", "integers" ],
 	[ "fastNumber", "numbers" ],
-	[ "slowNumber", "Numbers" ],
+	[ "slowNumber", "numbers" ],
 	[ "fastString", "texts" ],
 	[ "slowString", "texts" ],
 ];
@@ -170,10 +170,8 @@ describe( "Inspecting collection of a model's items", function() {
 			},
 		} );
 
-		return MyModel.indexLoaded;
+		return MyModel.adapter.purge().then( () => MyModel.indexLoaded );
 	} );
-
-	beforeEach( "purging existing data", () => MyModel.adapter.purge() );
 
 	beforeEach( "creating test data", () => {
 		return PromiseUtil.each( recordDriver, ( _, index ) => {
@@ -192,7 +190,10 @@ describe( "Inspecting collection of a model's items", function() {
 		} );
 	} );
 
-	afterEach( () => MyModel.adapter.purge() );
+	afterEach( () => {
+		MyModel.adapter.purge();
+		MyModel.indices.forEach( entry => entry.handler.clear() );
+	} );
 
 
 	it( "lists all generated records in unsorted order by default", () => {
@@ -215,11 +216,13 @@ describe( "Inspecting collection of a model's items", function() {
 					.then( records => {
 						records.should.be.Array().which.has.length( limit );
 
-						isSorted( records ).should.be.false();
-						isSorted( records, false ).should.be.false();
+						if( limit >= 5 ) {
+							isSorted( records ).should.be.false();
+							isSorted( records, false ).should.be.false();
 
-						isStraight( records ).should.be.false();
-						isStraight( records, false ).should.be.false();
+							isStraight( records ).should.be.false();
+							isStraight( records, false ).should.be.false();
+						}
 					} );
 			} );
 		} );
@@ -236,12 +239,15 @@ describe( "Inspecting collection of a model's items", function() {
 						return MyModel.list( { offset, limit: limit || Infinity, sortBy: propertyName, sortAscendingly: dir } )
 							.then( records => {
 								records.should.be.Array().which.has.length( limit || ( NumRecords - offset ) );
+								console.log( records.map( e => [ e[propertyName], e.index ] ) );
 
-								isSorted( records ).should.be[dir ? "true" : "false"]();
-								isSorted( records, false ).should.be[dir ? "false" : "true"]();
+								if( limit >= 5 ) {
+									isSorted( records ).should.be[dir ? "true" : "false"]();
+									isSorted( records, false ).should.be[dir ? "false" : "true"]();
 
-								isStraight( records ).should.be[dir ? "true" : "false"]();
-								isStraight( records, false ).should.be[dir ? "false" : "true"]();
+									isStraight( records ).should.be[dir ? "true" : "false"]();
+									isStraight( records, false ).should.be[dir ? "false" : "true"]();
+								}
 
 								records[0].index.should.not.be.equal( lastUpStart );
 								lastUpStart = records[0].index;
@@ -256,7 +262,7 @@ describe( "Inspecting collection of a model's items", function() {
 		it( `retrieves single match when searching records with ${propertyName} equal every value used on filling database`, () => {
 			const values = data[dataName];
 
-			return PromiseUtil( values, value => MyModel.find( { eq: { [propertyName]: value } } )
+			return PromiseUtil.each( values, value => MyModel.find( { eq: { value, property: propertyName } } )
 				.then( records => {
 					records.should.be.Array().which.has.length( 1 );
 				} ) );
@@ -267,7 +273,7 @@ describe( "Inspecting collection of a model's items", function() {
 		it( `retrieves all but one record when searching records with ${propertyName} unequal every value used on filling database`, () => {
 			const values = data[dataName];
 
-			return PromiseUtil( values, value => MyModel.find( { neq: { [propertyName]: value } } )
+			return PromiseUtil.each( values, value => MyModel.find( { neq: { name: propertyName, value } } )
 				.then( records => {
 					records.should.be.Array().which.has.length( NumRecords - 1 );
 				} ) );
@@ -278,7 +284,7 @@ describe( "Inspecting collection of a model's items", function() {
 		it( `retrieves multiple matches when searching records with ${propertyName} less than high values used on filling database`, () => {
 			const values = data[dataName].slice( Math.floor( data[dataName].length / 2 ) );
 
-			return PromiseUtil( values, value => MyModel.find( { lt: { [propertyName]: value } } )
+			return PromiseUtil.each( values, value => MyModel.find( { lt: { name: propertyName, value } } )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );
@@ -290,7 +296,7 @@ describe( "Inspecting collection of a model's items", function() {
 		it( `retrieves multiple matches when searching records with ${propertyName} greater than high values used on filling database`, () => {
 			const values = data[dataName].slice( 0, Math.floor( data[dataName].length / 2 ) );
 
-			return PromiseUtil( values, value => MyModel.find( { gt: { [propertyName]: value } } )
+			return PromiseUtil.each( values, value => MyModel.find( { gt: { name: propertyName, value } } )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );
@@ -304,7 +310,7 @@ describe( "Inspecting collection of a model's items", function() {
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
 			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
 
-			return PromiseUtil( values, ( [ lower, upper ] ) => MyModel.find( { between: { [propertyName]: [ lower, upper ] } } )
+			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { [propertyName]: [ lower, upper ] } } )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );
@@ -318,7 +324,7 @@ describe( "Inspecting collection of a model's items", function() {
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
 			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
 
-			return PromiseUtil( values, ( [ lower, upper ] ) => MyModel.find( { between: { [propertyName]: { min: lower, max: upper } } } )
+			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { [propertyName]: { min: lower, max: upper } } } )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );

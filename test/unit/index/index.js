@@ -61,7 +61,7 @@ describe( "Index", function() {
 		instance.should.have.property( "remove" ).which.is.a.Function().of.length( 2 );
 		instance.should.have.property( "findBetween" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "checkRevision" ).which.is.a.Function().of.length( 0 );
-		instance.should.have.property( "reOrg" ).which.is.a.Function().of.length( 0 );
+		instance.should.have.property( "clear" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "updateIndex" ).which.is.a.Function().of.length( 3 );
 	} );
 
@@ -203,7 +203,7 @@ describe( "Index", function() {
 		} );
 	} );
 
-	describe( "reOrg", function() {
+	describe( "clear", function() {
 		const instance = new Index( { revision: 0 } );
 		const instanceWithRevision = new Index( { revision: 10 } );
 		before( "filling instances with values", function() {
@@ -223,10 +223,10 @@ describe( "Index", function() {
 		it( "with revision", function() {
 			[].concat( ...instanceWithRevision.tree.values ).length.should.be.equal( 5 );
 			Should( instanceWithRevision.revision ).be.eql( 10 );
-			instanceWithRevision.reOrg( instanceWithRevision.revision );
+			instanceWithRevision.clear( instanceWithRevision.revision );
 			instanceWithRevision.tree.values.length.should.be.equal( 0 );
 			Should( instanceWithRevision.revision ).be.eql( 10 );
-			instanceWithRevision.reOrg( 12 );
+			instanceWithRevision.clear( 12 );
 			instanceWithRevision.tree.values.length.should.be.equal( 0 );
 			Should( instanceWithRevision.revision ).be.eql( 12 );
 		} );
