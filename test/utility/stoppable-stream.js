@@ -26,7 +26,7 @@
  * @author: cepharum
  */
 
-const { Readable, Transform } = require( "stream" );
+const { Readable, Transform, PassThrough } = require( "stream" );
 
 const { describe, it } = require( "mocha" );
 require( "should" );
@@ -41,12 +41,23 @@ describe( "Stoppable Stream", function() {
 		const source = new Readable( {
 			objectMode: true,
 			read() {
-				console.log( "read" );
+				console.log( "emit", value );
 				setTimeout( () => {
 					this.push( value++ );
 				}, 100 );
 			},
 		} );
+
+		source.on( "close", () => {
+			console.log( "source closed" );
+			resolve();
+		} );
+
+		source.on( "end", () => {
+			console.log( "source ended" );
+		} );
+
+		// ---------------------------------------------------------
 
 		const converter = new Transform( {
 			objectMode: true,
@@ -66,28 +77,25 @@ describe( "Stoppable Stream", function() {
 			source.destroy();
 		} );
 
-		converter.on( "data", result => {
-			if ( result === 0 ) {
-				console.log( "pausing" );
-				converter.pause();
-				converter.destroy();
+		source.pipe( converter );
 
-				setTimeout( resolve, 5000 );
+		// ---------------------------------------------------------
+
+		const passer = new PassThrough( { objectMode: true } );
+
+		passer.on( "data", result => {
+			if ( result === 0 ) {
+				console.log( "closing" );
+				passer.destroy();
 			} else if ( result < -2 ) {
 				reject( new Error( "still generating" ) );
 			} else {
-				console.log( result );
+				console.log( "received", result );
 			}
 		} );
 
-		source.on( "close", () => {
-			console.log( "source closed" );
-		} );
+		passer.on( "close", () => { converter.destroy(); } );
 
-		source.on( "end", () => {
-			console.log( "source ended" );
-		} );
-
-		source.pipe( converter );
+		converter.pipe( passer );
 	} ) );
 } );
