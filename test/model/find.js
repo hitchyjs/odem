@@ -135,7 +135,7 @@ function isStraight( records, up = true ) {
 	return true;
 }
 
-describe( "Finding by attribute", function() {
+describe( "Inspecting collection of a model's items", function() {
 	this.timeout( 5000 );
 
 	// prepare data for feeding model
@@ -173,9 +173,9 @@ describe( "Finding by attribute", function() {
 		return MyModel.indexLoaded;
 	} );
 
-	beforeEach( () => MyModel.adapter.purge() );
+	beforeEach( "purging existing data", () => MyModel.adapter.purge() );
 
-	beforeEach( () => {
+	beforeEach( "creating test data", () => {
 		return PromiseUtil.each( recordDriver, ( _, index ) => {
 			const i = indexes[index];
 			const item = new MyModel;

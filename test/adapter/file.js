@@ -33,7 +33,7 @@ const { Readable } = require( "stream" );
 const { describe, it, before, after, beforeEach, afterEach } = require( "mocha" );
 const Should = require( "should" );
 
-const { FileAdapter, Adapter } = require( "../../index" );
+const { FileAdapter, Adapter } = require( "../.." );
 const { ptnUuid } = require( "../../lib/utility/uuid" );
 
 const { MkDir, RmDir } = require( "file-essentials" );

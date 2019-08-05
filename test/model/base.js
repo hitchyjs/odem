@@ -29,7 +29,7 @@
 const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
-const { Model, Adapter, MemoryAdapter } = require( "../../index" );
+const { Model, Adapter, MemoryAdapter } = require( "../.." );
 
 
 describe( "Abstract Model", () => {

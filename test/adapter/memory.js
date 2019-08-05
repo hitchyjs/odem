@@ -33,7 +33,7 @@ const { Readable } = require( "stream" );
 const { suite, test } = require( "mocha" );
 const Should = require( "should" );
 
-const { MemoryAdapter, Adapter } = require( "../../index" );
+const { MemoryAdapter, Adapter } = require( "../.." );
 
 
 suite( "MemoryAdapter", function() {
