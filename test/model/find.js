@@ -210,7 +210,7 @@ describe( "Inspecting collection of a model's items", function() {
 
 	[ 1, 2, 5, 10, 20, 34 ].forEach( limit => {
 		[ 0, 1, 2, 5, 10, 20, 34 ].forEach( offset => {
-			it( `lists excerpt of ${limit} record(s) of generated records in unsorted order, skipping ${offset} record(s)`, () => {
+			it( `lists excerpt of ${limit} record(s) of generated records in UNSORTED order, skipping ${offset} record(s)`, () => {
 				return MyModel.list( { offset, limit } )
 					.then( records => {
 						records.should.be.Array().which.has.length( limit );
@@ -226,41 +226,27 @@ describe( "Inspecting collection of a model's items", function() {
 	} );
 
 	Properties.forEach( ( [propertyName] ) => {
-		[ 1, 2, 5, 10, 20, 34 ].forEach( limit => {
+		[ 0, 1, 2, 5, 10, 20, 34 ].forEach( limit => {
 			let lastUpStart = -Infinity;
-			let lastDownStart = Infinity;
+			const lastDownStart = Infinity;
 
 			[ 0, 1, 2, 5, 10, 20, 34 ].forEach( offset => {
-				it( `lists all generated records sorted by ${propertyName} in ascending order on demand`, () => {
-					return MyModel.list( { offset, limit, sortBy: propertyName } )
-						.then( records => {
-							records.should.be.Array().which.has.length( NumRecords );
+				[ true, false ].forEach( dir => {
+					it( `skips ${offset} record(s), then lists ${limit || "all left"} record(s) SORTED by ${propertyName} in ${dir ? "ascending" : "descending"} order on demand`, () => {
+						return MyModel.list( { offset, limit: limit || Infinity, sortBy: propertyName, sortAscendingly: dir } )
+							.then( records => {
+								records.should.be.Array().which.has.length( limit || ( NumRecords - offset ) );
 
-							isSorted( records ).should.be.true();
-							isSorted( records, false ).should.be.true();
+								isSorted( records ).should.be[dir ? "true" : "false"]();
+								isSorted( records, false ).should.be[dir ? "false" : "true"]();
 
-							isStraight( records ).should.be.true();
-							isStraight( records, false ).should.be.true();
+								isStraight( records ).should.be[dir ? "true" : "false"]();
+								isStraight( records, false ).should.be[dir ? "false" : "true"]();
 
-							records[0].index.should.not.be.equal( lastUpStart );
-							lastUpStart = records[0].index;
-						} );
-				} );
-
-				it( `lists all generated records sorted by ${propertyName} in descending order on demand`, () => {
-					return MyModel.list( { offset, limit, sortBy: propertyName, sortAscendingly: false } )
-						.then( records => {
-							records.should.be.Array().which.has.length( NumRecords );
-
-							isSorted( records ).should.be.true();
-							isSorted( records, false ).should.be.true();
-
-							isStraight( records ).should.be.true();
-							isStraight( records, false ).should.be.true();
-
-							records[0].index.should.not.be.equal( lastDownStart );
-							lastDownStart = records[0].index;
-						} );
+								records[0].index.should.not.be.equal( lastUpStart );
+								lastUpStart = records[0].index;
+							} );
+					} );
 				} );
 			} );
 		} );
