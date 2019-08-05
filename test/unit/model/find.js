@@ -28,7 +28,7 @@
 
 /* eslint-disable max-nested-callbacks */
 
-const { Model } = require( "../../" );
+const { Model } = require( "../../.." );
 
 const PromiseUtil = require( "promise-essentials" );
 const { describe, it, before, beforeEach, afterEach } = require( "mocha" );
@@ -230,11 +230,10 @@ describe( "Inspecting collection of a model's items", function() {
 
 	Properties.forEach( ( [propertyName] ) => {
 		[ 0, 1, 2, 5, 10, 20, 34 ].forEach( limit => {
-			let lastUpStart = -Infinity;
-			const lastDownStart = Infinity;
+			[ true, false ].forEach( dir => {
+				let lastStart = dir ? -Infinity : Infinity;
 
-			[ 0, 1, 2, 5, 10, 20, 34 ].forEach( offset => {
-				[ true, false ].forEach( dir => {
+				[ 0, 1, 2, 5, 10, 20, 34 ].forEach( offset => {
 					it( `skips ${offset} record(s), then lists ${limit || "all left"} record(s) SORTED by ${propertyName} in ${dir ? "ascending" : "descending"} order on demand`, () => {
 						return MyModel.list( { offset, limit: limit || Infinity, sortBy: propertyName, sortAscendingly: dir } )
 							.then( records => {
@@ -249,8 +248,8 @@ describe( "Inspecting collection of a model's items", function() {
 									isStraight( records, false ).should.be[dir ? "false" : "true"]();
 								}
 
-								records[0].index.should.not.be.equal( lastUpStart );
-								lastUpStart = records[0].index;
+								records[0].index.should.not.be.equal( lastStart );
+								lastStart = records[0].index;
 							} );
 					} );
 				} );
