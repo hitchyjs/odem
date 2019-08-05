@@ -30,7 +30,7 @@
 const { suite, test } = require( "mocha" );
 const Should = require( "should" );
 
-const FN = require( "../../lib/utility/function" );
+const FN = require( "../../../lib/utility/function" );
 
 
 suite( "Utility API for processing functions", function() {

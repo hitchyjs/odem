@@ -32,7 +32,7 @@ const { join } = require( "path" );
 const { suite, test } = require( "mocha" );
 const Should = require( "should" );
 
-const { Adapter } = require( "../../" );
+const { Adapter } = require( "../../../" );
 
 
 suite( "Abstract Adapter", function() {

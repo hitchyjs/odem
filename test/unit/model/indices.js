@@ -33,7 +33,7 @@ const Path = require( "path" );
 const { describe, it, before, after } = require( "mocha" );
 require( "should" );
 
-const { Model, FileAdapter } = require( "../../" );
+const { Model, FileAdapter } = require( "../../../" );
 
 
 describe( "A model-related index", () => {
@@ -185,7 +185,7 @@ describe( "A model-related index", () => {
 		const Adapters = [
 			[ "default (memory) adapter", undefined ],
 			[ "FileAdapter", new FileAdapter( {
-				dataSource: Path.resolve( __dirname, "../../data" ),
+				dataSource: Path.resolve( __dirname, "../../../data" ),
 			} ) ],
 		];
 

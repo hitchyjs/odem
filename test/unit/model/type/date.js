@@ -32,11 +32,11 @@ const Should = require( "should" );
 
 const Helper = require( "../../helper" );
 
-const AllTypes = require( "../../../lib/model/type" );
-const Base = require( "../../../lib/model/type/base" );
-const Type = require( "../../../lib/model/type/date" );
+const AllTypes = require( "../../../../lib/model/type" );
+const Base = require( "../../../../lib/model/type/base" );
+const Type = require( "../../../../lib/model/type/date" );
 
-const DateUtilities = require( "../../../lib/utility/date" );
+const DateUtilities = require( "../../../../lib/utility/date" );
 
 
 suite( "Model Attribute Type `date`", function() {

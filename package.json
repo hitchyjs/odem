@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
-    "unit": "cross-env NODE_ENV=test mocha --ui=tdd 'test/**/*.js'",
+    "unit": "cross-env NODE_ENV=test mocha --ui=tdd 'test/unit/**/*.js'",
+    "resilience": "cross-env NODE_ENV=test node --expose-gc test/resilience/index/index.js > test/resilience/index/memory.csv",
     "coverage": "cross-env NODE_ENV=test nyc mocha --ui=tdd test/**/*.js",
     "doc:serve": "vuepress dev docs-source",
     "doc:build": "vuepress build docs-source"

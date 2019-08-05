@@ -32,7 +32,7 @@ const { Readable } = require( "stream" );
 const { suite, test } = require( "mocha" );
 const Should = require( "should" );
 
-const IteratorStream = require( "../../lib/utility/iterator-stream" );
+const IteratorStream = require( "../../../lib/utility/iterator-stream" );
 
 
 suite( "IteratorStream", function() {

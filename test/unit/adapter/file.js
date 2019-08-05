@@ -33,19 +33,20 @@ const { Readable } = require( "stream" );
 const { describe, it, before, after, beforeEach, afterEach } = require( "mocha" );
 const Should = require( "should" );
 
-const { FileAdapter, Adapter } = require( "../.." );
-const { ptnUuid } = require( "../../lib/utility/uuid" );
+const { FileAdapter, Adapter } = require( "../../.." );
+const { ptnUuid } = require( "../../../lib/utility/uuid" );
 
 const { MkDir, RmDir } = require( "file-essentials" );
 
 
-const dataSource = Path.resolve( __dirname, "../data" );
+const dataSource = Path.resolve( __dirname, "../../data" );
 
 describe( "FileAdapter", function() {
-	before( () => MkDir( Path.resolve( __dirname, ".." ), "data" ) );
-	after( () => RmDir( dataSource ) );
+	before( () => MkDir( dataSource ) );
 
 	afterEach( () => RmDir( dataSource, { subsOnly: true } ) );
+
+	after( () => RmDir( dataSource ) );
 
 
 	it( "is exposed in property `FileAdapter`", function() {

@@ -30,7 +30,7 @@
 const { describe, it } = require( "mocha" );
 require( "should" );
 
-const { Model } = require( "../../" );
+const { Model } = require( "../../../" );
 
 
 describe( "A hook related to the life-cycle event", () => {

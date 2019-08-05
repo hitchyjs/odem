@@ -32,12 +32,12 @@ const Should = require( "should" );
 
 const Helper = require( "../../helper" );
 
-const AllTypes = require( "../../../lib/model/type" );
-const Base = require( "../../../lib/model/type/base" );
-const Type = require( "../../../lib/model/type/number" );
+const AllTypes = require( "../../../../lib/model/type" );
+const Base = require( "../../../../lib/model/type/base" );
+const Type = require( "../../../../lib/model/type/integer" );
 
 
-suite( "Model Attribute Type `number`", function() {
+suite( "Model Attribute Type `integer`", function() {
 	test( "is available", function() {
 		Should.exist( Type );
 	} );
@@ -47,7 +47,7 @@ suite( "Model Attribute Type `number`", function() {
 	} );
 
 	test( "is exposing its name as string", function() {
-		Type.should.have.property( "typeName" ).which.is.equal( "number" );
+		Type.should.have.property( "typeName" ).which.is.equal( "integer" );
 	} );
 
 	test( "is exposing list of aliases to type name", function() {
@@ -56,22 +56,16 @@ suite( "Model Attribute Type `number`", function() {
 	} );
 
 	test( "is commonly exposed by its name", function() {
-		AllTypes.selectByName( "number" ).should.be.equal( Type );
+		AllTypes.selectByName( "integer" ).should.be.equal( Type );
 	} );
 
 	test( "is commonly exposed by all its aliases", function() {
-		AllTypes.selectByName( "float" ).should.be.equal( Type );
-		AllTypes.selectByName( "real" ).should.be.equal( Type );
-		AllTypes.selectByName( "double" ).should.be.equal( Type );
-		AllTypes.selectByName( "decimal" ).should.be.equal( Type );
+		AllTypes.selectByName( "int" ).should.be.equal( Type );
 	} );
 
 	test( "is commonly exposed by its name and all its aliases case-insensitively", function() {
-		AllTypes.selectByName( "NUMBER" ).should.be.equal( Type );
-		AllTypes.selectByName( "FLOAT" ).should.be.equal( Type );
-		AllTypes.selectByName( "REAL" ).should.be.equal( Type );
-		AllTypes.selectByName( "DOUBLE" ).should.be.equal( Type );
-		AllTypes.selectByName( "DECIMAL" ).should.be.equal( Type );
+		AllTypes.selectByName( "INTEGER" ).should.be.equal( Type );
+		AllTypes.selectByName( "INT" ).should.be.equal( Type );
 	} );
 
 	suite( "is exposing method `checkDefinition()` which", function() {
@@ -263,11 +257,11 @@ suite( "Model Attribute Type `number`", function() {
 			coerce( true ).should.be.NaN();
 		} );
 
-		test( "returns `null` on providing empty string", function() {
+		test( "returns null on providing empty string", function() {
 			Should( coerce( "" ) ).be.null();
 		} );
 
-		test( "returns `null` on providing string consisting of whitespaces, only", function() {
+		test( "returns null on providing string consisting of whitespaces, only", function() {
 			Should( coerce( " \r\t\n\f " ) ).be.null();
 		} );
 
@@ -294,49 +288,59 @@ suite( "Model Attribute Type `number`", function() {
 				} );
 		} );
 
-		test( "returns represented value on providing numeric string optionally padded w/ whitespace", function() {
+		test( "returns represented value on providing string containing integer optionally padded w/ whitespace", function() {
 			[
 				"42",
-				"42.0",
-				"4.2e1",
-				"4.2E1",
 				" 42\n",
-				" 42.0\n",
-				" 4.2e1\n",
-				" 4.2E1\n",
 				"\t42\r",
-				"\t42.0\r",
-				"\t4.2e1\r",
-				"\t4.2E1\r",
 				"-42",
-				"-42.0",
-				"-4.2e1",
-				"-4.2E1",
 				" -42\n",
-				" -42.0\n",
-				" -4.2e1\n",
-				" -4.2E1\n",
 				"\t-42\r",
-				"\t-42.0\r",
-				"\t-4.2e1\r",
-				"\t-4.2E1\r",
 				"+42",
-				"+42.0",
-				"+4.2e1",
-				"+4.2E1",
 				" +42\n",
-				" +42.0\n",
-				" +4.2e1\n",
-				" +4.2E1\n",
 				"\t+42\r",
-				"\t+42.0\r",
-				"\t+4.2e1\r",
-				"\t+4.2E1\r",
 			]
 				.forEach( s => {
 					const n = coerce( s );
 					n.should.be.Number().which.is.not.NaN();
 					Math.abs( n ).should.be.equal( 42 );
+				} );
+		} );
+
+		test( "returns rounded value repesenting in provided numeric string optionally padded w/ whitespace", function() {
+			[
+				"42.6",
+				"4.26e1",
+				"4.26E1",
+				" 42.6\n",
+				" 4.26e1\n",
+				" 4.26E1\n",
+				"\t42.6\r",
+				"\t4.26e1\r",
+				"\t4.26E1\r",
+				"-42.6",
+				"-4.26e1",
+				"-4.26E1",
+				" -42.6\n",
+				" -4.26e1\n",
+				" -4.26E1\n",
+				"\t-42.6\r",
+				"\t-4.26e1\r",
+				"\t-4.26E1\r",
+				"+42.6",
+				"+4.26e1",
+				"+4.26E1",
+				" +42.6\n",
+				" +4.26e1\n",
+				" +4.26E1\n",
+				"\t+42.6\r",
+				"\t+4.26e1\r",
+				"\t+4.26E1\r",
+			]
+				.forEach( s => {
+					const n = coerce( s );
+					n.should.be.Number().which.is.not.NaN();
+					Math.abs( n ).should.be.equal( 43 );
 				} );
 		} );
 
@@ -395,14 +399,14 @@ suite( "Model Attribute Type `number`", function() {
 			}
 		} );
 
-		test( "returns any provided number as-is", function() {
+		test( "returns any provided number rounded", function() {
 			this.timeout( 5000 );
 
 			for ( let e = 1; e <= 8; e++ ) {
 				for ( let de = -8; de < 16; de++ ) {
 					for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
 						const v = i / Math.pow( 10, de );
-						coerce( v ).should.be.Number().which.is.equal( v );
+						coerce( v ).should.be.Number().which.is.equal( Math.round( v ) );
 					}
 				}
 			}
@@ -433,12 +437,17 @@ suite( "Model Attribute Type `number`", function() {
 			coerce( 4, { step: 3, min: -1 } ).should.be.equal( 5 );
 		} );
 
-		test( "obeys non-integer step values", function() {
+		test( "obeys non-integer step values while assuring integer result", function() {
 			coerce( 4, { step: 0.5 } ).should.be.equal( 4 );
 			coerce( 5, { step: 0.5 } ).should.be.equal( 5 );
 
-			coerce( 4, { step: 1.5 } ).should.be.equal( 4.5 );
-			coerce( 4.3, { step: 0.5 } ).should.be.equal( 4.5 );
+			coerce( 4, { step: 1.5 } ).should.be.equal( 5 ); // obeying step results in 4.5, but gets rounded to keep integer result
+		} );
+
+		test( "obeys step value after converting provided non-integer value to integer", function() {
+			// in following test 4.3 gets rounded to 4 first, then bound to step value 0.5
+			// (instead of binding to step value 0.5 first, resulting in 4.5 finally rounded to 5)
+			coerce( 4.3, { step: 0.5 } ).should.be.equal( 4 );
 		} );
 	} );
 
@@ -552,7 +561,7 @@ suite( "Model Attribute Type `number`", function() {
 			collector.should.be.empty();
 		} );
 
-		test( "obeys demand for minimum value on validating number", function() {
+		test( "obeys demand for minimum value on validating integer", function() {
 			const collector = [];
 
 			Should( isValid( "name", 0, { min: 1 }, collector ) ).be.undefined();
@@ -609,7 +618,7 @@ suite( "Model Attribute Type `number`", function() {
 			collector.should.be.empty();
 		} );
 
-		test( "obeys demand for maximum value on validating number", function() {
+		test( "obeys demand for maximum value on validating integer", function() {
 			const collector = [];
 
 			Should( isValid( "name", 2, { max: 1 }, collector ) ).be.undefined();
@@ -678,7 +687,7 @@ suite( "Model Attribute Type `number`", function() {
 			collector.should.be.empty();
 		} );
 
-		test( "obeys combined demands for minimum and maximum value on validating number", function() {
+		test( "obeys combined demands for minimum and maximum value on validating integer", function() {
 			const definition = { min: -2, max: 3 };
 			const collector = [];
 
@@ -759,18 +768,18 @@ suite( "Model Attribute Type `number`", function() {
 			Should( serialize( undefined ) ).be.null();
 		} );
 
-		test( "returns any provided number as given", function() {
+		test( "returns any provided integer as given", function() {
 			[
 				0,
-				1.5,
-				-2.5e7,
+				2,
+				-2e7,
 			]
 				.forEach( value => {
 					serialize( value ).should.be.equal( value );
 				} );
 		} );
 
-		test( "relies on prior coercion to convert non-numbers to numbers, thus returning any other value as is, too", function() {
+		test( "relies on prior coercion to convert non-integers to integers, thus returning any other value as is, too", function() {
 			[
 				[ false, NaN ],
 				[ true, NaN ],
@@ -783,6 +792,8 @@ suite( "Model Attribute Type `number`", function() {
 				[ "abc", NaN ],
 				[ "\u00a0", NaN ],
 				[ "\x00\x01\x02\x1b\x00", NaN ],
+				[ 1.5, 1 ],
+				[ -2.5e-2, -0 ],
 			]
 				.forEach( ( [ raw, serialized ] ) => {
 					if ( isNaN( serialized ) ) {
@@ -818,21 +829,25 @@ suite( "Model Attribute Type `number`", function() {
 			( () => deserialize( ["required: true"] ) ).should.not.throw();
 		} );
 
-		test( "returns any value as-is", function() {
+		test( "returns any provided as-is", function() {
 			[
 				null,
 				undefined,
 				"",
 				" \r\t\n\f ",
 				0,
+				1,
+				-20000000,
 				1.5,
 				-2.5e7,
 				"0",
+				"1",
+				"-20000000",
 				"1.5",
 				"-2.5e7",
 				"hello",
-				"1.5 hours",
-				"up to -2.5e7",
+				"1 hours",
+				"less than -20000000",
 				false,
 				true,
 				[],
@@ -899,71 +914,71 @@ suite( "Model Attribute Type `number`", function() {
 		} );
 
 		test( "returns `true` on negating falsy coerced value", function() {
-			compare( 0.0, null, "not" ).should.be.true();
-			compare( -0.0, null, "not" ).should.be.true();
+			compare( 0, null, "not" ).should.be.true();
+			compare( -0, null, "not" ).should.be.true();
 			compare( NaN, null, "not" ).should.be.true();
 		} );
 
 		test( "returns `false` on negating truthy coerced value", function() {
-			compare( 0.1, null, "not" ).should.be.false();
-			compare( 1.0, null, "not" ).should.be.false();
+			compare( 1, null, "not" ).should.be.false();
+			compare( -1, null, "not" ).should.be.false();
 			compare( -200, null, "not" ).should.be.false();
-			compare( -1e-4, null, "not" ).should.be.false();
+			compare( -1e4, null, "not" ).should.be.false();
 			compare( 12e16, null, "not" ).should.be.false();
 		} );
 
 		test( "detects two coerced equal values", function() {
 			compare( 0, 0, "eq" ).should.be.true();
-			compare( 10, 1e1, "eq" ).should.be.true();
-			compare( -0.1, -1e-1, "eq" ).should.be.true();
+			compare( 10, 10, "eq" ).should.be.true();
+			compare( -0, -0, "eq" ).should.be.true();
 
 			compare( 0, 0, "noteq" ).should.be.false();
-			compare( 10, 1e1, "noteq" ).should.be.false();
-			compare( -0.1, -1e-1, "noteq" ).should.be.false();
+			compare( 10, 10, "noteq" ).should.be.false();
+			compare( -0, -0, "noteq" ).should.be.false();
 		} );
 
 		test( "detects two coerced inequal values", function() {
 			compare( 1, 0, "eq" ).should.be.false();
-			compare( 10, 1e2, "eq" ).should.be.false();
-			compare( -0.1, -2e-1, "eq" ).should.be.false();
+			compare( 10, 100, "eq" ).should.be.false();
+			compare( 0, -200, "eq" ).should.be.false();
 
 			compare( 1, 0, "noteq" ).should.be.true();
-			compare( 10, 1e2, "noteq" ).should.be.true();
-			compare( -0.1, -2e-1, "noteq" ).should.be.true();
+			compare( 10, 100, "noteq" ).should.be.true();
+			compare( 0, -200, "noteq" ).should.be.true();
 		} );
 
 		test( "compares order of two coerced values", function() {
-			compare( 5, -3.4, "gt" ).should.be.true();
-			compare( 5, -3.4, "gte" ).should.be.true();
+			compare( 5, -3, "gt" ).should.be.true();
+			compare( 5, -3, "gte" ).should.be.true();
 			compare( 5, 5, "gt" ).should.be.false();
 			compare( 5, 5, "gte" ).should.be.true();
 
-			compare( -3.4, 5, "lt" ).should.be.true();
-			compare( -3.4, 5, "lte" ).should.be.true();
-			compare( -3.4, -3.4, "lt" ).should.be.false();
-			compare( -3.4, -3.4, "lte" ).should.be.true();
+			compare( -3, 5, "lt" ).should.be.true();
+			compare( -3, 5, "lte" ).should.be.true();
+			compare( -3, -3, "lt" ).should.be.false();
+			compare( -3, -3, "lte" ).should.be.true();
 		} );
 
 		test( "returns `false` on comparing non-`null` value w/ `null`-value", function() {
-			compare( -3.5, null, "gt" ).should.be.false();
-			compare( -3.5, null, "gte" ).should.be.false();
-			compare( -3.5, null, "gt" ).should.be.false();
-			compare( -3.5, null, "gte" ).should.be.false();
-			compare( -3.5, null, "lt" ).should.be.false();
-			compare( -3.5, null, "lte" ).should.be.false();
-			compare( -3.5, null, "lt" ).should.be.false();
-			compare( -3.5, null, "lte" ).should.be.false();
+			compare( -3, null, "gt" ).should.be.false();
+			compare( -3, null, "gte" ).should.be.false();
+			compare( -3, null, "gt" ).should.be.false();
+			compare( -3, null, "gte" ).should.be.false();
+			compare( -3, null, "lt" ).should.be.false();
+			compare( -3, null, "lte" ).should.be.false();
+			compare( -3, null, "lt" ).should.be.false();
+			compare( -3, null, "lte" ).should.be.false();
 		} );
 
 		test( "returns `false` on comparing `null` value w/ non-`null`-value", function() {
-			compare( null, -3.5, "gt" ).should.be.false();
-			compare( null, -3.5, "gte" ).should.be.false();
-			compare( null, -3.5, "gt" ).should.be.false();
-			compare( null, -3.5, "gte" ).should.be.false();
-			compare( null, -3.5, "lt" ).should.be.false();
-			compare( null, -3.5, "lte" ).should.be.false();
-			compare( null, -3.5, "lt" ).should.be.false();
-			compare( null, -3.5, "lte" ).should.be.false();
+			compare( null, -3, "gt" ).should.be.false();
+			compare( null, -3, "gte" ).should.be.false();
+			compare( null, -3, "gt" ).should.be.false();
+			compare( null, -3, "gte" ).should.be.false();
+			compare( null, -3, "lt" ).should.be.false();
+			compare( null, -3, "lte" ).should.be.false();
+			compare( null, -3, "lt" ).should.be.false();
+			compare( null, -3, "lte" ).should.be.false();
 		} );
 
 		test( "supports unary operation testing for value being `null`", function() {

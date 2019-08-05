@@ -30,7 +30,7 @@
 const { describe, it } = require( "mocha" );
 require( "should" );
 
-const { UUID } = require( "../../lib/utility" );
+const { UUID } = require( "../../../lib/utility" );
 
 
 describe( "Utility for handling UUIDs", () => {
