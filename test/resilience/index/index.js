@@ -26,8 +26,8 @@
  * @author: cepharum
  */
 
-const Uuid = require( "../../../lib/utility/uuid" );
-const Index = require( "../../../lib/index/index" );
+const UUID = require( "../../../lib/utility/uuid" );
+const Index = require( "../../../lib/model/indexer/equality" );
 const PromiseUtils = require( "promise-essentials" );
 
 /**
@@ -48,17 +48,21 @@ function test() {
 				if ( index >= NumRecords ) {
 					resolve();
 				} else {
-					Uuid( { binary: true } )
-						.then( id => {
-							uuids[index] = id;
-							create( index + 1 );
+					UUID.create()
+						.then( uuid => {
+							if ( uuids.indexOf( uuid ) < 0 ) {
+								uuids[index] = uuid;
+								create( index + 1 );
+							} else {
+								create( index );
+							}
 						} )
 						.catch( reject );
 				}
 			};
 			create( 0 );
 		} ).then( () => {
-			return PromiseUtils.each( [ 1, 1, 2, 10, 100, 1000, 10000, 100000, 500000 ], numValues => {
+			return PromiseUtils.each( [ 1, 2, 10, 100, 1000, 10000, 100000, 500000 ], numValues => {
 				if ( numValues > NumRecords ) {
 					return Promise.resolve();
 				}
@@ -69,41 +73,56 @@ function test() {
 
 					const MyIndex = new Index( { revision: 0 } );
 
-					try {
-						if ( global.gc ) {
-							global.gc( true );
-							console.error( "collecting garbage and waiting 5000ms" );
-						}
-					} catch ( e ) {
-						console.error( "`node --expose-gc index.js`" );
-						process.exit();
-					}
-
-					return PromiseUtils.delay( 5000 )
+					return gc()
 						.then( function() {
 							memoryUsageBefore = process.memoryUsage();
+
 							for ( let i = 0; i < NumRecords; i++ ) {
-								MyIndex.add( uuids[i], values[i % numValues], { checkDuplicate: false } );
+								MyIndex.add( uuids[i], values[i % numValues], undefined, { checkDuplicate: false } );
 							}
-							return Uuid( { binary: true } )
+
+							return UUID.create()
 								.then( id => {
 									MyIndex.add( id, values[0] );
 								} ).then( () => {
 									const memoryUsage = process.memoryUsage();
-									console.error( "computing:", `${NumRecords} records with ${numValues} different Values of type ${valueType}` );
+									console.error( "computing:", `${NumRecords} records with ${numValues} different values of type ${valueType}` );
+
 									const diff = {
 										rss: memoryUsage.rss - memoryUsageBefore.rss,
 										heapTotal: memoryUsage.heapTotal - memoryUsageBefore.heapTotal,
 										heapUsed: memoryUsage.heapUsed - memoryUsageBefore.heapUsed,
 										external: memoryUsage.external - memoryUsageBefore.external,
 									};
-									console.log( `${NumRecords}; ${numValues}; ${valueType}; ${diff.rss}; ${diff.heapTotal}; ${diff.heapUsed}; ${diff.external}` );
+
+									console.log( `${NumRecords}; ${numValues}; ${valueType}; ${diff.rss}; ${diff.heapTotal}; ${diff.heapUsed}; ${diff.external}` ); // eslint-disable-line max-len
 								} );
 						} );
 				} );
 			} );
 		} );
-	} );
+	} )
+		.catch( error => {
+			console.error( `FAILED: ${error.stack}` );
+		} );
 }
 
 test();
+
+/**
+ * Invokes garbage collection and waits a moment.
+ *
+ * @param {int} delayMs number of milliseconds to wait after triggering GC
+ * @returns {Promise} promises garbage collection triggered and delay passed
+ */
+function gc( delayMs = 5000 ) {
+	if ( !global.gc ) {
+		return Promise.reject( new Error( "run node with option --expose-gc (e.g. `node --expose-gc index.js`)" ) );
+	}
+
+	return new Promise( resolve => {
+		global.gc( true );
+
+		setTimeout( resolve, delayMs );
+	} );
+}
