@@ -238,7 +238,6 @@ describe( "Inspecting collection of a model's items", function() {
 						return MyModel.list( { offset, limit: limit || Infinity, sortBy: propertyName, sortAscendingly: dir } )
 							.then( records => {
 								records.should.be.Array().which.has.length( limit || ( NumRecords - offset ) );
-								console.log( records.map( e => [ e[propertyName], e.index ] ) );
 
 								if( limit >= 5 ) {
 									isSorted( records ).should.be[dir ? "true" : "false"]();
