@@ -67,7 +67,7 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.indices[0].should.be.Object();
+		MyModel.indices[0].should.be.Object().and.have.size( 3 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
 		MyModel.indices[0].propertyType.should.a.Function().with.length( 0 );
@@ -81,7 +81,7 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.indices[0].should.be.Object();
+		MyModel.indices[0].should.be.Object().and.have.size( 3 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
 		MyModel.indices[0].propertyType.should.be.a.Function().with.length( 0 );
@@ -121,12 +121,12 @@ describe( "A model-related index", () => {
 
 		MyModel.indices.should.be.Array().which.has.length( 2 );
 
-		MyModel.indices[0].should.be.Object();
+		MyModel.indices[0].should.be.Object().and.have.size( 3 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
 		MyModel.indices[0].propertyType.should.be.a.Function().with.length( 0 );
 
-		MyModel.indices[1].should.be.Object();
+		MyModel.indices[1].should.be.Object().and.have.size( 3 );
 		MyModel.indices[1].property.should.be.eql( "a" );
 		MyModel.indices[1].type.should.be.eql( "neq" );
 		MyModel.indices[1].propertyType.should.be.a.Function().with.length( 0 );
@@ -151,12 +151,12 @@ describe( "A model-related index", () => {
 
 		MyModel.indices.should.be.Array().which.has.length( 2 );
 
-		MyModel.indices[0].should.be.Object();
+		MyModel.indices[0].should.be.Object().and.have.size( 3 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
 		MyModel.indices[0].propertyType.should.be.a.Function().with.length( 0 );
 
-		MyModel.indices[1].should.be.Object();
+		MyModel.indices[1].should.be.Object().and.have.size( 3 );
 		MyModel.indices[1].property.should.be.eql( "b" );
 		MyModel.indices[1].type.should.be.eql( "neq" );
 		MyModel.indices[1].propertyType.should.be.a.Function().with.length( 0 );
@@ -172,12 +172,12 @@ describe( "A model-related index", () => {
 
 		MyModel.indices.should.be.Array().which.has.length( 2 );
 
-		MyModel.indices[0].should.be.Object();
+		MyModel.indices[0].should.be.Object().and.have.size( 3 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
 		MyModel.indices[0].propertyType.should.be.a.Function().with.length( 0 );
 
-		MyModel.indices[1].should.be.Object();
+		MyModel.indices[1].should.be.Object().and.have.size( 3 );
 		MyModel.indices[1].property.should.be.eql( "b" );
 		MyModel.indices[1].type.should.be.eql( "eq" );
 		MyModel.indices[1].propertyType.should.be.a.Function().with.length( 0 );
