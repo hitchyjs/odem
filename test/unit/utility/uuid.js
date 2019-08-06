@@ -35,13 +35,11 @@ const { UUID } = require( "../../../lib/utility" );
 
 describe( "Utility for handling UUIDs", () => {
 	describe( "has static method UUID.normalize() that", () => {
-		it( "throws when used without arguments", () => {
-			( () => UUID.normalize() ).should.throw( TypeError );
+		it( "does not throw when used without arguments", () => {
+			( () => UUID.normalize() ).should.not.throw( TypeError );
 		} );
 
 		it( "throws when used with argument not suitable for representing UUID", () => {
-			( () => UUID.normalize( null ) ).should.throw( TypeError );
-			( () => UUID.normalize( undefined ) ).should.throw( TypeError );
 			( () => UUID.normalize( false ) ).should.throw( TypeError );
 			( () => UUID.normalize( true ) ).should.throw( TypeError );
 			( () => UUID.normalize( 0 ) ).should.throw( TypeError );
@@ -53,6 +51,12 @@ describe( "Utility for handling UUIDs", () => {
 			( () => UUID.normalize( { uuid: "12345678-1234-1234-1234-1234567890ab" } ) ).should.throw( TypeError );
 			( () => UUID.normalize( () => {} ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
 			( () => UUID.normalize( () => "12345678-1234-1234-1234-1234567890ab" ) ).should.throw( TypeError );
+		} );
+
+
+		it( "accepts null or undefined as argument", () => {
+			( () => UUID.normalize( null ) ).should.not.throw( TypeError );
+			( () => UUID.normalize( undefined ) ).should.not.throw( TypeError );
 		} );
 
 		it( "rejects array consisting of 16 integers in range 0-0xFF as argument", () => {
@@ -206,13 +210,11 @@ describe( "Utility for handling UUIDs", () => {
 			UUID.normalize.should.be.Function().which.has.length( 1 );
 		} );
 
-		it( "throws when calling without arguments", () => {
-			( () => UUID.normalize() ).should.throw( TypeError );
+		it( "does not throw when calling without arguments", () => {
+			( () => UUID.normalize() ).should.not.throw( TypeError );
 		} );
 
 		it( "rejects most regular types of input not suitable for purely describing single UUID", () => {
-			( () => UUID.normalize( null ) ).should.throw( TypeError );
-			( () => UUID.normalize( undefined ) ).should.throw( TypeError );
 			( () => UUID.normalize( false ) ).should.throw( TypeError );
 			( () => UUID.normalize( true ) ).should.throw( TypeError );
 			( () => UUID.normalize( 0 ) ).should.throw( TypeError );
@@ -264,6 +266,11 @@ describe( "Utility for handling UUIDs", () => {
 			UUID.isUUID( "01234567-89ab-cgef-fedc-ba9876543210" ).should.be.false();
 			UUID.isUUID( "01234567-89ab-cdef-gedc-ba9876543210" ).should.be.false();
 			UUID.isUUID( "01234567-89ab-cdef-fedc-ga9876543210" ).should.be.false();
+		} );
+
+		it( "accepts null or undefined", () => {
+			( () => UUID.normalize( null ) ).should.not.throw( TypeError );
+			( () => UUID.normalize( undefined ) ).should.not.throw( TypeError );
 		} );
 
 		it( "accepts strings representing UUID using lowercase letters", () => {

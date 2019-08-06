@@ -38,7 +38,7 @@ describe( "Index", function() {
 	before( "generating uuids", function() {
 		const Promises = new Array( 6 );
 		for( let i = 0; i < 6; i++ ) {
-			Promises[i] = uuid().then( _uuid => {
+			Promises[i] = uuid.create().then( _uuid => {
 				uuids[i] = _uuid;
 			} );
 		}
@@ -65,21 +65,6 @@ describe( "Index", function() {
 		instance.should.have.property( "updateIndex" ).which.is.a.Function().of.length( 3 );
 	} );
 
-	describe( "returns 0 or 1 when on invoking insert", function() {
-		const instance = new Index( { revision: 0 } );
-		it( "1 if new index entry was added", () => {
-			instance.add( uuids[1], 1 ).should.be.equal( 1 );
-		} );
-
-		it( "1 if existing index entry was modified", () => {
-			instance.add( uuids[2],1 ).should.be.equal( 1 );
-		} );
-
-		it( "0 if existing index entry allready contained the value", () => {
-			instance.add( uuids[2],1 ).should.be.equal( 0 );
-		} );
-	} );
-
 	describe( "find", function() {
 		const instance = new Index( { revision: 0 } );
 		before( "", function() {
@@ -93,15 +78,48 @@ describe( "Index", function() {
 		it( "that returns values in ascending order", function() {
 			const gen = instance.find( 2 );
 			const generator = gen();
-			generator.next().value[0].should.be.equal( uuids[3] );
-			generator.next().value[0].should.be.equal( uuids[4] );
+			generator.next().value.should.be.equal( uuids[3] );
+			generator.next().value.should.be.equal( uuids[4] );
 		} );
 
 		it( "that can return values in descending order", function() {
 			const gen = instance.find( 2, true );
 			const generator = gen();
-			generator.next().value[0].should.be.equal( uuids[4] );
-			generator.next().value[0].should.be.equal( uuids[3] );
+			generator.next().value.should.be.equal( uuids[4] );
+			generator.next().value.should.be.equal( uuids[3] );
+		} );
+	} );
+
+	describe( "add", function() {
+		describe( "adds entries to the right indices", () => {
+			const instance = new Index( { revision: 0 } );
+
+			it( "has no entries in the beginning", () => {
+				const values = instance.tree.values;
+				values.length.should.be.eql( 0 );
+				values.reduce( ( accumulator, currentValue ) => accumulator + currentValue.length, 0 ).should.be.eql( 0 );
+			} );
+
+			it( "adds 5 values", function() {
+				instance.add( uuids[1], 1 );
+				instance.add( uuids[2], 2 );
+				instance.add( uuids[3], 2 );
+				instance.add( uuids[4], 4 );
+				instance.add( uuids[5], 4 );
+			} );
+
+			it( "has the right number of uuids", () => {
+				const values = instance.tree.values;
+				values.length.should.be.eql( 3 );
+				values.reduce( ( accumulator, currentValue ) => accumulator + currentValue.length, 0 ).should.be.eql( 5 );
+			} );
+
+			it( "has sorted the uuids into the right values", () => {
+				instance.tree.find( 1 ).value.should.be.deepEqual( [uuids[1]] );
+				instance.tree.find( 2 ).value.should.be.deepEqual( [ uuids[2], uuids[3] ] );
+				instance.tree.find( 4 ).value.should.be.deepEqual( [ uuids[4], uuids[5] ] );
+			} );
+
 		} );
 	} );
 
@@ -121,35 +139,35 @@ describe( "Index", function() {
 		it( "that returns values in ascending order", function() {
 			const gen = instance.findBetween();
 			const generator = gen();
-			generator.next().value[0].should.be.equal( uuids[1] );
-			generator.next().value[0].should.be.equal( uuids[2] );
-			generator.next().value[0].should.be.equal( uuids[3] );
-			generator.next().value[0].should.be.equal( uuids[4] );
-			generator.next().value[0].should.be.equal( uuids[5] );
+			generator.next().value.should.be.equal( uuids[1] );
+			generator.next().value.should.be.equal( uuids[2] );
+			generator.next().value.should.be.equal( uuids[3] );
+			generator.next().value.should.be.equal( uuids[4] );
+			generator.next().value.should.be.equal( uuids[5] );
 		} );
 		it( "that returns values in a range", function() {
 			const gen = instance.findBetween( { lowerLimit: 2, upperLimit: 6 } );
 			const generator = gen();
-			generator.next().value[0].should.be.equal( uuids[2] );
-			generator.next().value[0].should.be.equal( uuids[3] );
-			generator.next().value[0].should.be.equal( uuids[4] );
-			generator.next().value[0].should.be.equal( uuids[5] );
+			generator.next().value.should.be.equal( uuids[2] );
+			generator.next().value.should.be.equal( uuids[3] );
+			generator.next().value.should.be.equal( uuids[4] );
+			generator.next().value.should.be.equal( uuids[5] );
 		} );
 		it( "that returns values in descending order", function() {
 			const gen = instance.findBetween( { descending: true } );
 			const generator = gen();
-			generator.next().value[0].should.be.equal( uuids[5] );
-			generator.next().value[0].should.be.equal( uuids[4] );
-			generator.next().value[0].should.be.equal( uuids[3] );
-			generator.next().value[0].should.be.equal( uuids[2] );
-			generator.next().value[0].should.be.equal( uuids[1] );
+			generator.next().value.should.be.equal( uuids[5] );
+			generator.next().value.should.be.equal( uuids[4] );
+			generator.next().value.should.be.equal( uuids[3] );
+			generator.next().value.should.be.equal( uuids[2] );
+			generator.next().value.should.be.equal( uuids[1] );
 		} );
 		it( "that returns values in a range in descending order", function() {
 			const gen = instance.findBetween( { lowerLimit: 1, upperLimit: 3, descending: true } );
 			const generator = gen();
-			generator.next().value[0].should.be.equal( uuids[3] );
-			generator.next().value[0].should.be.equal( uuids[2] );
-			generator.next().value[0].should.be.equal( uuids[1] );
+			generator.next().value.should.be.equal( uuids[3] );
+			generator.next().value.should.be.equal( uuids[2] );
+			generator.next().value.should.be.equal( uuids[1] );
 		} );
 	} );
 
@@ -162,15 +180,15 @@ describe( "Index", function() {
 			instance.add( uuids[4], 4 );
 			instance.add( uuids[5], 4 );
 		} );
-		it( "returns 0 or 1 on invoke", function() {
-			instance.remove( uuids[5], 4 ).should.be.equal( 1 );
-			instance.remove( uuids[5], 4 ).should.be.equal( 0 );
-			instance.remove( uuids[5], 5 ).should.be.equal( 0 );
+		it( "returns true or false on invoke", function() {
+			instance.remove( uuids[5], 4 ).should.be.equal( true );
+			instance.remove( uuids[5], 4 ).should.be.equal( false );
+			instance.remove( uuids[5], 5 ).should.be.equal( false );
 		} );
 		it( "removes entry from index with multiple entries", function() {
 			instance.remove( uuids[3], 2 );
 			const gen = instance.find( 2 )();
-			gen.next().value[0].should.be.equal( uuids[2] );
+			Should( gen.next().value ).be.equal( uuids[2] );
 			Should( gen.next().value ).be.undefined();
 		} );
 		it( "removes index if value is empty", function() {
@@ -244,8 +262,8 @@ describe( "Index", function() {
 		it( "updates index if oldIndex and newIndex are valid", function() {
 			instance.updateIndex( uuids[2], 2, 1 );
 			const gen = instance.find( 1 )();
-			Should( gen.next().value[0] ).eql( uuids[1] );
-			Should( gen.next().value[0] ).eql( uuids[2] );
+			Should( gen.next().value ).eql( uuids[1] );
+			Should( gen.next().value ).eql( uuids[2] );
 		} );
 	} );
 } );

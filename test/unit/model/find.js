@@ -303,7 +303,7 @@ describe( "Inspecting collection of a model's items", function() {
 	} );
 
 	Properties.forEach( ( [ propertyName, dataName ] ) => {
-		it( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database`, () => {
+		it.skip( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database`, () => {
 			const lowers = data[dataName].slice( 0, Math.floor( data[dataName].length / 3 ) );
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
 			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
@@ -317,7 +317,7 @@ describe( "Inspecting collection of a model's items", function() {
 	} );
 
 	Properties.forEach( ( [ propertyName, dataName ] ) => {
-		it( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database using different operation syntax`, () => { // eslint-disable-line max-len
+		it.skip( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database using different operation syntax`, () => { // eslint-disable-line max-len
 			const lowers = data[dataName].slice( 0, Math.floor( data[dataName].length / 3 ) );
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
 			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
