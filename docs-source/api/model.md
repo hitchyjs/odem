@@ -8,17 +8,67 @@
 
 This method is available to create a new model class according to provided definition. See the related documentation for defining models for additional information.
 
-### Model.list()
+### Model.list() <Badge type="info">0.2.0+</Badge>
 
-**Signature:** `Model.list( offset, limit, withValues, meta ) : Promise<Model[]>`
+:::warning Important
+This method's signature has changed significantly starting with v0.2.0.
+:::
 
-This method promises an (excerpt from) unconditional list of current model's instances.
+**Signature:** `Model.list( queryOptions, resultOptions ) : Promise<Model[]>`
 
-### Model.findByAttribute()
+This method promises an (excerpt from) unconditional list of current model's instances. It takes up to two sets of options. The first one is affecting the query, the second one is affecting the result.
 
-**Signature:** `Model.findBytAttribute( name, value, operation, offset, limit, meta ) : Promise<Model[]>`
+#### Query-Related Options
 
-This method promises a list of model instances matching condition described in arguments.
+* **offset** is an optional number of matching items to skip. The default is `0`.
+* **limit** is an optional number of matching items to return at most. The default is `Infinity`.
+* **sortBy** is the name of a property to sort resulting items by. When omitted resulting items aren't sorted at all.
+* **sortAscendingly** is a boolean indicating whether resulting items should be sorted in ascending order or not. The default is true.
+
+:::warning Performance
+Sorting has a remarkable impact on performance. Defining index on any property you intend to sort items by is suggested to reduce this impact.
+:::
+
+#### Result-Related Options
+
+* **loadRecords** is a boolean requesting whether either listed item should have loaded all its properties on return already. This will have an impact on performance and thus you might like to focus on matching item's UUIDs. The default is true, thus you have to set this option false explicitly to prevent the penalty on performance.
+* **metaCollector** may be an object which is receiving total number of matching items in property **metaCollector.count**. Fetching total number of matching items is affecting the performance for it needs to discover all existing items of model without regards to selected **offset** and **limit** query options. On the other hand implicitly fetching total count might save another query which is beneficial, as well.
+
+#### Example
+
+```javascript
+Model.list( { 
+    offset: 10,
+    limit: 5,
+}, {
+    loadRecord: false,
+} )
+    .then( results => {
+        console.log( results.length ); // should display 5 at most
+    } )
+```
+
+:::tip FYI
+This method is just an alias for using `Model.find()` with a particular query.
+:::
+
+### Model.findByAttribute() <Badge type="info">0.2.0+</Badge>
+
+:::warning Important
+This method's signature has slightly changed starting with v0.2.0. It is considered **deprecated** in favour of [Model.find()](#model-find) now.
+:::
+
+**Signature:** `Model.findBytAttribute( name, value, operation, queryOptions, resultOptions ) : Promise<Model[]>`
+
+This method promises a list of model instances matching conditions described in arguments. See the remarks on Model.list() for a description of supported options. The test given in first three arguments here is transformed prior to forwarding this request to [Model.find()](#model-find).
+
+### Model.find() <Badge type="info">0.2.0+</Badge>
+
+**Signature:** `Model.find( query, queryOptions, resultOptions ) : Promise<Model[]>`
+
+This method is central to querying a collection of a model's items looking for model instances matching given query and related options.
+
+Supported query options and result options have been described in context of [Model.list()](#model-list) before. The query is the description of a test meant to be satisfied by all desired items of model
 
 ### Model.uuidToKey()
 
@@ -31,6 +81,19 @@ When accessing a record of data stored in a connected datasource the instance's 
 **Signature:** `Model.keyToUuid( key ) : string`
 
 This method is the counterpart to `Model.uuidToKey()` and may be used to convert keys provided by some backend into the UUID suitable for identifying a related instance of the model.
+
+### Model.getIndex() <Badge type="info">0.2.0+</Badge> 
+
+This method has been introduced to simplify access on a particular index. It is looking up [Model.indices](#model-indices) for the selected type of index covering given property. The deinition must e given the look up to succeed.
+
+**Signature:** `Model.getIndex( propertyName, indexType )`
+
+
+### Model.uuidStream() <Badge type="info">0.2.0+</Badge> 
+
+The method returns a readable stream for the binary UUIDs of all items.
+
+**Signature:** `Model.uuidStream()`
 
 
 ## Static Properties
@@ -165,6 +228,12 @@ This property is different from other implicit properties for it doesn't start w
 
 An instance's UUID is used to uniquely select it in its model's collection of instances. On freshly created instances the UUID is `null`. After having saved such an instance the UUID assigned by backend adapter is exposed instead.
 
+This property can be changed once after creating instances without UUID, only. The UUID might be given as string or as buffer of 16 octets.
+
+### instance.$uuid <Badge type="info">0.2.0+</Badge>
+
+This property has been introduced in v0.2.0 to expose the binary UUID used internally. It isn't meant to change the UUID. Use `instance.uuid` for that. See the related remarks there.
+
 ### instance.$dataKey
 
 This property is related to the instance's UUID and exposes the key used to address the related record in data source connected via backend adapter. 
@@ -206,22 +275,6 @@ afterValidate( errors ) {
 }
 ```
 :::
-
-### Model.beforeCreate()
-
-**Signature:** `Model.beforeCreate( value ) : value`
-
-:::warning Note!  
-This hook is the only one which isn't invoked in context of a particular instance of the model, but as a static method of that model.
-:::
-
-This hook is invoked with all values for a new instance to be created. It is meant to return the probably adjusted set of values to be used for eventually creating the instance.
-
-### instance.afterCreate()
-
-**Signature:** `instance.afterCreate()`
-
-This hook is invoked after having created a new instance of the model.
 
 ### instance.beforeValidate()
 
