@@ -1,5 +1,5 @@
 {
-  "name": "hitchy-odem",
+  "name": "hitchy-plugin-odem",
   "version": "0.2.0",
   "description": "ODM API used by hitchy framework",
   "main": "index.js",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hitchyjs/odem.git"
+    "url": "git+https://github.com/hitchyjs/plugin-odem.git"
   },
   "keywords": [
     "hitchy"
@@ -21,9 +21,9 @@
   "author": "cepharum GmbH",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hitchyjs/odem/issues"
+    "url": "https://github.com/hitchyjs/plugin-odem/issues"
   },
-  "homepage": "https://github.com/hitchyjs/odem#readme",
+  "homepage": "https://github.com/hitchyjs/plugin-odem#readme",
   "devDependencies": {
     "cross-env": "^5.2.0",
     "eslint": "^6.1.0",

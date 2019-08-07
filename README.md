@@ -1,4 +1,4 @@
-# Hitchy's Odem [![Build Status](https://travis-ci.org/hitchyjs/odem.svg?branch=master)](https://travis-ci.org/hitchyjs/odem)
+# Hitchy's Odem [![Build Status](https://travis-ci.org/hitchyjs/plugin-odem.svg?branch=master)](https://travis-ci.org/hitchyjs/plugin-odem)
 
 _an object document management for hitchy_
 
@@ -22,9 +22,9 @@ Thus, Hitchy starts lean and requires some extension to help with conveniently m
  
  ### Is It Ready For Production?
  
- Starting with v0.1.0 hitchy-odem includes index-backed searching. This indexing is fixing one of the most severe bottlenecks of FileAdapter by strongly improving performance on searching instances by indexed properties. Thus we believe that hitchy and hitchy-odem are ready for use in real-world applications. 
+ Starting with v0.1.0 hitchy-plugin-odem includes index-backed searching. This indexing is fixing one of the most severe bottlenecks of FileAdapter by strongly improving performance on searching instances by indexed properties. Thus we believe that hitchy and hitchy-plugin-odem are ready for use in real-world applications. 
  
- Of course, hitchy-odem isn't meant to compete with established database engines like MySQL or MongoDB. However, most applications don't require the performance provided by those engines. That's why they might benefit from a lot easier setup. Just imagine running real-world applications out of the box on any server you like. The only requirement is support for Node.js. That's following one of the core-principles of Hitchy: getting rid of dependencies as good as possible.
+ Of course, hitchy-plugin-odem isn't meant to compete with established database engines like MySQL or MongoDB. However, most applications don't require the performance provided by those engines. That's why they might benefit from a lot easier setup. Just imagine running real-world applications out of the box on any server you like. The only requirement is support for Node.js. That's following one of the core-principles of Hitchy: getting rid of dependencies as good as possible.
 
 ## Documentation
 

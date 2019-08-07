@@ -22,10 +22,10 @@ The preferred way of defining models in a Hitchy application is via filesystem a
 
 For sure, there is code reading and processing those files. That code is using API to be described in this chapter. You might want to use this API in testing your code e.g. to mock models your code is relying on.
 
-The main module of hitchy-odem library exposes several classes. One of them is `Model`.
+The main module of hitchy-plugin-odem library exposes several classes. One of them is `Model`.
 
 ```javascript
-const { Model } = require( "hitchy-odem" );
+const { Model } = require( "hitchy-plugin-odem" );
 ```
 
 This class is providing static method `Model.define()` accepting these arguments:
@@ -57,7 +57,7 @@ Model.define( name, definition, baseClass = Model, dataStorageAdapter = null );
 Basically it is okay to stick with the first two arguments:
 
 ```javascript
-const { Model } = require( "hitchy-odem" );
+const { Model } = require( "hitchy-plugin-odem" );
 
 const Person = Model.define( "person", {
 	props: {
@@ -71,7 +71,7 @@ const Person = Model.define( "person", {
 Third argument can be used to create a hierarchy of models:
 
 ```javascript
-const { Model } = require( "hitchy-odem" );
+const { Model } = require( "hitchy-plugin-odem" );
 
 const Person = Model.define( "person", {
 	props: {

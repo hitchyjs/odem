@@ -5,7 +5,7 @@ Adopting aspects of the object-oriented programming models can be derived from e
 ## Deriving In Code
 
 ```javascript
-const { Model } = require( "hitchy-odem" );
+const { Model } = require( "hitchy-plugin-odem" );
 
 const Root = Model.define( "root", {
     props: {
