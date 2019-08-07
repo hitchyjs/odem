@@ -209,6 +209,22 @@ describe( "Inspecting collection of a model's items", function() {
 			} );
 	} );
 
+	it( "lists all generated records in unsorted order by default with metaCollector", () => {
+		const metaCollector = {};
+		return MyModel.list( undefined,{ metaCollector } )
+			.then( records => {
+				records.should.be.Array().which.has.length( NumRecords );
+				metaCollector.count.should.be.eql( NumRecords );
+
+				isSorted( records ).should.be.false();
+				isSorted( records, false ).should.be.false();
+
+				isStraight( records ).should.be.false();
+				isStraight( records, false ).should.be.false();
+			} );
+	} );
+
+
 	[ 1, 2, 5, 10, 20, 34 ].forEach( limit => {
 		[ 0, 1, 2, 5, 10, 20, 34 ].forEach( offset => {
 			it( `lists excerpt of ${limit} record(s) of generated records in UNSORTED order, skipping ${offset} record(s)`, () => {
