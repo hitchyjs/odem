@@ -1,6 +1,6 @@
 {
   "name": "hitchy-plugin-odem",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "ODM API used by hitchy framework",
   "main": "index.js",
   "scripts": {
