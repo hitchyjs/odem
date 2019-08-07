@@ -34,6 +34,9 @@
     "should": "^13.1.3",
     "vuepress": "^1.0.3"
   },
+  "peerDependencies": {
+    "hitchy": "0.1.x"
+  },
   "dependencies": {
     "file-essentials": "0.*",
     "functional-red-black-tree": "^1.0.1",
