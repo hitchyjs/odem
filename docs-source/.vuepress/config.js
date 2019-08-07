@@ -28,7 +28,7 @@
 
 module.exports = {
 	evergreen: true,
-	base: "/odem/",
+	base: "/plugin-odem/",
 	dest: "docs",
 	title: "Hitchy ODM Manual",
 	themeConfig: {
