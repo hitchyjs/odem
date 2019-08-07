@@ -49,26 +49,57 @@ Model.list( {
 ```
 
 :::tip FYI
-This method is just an alias for using `Model.find()` with a particular query.
+This method is just an alias for using [Model.find()](#model-find) with a particular query.
 :::
-
-### Model.findByAttribute() <Badge type="info">0.2.0+</Badge>
-
-:::warning Important
-This method's signature has slightly changed starting with v0.2.0. It is considered **deprecated** in favour of [Model.find()](#model-find) now.
-:::
-
-**Signature:** `Model.findBytAttribute( name, value, operation, queryOptions, resultOptions ) : Promise<Model[]>`
-
-This method promises a list of model instances matching conditions described in arguments. See the remarks on Model.list() for a description of supported options. The test given in first three arguments here is transformed prior to forwarding this request to [Model.find()](#model-find).
 
 ### Model.find() <Badge type="info">0.2.0+</Badge>
+
+:::warning Replacing findByteAttribute()
+Starting with v0.2.0 this method is replacing previously provided method Model.findByAttribute().
+:::
 
 **Signature:** `Model.find( query, queryOptions, resultOptions ) : Promise<Model[]>`
 
 This method is central to querying a collection of a model's items looking for model instances matching given query and related options.
 
-Supported query options and result options have been described in context of [Model.list()](#model-list) before. The query is the description of a test meant to be satisfied by all desired items of model
+Supported query options and result options have been described in context of [Model.list()](#model-list) before. The query is an object describing a test to be performed on every item of the model to pick those to be retrieved. Its generic syntax is as follows:
+
+At top level the query object consists of exactly one property with its name selecting a test to perform. The property's value is providing additional information customizing the test. It's syntax strongly depends on the selected test's type.
+
+```javascript
+Model.find( { true: {} } );
+``` 
+
+This example is showing a query `{ true: {} }`. It is selecting a special type of test named **true**. This test is used internally to implement Model.list() for it is succeeding on every tested item of a model. The test doesn't require any additional information thus the property's value is just an empty object.
+
+These types of tests are available currently:
+
+| Test Name | Type | Description |
+|---|---|---|
+| true | _special_ | This test always succeeds. |
+| eq | comparison | Tests if value of a property is equal given value. | 
+| neq | comparison | Tests if value of a property is not equal given value. | 
+| lt | comparison | Tests if value of a property is less than a given value. | 
+| lte | comparison | Tests if value of a property is less than or equal a given value. | 
+| gt | comparison | Tests if value of a property is greater than a given value. | 
+| gte | comparison | Tests if value of a property is greater than or equal a given value. |
+
+#### Comparison Tests
+
+All tests of type _comparison_ are require provision of a property's **name** and a **value** to compare named property per item of model with.
+
+```javascript
+Model.find( { eq: { name: "lastName", value: "Doe" } } )
+```
+
+This example is querying the model for all items with property **lastName** equal **Doe**.
+
+```javascript
+Model.find( { lte: { name: "age", value: 50 } } )
+```
+
+This example is querying the model for all items with property **age** having value less than or equal 50.
+
 
 ### Model.uuidToKey()
 
@@ -84,16 +115,16 @@ This method is the counterpart to `Model.uuidToKey()` and may be used to convert
 
 ### Model.getIndex() <Badge type="info">0.2.0+</Badge> 
 
-This method has been introduced to simplify access on a particular index. It is looking up [Model.indices](#model-indices) for the selected type of index covering given property. The deinition must e given the look up to succeed.
+**Signature:** `Model.getIndex( propertyName, indexType ) : Index`
 
-**Signature:** `Model.getIndex( propertyName, indexType )`
+This method has been introduced to simplify access on a particular index. It is looking up [Model.indices](#model-indices) for the selected type of index covering given property. The result is undefined if there is no matching index or the instance managing the found index.
 
 
 ### Model.uuidStream() <Badge type="info">0.2.0+</Badge> 
 
-The method returns a readable stream for the binary UUIDs of all items.
+**Signature:** `Model.uuidStream() : Readable<Buffer>`
 
-**Signature:** `Model.uuidStream()`
+The method returns a readable stream for the binary UUIDs of all items. The stream is an object stream with each provided object being a buffer consisting of 16 octets.
 
 
 ## Static Properties
