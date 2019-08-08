@@ -100,7 +100,7 @@ describe( "A model-related index", () => {
 		} );
 	} );
 
-	[ [true], 1, true, "arbitrary string" ].forEach( value => {
+	[ [true], 1, "arbitrary string" ].forEach( value => {
 		it( `is rejecting index definition using ${Array.isArray( value ) ? "[true]" : String( value )} for index type`, () => {
 			( () => Model.define( "MyModel", {
 				props: {
