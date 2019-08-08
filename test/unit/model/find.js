@@ -299,12 +299,12 @@ describe( "Inspecting collection of a model's items", function() {
 	} );
 
 	Properties.forEach( ( [ propertyName, dataName ] ) => {
-		it.skip( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database`, () => {
+		it( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database`, () => {
 			const lowers = data[dataName].slice( 0, Math.floor( data[dataName].length / 3 ) );
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
 			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
 
-			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { [propertyName]: [ lower, upper ] } } )
+			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { name: propertyName, lower, upper } } )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );
@@ -313,12 +313,12 @@ describe( "Inspecting collection of a model's items", function() {
 	} );
 
 	Properties.forEach( ( [ propertyName, dataName ] ) => {
-		it.skip( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database using different operation syntax`, () => { // eslint-disable-line max-len
+		it( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database using different operation syntax`, () => { // eslint-disable-line max-len
 			const lowers = data[dataName].slice( 0, Math.floor( data[dataName].length / 3 ) );
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
 			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
 
-			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { [propertyName]: { min: lower, max: upper } } } )
+			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { name: propertyName, lower, upper } } )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );
