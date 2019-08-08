@@ -266,4 +266,51 @@ describe( "Index", function() {
 			Should( gen.next().value ).eql( uuids[2] );
 		} );
 	} );
+
+	describe( "nullItems", () => {
+		const instance = new Index( { revision: 0 } );
+		it( "should have a property nullItems that is an Array", () => {
+			instance.should.hasOwnProperty( "nullItems" );
+			instance.nullItems.should.be.an.Array();
+			instance.nullItems.should.have.length( 0 );
+		} );
+		it( "add with id null adds to that nullIndex", () => {
+			instance.add( uuids[0], null );
+			instance.add( uuids[1], 1 );
+			instance.nullItems.should.have.length( 1 );
+			instance.tree.values[0].should.have.length( 1 );
+		} );
+		it( "finds entry in nullIndex", () => {
+			const gen = instance.find( null )();
+			Should( gen.next().value ).eql( uuids[0] );
+		} );
+		it( "updates entry with id null", () => {
+			instance.updateIndex( uuids[0], null, 1 );
+			instance.nullItems.should.have.length( 0 );
+			instance.tree.values[0].should.have.length( 2 );
+			instance.updateIndex( uuids[0], 1, null );
+			instance.nullItems.should.have.length( 1 );
+			instance.tree.values.should.have.length( 1 );
+		} );
+		it( "lists nullIndex in findAttribute if 'appendNullIndex' is set", () => {
+			const gen = instance.findBetween( { appendNulItems: true } )();
+			Should( gen.next().value ).eql( uuids[1] );
+			Should( gen.next().value ).eql( uuids[0] );
+		} );
+		it( "lists nullIndex in findAttribute if 'appendNullIndex' is set descending", () => {
+			const gen = instance.findBetween( { appendNulItems: true, descending: true } )();
+			Should( gen.next().value ).eql( uuids[1] );
+			Should( gen.next().value ).eql( uuids[0] );
+		} );
+		it( "does not list nullIndex in findAttribute if 'appendNullIndex' is not set", () => {
+			const gen = instance.findBetween( { descending: true } )();
+			Should( gen.next().value ).eql( uuids[1] );
+			Should( gen.next().value ).be.undefined();
+		} );
+		it( "removes entry with id null", () => {
+			instance.remove( uuids[0], null );
+			instance.nullItems.should.have.length( 0 );
+			instance.tree.values[0].should.have.length( 1 );
+		} );
+	} );
 } );
