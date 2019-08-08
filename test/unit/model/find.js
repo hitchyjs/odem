@@ -200,12 +200,6 @@ describe( "Inspecting collection of a model's items", function() {
 		return MyModel.list()
 			.then( records => {
 				records.should.be.Array().which.has.length( NumRecords );
-
-				isSorted( records ).should.be.false();
-				isSorted( records, false ).should.be.false();
-
-				isStraight( records ).should.be.false();
-				isStraight( records, false ).should.be.false();
 			} );
 	} );
 
@@ -215,12 +209,6 @@ describe( "Inspecting collection of a model's items", function() {
 			.then( records => {
 				records.should.be.Array().which.has.length( NumRecords );
 				metaCollector.count.should.be.eql( NumRecords );
-
-				isSorted( records ).should.be.false();
-				isSorted( records, false ).should.be.false();
-
-				isStraight( records ).should.be.false();
-				isStraight( records, false ).should.be.false();
 			} );
 	} );
 
@@ -231,14 +219,6 @@ describe( "Inspecting collection of a model's items", function() {
 				return MyModel.list( { offset, limit } )
 					.then( records => {
 						records.should.be.Array().which.has.length( limit );
-
-						if( limit >= 5 ) {
-							isSorted( records ).should.be.false();
-							isSorted( records, false ).should.be.false();
-
-							isStraight( records ).should.be.false();
-							isStraight( records, false ).should.be.false();
-						}
 					} );
 			} );
 		} );
