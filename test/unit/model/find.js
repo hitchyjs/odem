@@ -299,6 +299,10 @@ describe( "Inspecting collection of a model's items", function() {
 	} );
 
 	Properties.forEach( ( [ propertyName, dataName ] ) => {
+		if ( propertyName.startsWith( "slow" ) ) {
+			return;
+		}
+
 		it( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database`, () => {
 			const lowers = data[dataName].slice( 0, Math.floor( data[dataName].length / 3 ) );
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
@@ -310,18 +314,22 @@ describe( "Inspecting collection of a model's items", function() {
 					records.length.should.be.greaterThan( 1 );
 				} ) );
 		} );
-	} );
 
-	Properties.forEach( ( [ propertyName, dataName ] ) => {
-		it( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database using different operation syntax`, () => { // eslint-disable-line max-len
+		it( `delivers records with ${propertyName} values in range on searching matches between two distant values used on filling database`, () => {
 			const lowers = data[dataName].slice( 0, Math.floor( data[dataName].length / 3 ) );
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
 			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
 
-			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { name: propertyName, lower, upper } } )
+			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { name: propertyName, lower, upper } }, undefined, { loadRecords: true} )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );
+
+					if ( dataName === "texts" ) {
+						records.some( r => lower.localeCompare( r[propertyName] ) > 0 || upper.localeCompare( r[propertyName] ) < 0 ).should.be.false();
+					} else {
+						records.some( r => r[propertyName] < lower || r[propertyName] > upper ).should.be.false();
+					}
 				} ) );
 		} );
 	} );
