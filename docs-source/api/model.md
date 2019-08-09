@@ -83,6 +83,9 @@ These types of tests are available currently:
 | lte | comparison | Tests if value of a property is less than or equal a given value. | 
 | gt | comparison | Tests if value of a property is greater than a given value. | 
 | gte | comparison | Tests if value of a property is greater than or equal a given value. |
+| between | comparison | Tests if value of a property is in range of a lower and an upper limit. |
+| null | unary test | Tests if named property is unset. |
+| notnull | unary test | Tests if named property is set. |
 
 #### Comparison Tests
 
@@ -99,6 +102,26 @@ Model.find( { lte: { name: "age", value: 50 } } )
 ```
 
 This example is querying the model for all items with property **age** having value less than or equal 50.
+
+A special case is the `between` test for it requires provision of two parameters **lower** and **upper** instead of single parameter named **value**.
+
+```javascript
+Model.find( { between: { name: "age", lower: 30, upper: 50 } } )
+```
+
+This example is querying the model for all items with property **age** having value between 30 and 50 inclusively.
+
+
+#### Unary Tests
+
+The test `null` is provided to search items that don't have actual value for a given property. Using `notnull` the opposite case can be tested. Either test doesn't require any additional parameter but the **name** of the property to check.
+
+
+```javascript
+Model.find( { null: { name: "started" } } )
+```
+
+This example is querying the model for all items with unset property **started**.
 
 
 ### Model.uuidToKey()
