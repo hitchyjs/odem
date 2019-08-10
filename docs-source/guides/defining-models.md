@@ -370,7 +370,7 @@ Let's define a model for managing users:
         },
     },
     hooks: {
-        saved() {
+        afterSave() {
             // invoked when instance has been saved in database ...
         },
     }
