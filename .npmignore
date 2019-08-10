@@ -4,3 +4,4 @@
 docs
 docs-source
 test
+.travis.yml
