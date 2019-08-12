@@ -141,6 +141,8 @@ Every definition of a module needs to contain at least one property. As demonstr
 
 * **hooks** provides lists of functions to be registered as handlers for a limited set of life cycle event.
 
+* **options** provides model-related options adjusting its behaviour in certain situations.
+
 Either part is described in detail below.
 
 ### Actual Properties
@@ -284,6 +286,26 @@ Arrow functions don't work here for lacking support for `this`.
 :::tip Information  
 For improved readability of resulting definition hooks may use prefix `on` preceding name of life-cycle event with that one's first letter capitalized. Thus, the alias `onBeforeValidate` can be used in definition instead of `beforeValidate`. In the schema exposed on resulting model this prefix will be removed, though.  
 :::
+
+### Options
+
+A schema definition may include options for customizing the resulting model's behaviour in selected situations. These options are given in a separate section of schema named `options`.
+
+These options are supported currently:
+
+* **onUnsaved** controls value exposed as [property `onUnsaved` of resulting model](../api/model.md#model-onunsaved).
+
+```javascript
+{
+    props: {
+        someProp: {}
+    },
+    options: {
+        onUnsaved: "ignore"
+    }
+}
+```
+
 
 ### Indices
 

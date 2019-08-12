@@ -191,6 +191,24 @@ static createRecord() {
 }
 ```
 
+### Model.onUnsaved <Badge type="info" text="0.2.5+"></Badge>
+
+By default, a model's instance prevents accidentally assigning twice to same property without saving intermittently. This also applies to loading an instance from data storage using `instance.load()` after having assigned property values.
+
+This behaviour is meant to prevent coding issues but might be an impediment in selected cases as well. Thus, it can be controlled per instance of a model using option `onUnsaved` in second parameter of a model's constructor.
+
+```javascript
+new MyModel( itemUuid, { onUnsaved: "ignore" } );
+```
+
+The default per model depends on this property which is used in case there is no option provided on constructing item. It might take up to three different values:
+
+* `fail` is the default value and causes Error thrown when assigning twice to same property or on loading after assigning property.
+* `warn` prevents either action from throwing Error but cause log message on stderr.
+* `ignore` silently ignores those actions.
+
+This property is [defined as part of a schema's options section](../guides/defining-models.md#options).
+
 
 ## Instance Methods
 
