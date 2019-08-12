@@ -34,7 +34,7 @@ module.exports = function() {
 
 	Object.defineProperties( Model, {
 		define: {
-			value( ...args ) { return origDefine.call( api, ...args ); },
+			value( name, schema, ...args ) { return origDefine.call( api, name, schema, ...args ); },
 		},
 	} );
 

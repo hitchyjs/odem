@@ -39,20 +39,21 @@ describe( "Integration with hitchy", () => {
 			processDiscoveredModelDefinitions.should.be.Function();
 		} );
 
-		it( "takes two arguments", () => {
-			processDiscoveredModelDefinitions.should.have.length( 2 );
+		it( "takes three arguments", () => {
+			processDiscoveredModelDefinitions.should.have.length( 3 );
 		} );
 
-		it( "requires two arguments", () => {
+		it( "requires three arguments", () => {
 			( () => processDiscoveredModelDefinitions() ).should.throw();
 			( () => processDiscoveredModelDefinitions( {} ) ).should.throw();
-			( () => processDiscoveredModelDefinitions( {}, new MemoryAdapter() ) ).should.not.throw();
+			( () => processDiscoveredModelDefinitions( {}, {} ) ).should.throw();
+			( () => processDiscoveredModelDefinitions( {}, {}, new MemoryAdapter() ) ).should.not.throw();
 		} );
 
 		it( "returns provided set of models", () => {
 			const models = {};
 
-			processDiscoveredModelDefinitions( models, new MemoryAdapter() ).should.be.equal( models );
+			processDiscoveredModelDefinitions( {}, models, new MemoryAdapter() ).should.be.equal( models );
 		} );
 
 		it( "replaces existing models in provided set of model definitions with either model's implementation", () => {
@@ -60,7 +61,7 @@ describe( "Integration with hitchy", () => {
 				SomeModel: { props: { a: {} } },
 			};
 
-			const defined = processDiscoveredModelDefinitions( Object.assign( {}, models ), new MemoryAdapter() );
+			const defined = processDiscoveredModelDefinitions( {}, Object.assign( {}, models ), new MemoryAdapter() );
 
 			defined.should.be.Object().which.has.property( "SomeModel" ).which.has.property( "prototype" ).which.is.instanceof( Model );
 		} );
@@ -68,11 +69,11 @@ describe( "Integration with hitchy", () => {
 
 	describe( "processes set of model definitions that", () => {
 		it( "is empty", () => {
-			( () => processDiscoveredModelDefinitions( {}, new MemoryAdapter() ) ).should.not.throw();
+			( () => processDiscoveredModelDefinitions( {}, {}, new MemoryAdapter() ) ).should.not.throw();
 		} );
 
 		it( "defines single model `sole` with single string attribute named `sole`", () => {
-			const models = processDiscoveredModelDefinitions( {
+			const models = processDiscoveredModelDefinitions( {}, {
 				sole: { props: { sole: {} } },
 			}, new MemoryAdapter() );
 
