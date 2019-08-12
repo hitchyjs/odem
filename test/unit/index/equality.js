@@ -113,8 +113,8 @@ describe( "EqualityIndex", () => {
 			instance.tree.should.have.length( 3 );
 
 			instance.tree.find( 1 ).value.should.be.Array().which.is.deepEqual( [uuids[1]] );
-			instance.tree.find( 2 ).value.should.be.Array().which.is.deepEqual( [uuids[2], uuids[3]] );
-			instance.tree.find( 4 ).value.should.be.Array().which.is.deepEqual( [uuids[4], uuids[5]] );
+			instance.tree.find( 2 ).value.should.be.Array().which.is.deepEqual( [ uuids[2], uuids[3] ] );
+			instance.tree.find( 4 ).value.should.be.Array().which.is.deepEqual( [ uuids[4], uuids[5] ] );
 		} );
 	} );
 

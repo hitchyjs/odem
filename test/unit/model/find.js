@@ -320,7 +320,9 @@ describe( "Inspecting collection of a model's items", function() {
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
 			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
 
-			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { name: propertyName, lower, upper } }, undefined, { loadRecords: true} )
+			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( {
+				between: { name: propertyName, lower, upper }
+			}, undefined, { loadRecords: true } )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );
