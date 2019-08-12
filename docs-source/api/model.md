@@ -294,6 +294,21 @@ This property is related to the instance's UUID and exposes the key used to addr
 
 On a freshly created instance this information is a template containing `%u` as a placeholder for the UUID to be assigned on saving. 
 
+### instance.$api
+
+When integrating with Hitchy its API is available via this property making it very easy to use components of your application such as services in hooks and methods of a model.
+
+```javascript
+{
+    props: { ... },
+    hooks: {
+        beforeValidate() {
+            this.$api.runtime.services.ExtraValidator.check( this.$properties );
+        }
+    }
+}
+```
+
 
 ## Hooks
 

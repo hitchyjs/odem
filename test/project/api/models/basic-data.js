@@ -1,9 +1,9 @@
 /**
- * (c) 2018 cepharum GmbH, Berlin, http://cepharum.de
+ * (c) 2019 cepharum GmbH, Berlin, http://cepharum.de
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 cepharum GmbH
+ * Copyright (c) 2019 cepharum GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,38 +26,16 @@
  * @author: cepharum
  */
 
-const Adapters = require( "./lib/adapter" );
-const Models = require( "./lib/model" );
-const Utilities = require( "./lib/utility" );
-const { processDiscoveredModelDefinitions } = require( "./lib/hitchy-integration" );
-
-const { Adapter, MemoryAdapter } = Adapters;
-
-
-module.exports = Object.assign( {},
-	Models,
-	Adapters,
-	Utilities,
-	{
-		defaults: require( "./lib/defaults" )
-	}, {
-		onExposed( /* options */ ) {
-			const that = this;
-			const { log, runtime: { models, config } } = that;
-			const Log = log( "odem" );
-
-			// choose configured default adapter for storing model instances
-			let adapter = ( config.database || {} ).default;
-			if ( adapter ) {
-				if ( !( adapter instanceof Adapter ) ) {
-					Log( "invalid adapter:", adapter );
-					return;
-				}
-			} else {
-				adapter = new MemoryAdapter();
-			}
-
-			processDiscoveredModelDefinitions( that, models, adapter );
-		}
-	}
-);
+module.exports = {
+	props: {
+		someString: {},
+		someInteger: {
+			type: "integer",
+		},
+	},
+	hooks: {
+		beforeValidate() {
+			this.someString = Object.keys( this.$api.runtime.models ).join( "," );
+		},
+	},
+};
