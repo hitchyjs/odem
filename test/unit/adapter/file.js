@@ -764,4 +764,39 @@ describe( "FileAdapter", function() {
 			FileAdapter.pathToKey( FileAdapter.keyToPath( key ).replace( "/", "\\" ) ).should.be.equal( key );
 		} );
 	} );
+
+	it( "succeeds to write many records with very similar model-like path simultaneously", function() {
+		const adapter = new FileAdapter( { dataSource } );
+		const record = { someProperty: "its value" };
+
+		const promises = new Array( 200 )
+			.fill( 0 )
+			.map( i => adapter.write( `models/some-model/items/00000000-0000-0000-0000-00000000${( "000" + i ).slice( -4 )}`, record ) );
+
+		return Promise.all( promises );
+	} );
+
+	it( "succeeds to write many records with same model-like path simultaneously", function() {
+		this.timeout( 20000 );
+
+		const NumItems = 50000;
+		const adapter = new FileAdapter( { dataSource } );
+
+		const promises = new Array( 200 )
+			.fill( 0 )
+			.map( i => {
+				const text = `lorem ipsum dolor sit amet consectetur ${i}`;
+				const record = { someProperty: new Array( NumItems ).fill( text ) };
+
+				return adapter.write( `models/some-model/items/00000000-0000-0000-0000-000000000000`, record )
+					.then( () => adapter.read( `models/some-model/items/00000000-0000-0000-0000-000000000000` ) )
+					.then( loaded => {
+						if ( loaded.someProperty[0] !== text || loaded.someProperty[NumItems - 1] !== text ) {
+							throw new Error( `data got corrupted intermittently at index #${i}` );
+						}
+					} );
+			} );
+
+		return Promise.all( promises );
+	} );
 } );
