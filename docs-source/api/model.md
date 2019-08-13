@@ -1,12 +1,44 @@
 # Model API
 
+## Constructor
+
+**Signature:** `new Model( uuid, options )`
+
+The constructor is creating an instance of any defined model at runtime to represent the related item. It is invoked with up to two arguments:
+
+* The **uuid** is uniquely addressing a record in attached data storage to be represented by this instance. It might be omitted on creating new item. In this case a UUID is assigned on saving this item for the first time.
+
+* The **options** object consists of several properties customizing the resulting item's behaviour:
+
+  * The property **adapter** may be given to choose a [custom adapter](./adapter.md) for use with created instance. The adapter is used to interact with a persistent data storage such as the file system or any other supported kind of database.
+
+  * The property **onUnsaved** selects mode for handling multiple consecutive assignments to a single property without saving intermittently. See the [description of `Model.onUnsaved`](#model-onunsaved) for additional information.
+
+Always start creation of items like this:
+
+```javascript
+const item = new MyModel();
+item.propertyA = someValue;
+item.propertyB = anotherValue;
+
+item.save().then( () => { ... } );
+```
+
+If you intend to gain access on an existing item you have to provide its UUID in constructor and load its record afterwards:
+
+```javascript
+const item = new MyModel( "12345678-1234-1234-1234-1234567890ab" );
+
+item.load().then( () => { ... } );
+```
+
 ## Static Methods
 
 ### Model.define()
 
 **Signature:** `Model.define( name, schema, baseClass, adapter ) : Model`
 
-This method is available to create a new model class according to provided definition. See the related documentation for defining models for additional information.
+This method is available to create a new model class according to provided definition. See the related documentation for [defining models](../guides/defining-models.md) and [on adapters](./adapter.md) for additional information.
 
 ### Model.list() <Badge type="info">0.2.0+</Badge>
 
@@ -142,12 +174,23 @@ This method is the counterpart to `Model.uuidToKey()` and may be used to convert
 
 This method has been introduced to simplify access on a particular index. It is looking up [Model.indices](#model-indices) for the selected type of index covering given property. The result is undefined if there is no matching index or the instance managing the found index.
 
-
 ### Model.uuidStream() <Badge type="info">0.2.0+</Badge> 
 
 **Signature:** `Model.uuidStream() : Readable<Buffer>`
 
 The method returns a readable stream for the binary UUIDs of all items. The stream is an object stream with each provided object being a buffer consisting of 16 octets.
+
+### Model.normalizeUUID() <Badge type="info">0.2.7+</Badge> 
+
+**Signature:** `Model.normalizeUUID( Buffer | string ) : Buffer`
+
+This method is provided for conveniently accessing code used internally to normalize and convert any provided UUID into its binary variant.
+
+### Model.formatUUID() <Badge type="info">0.2.7+</Badge> 
+
+**Signature:** `Model.formatUUID( Buffer | string ) : string`
+
+This method is provided for conveniently accessing code used internally to normalize and convert any provided UUID into its string representation.
 
 
 ## Static Properties
@@ -160,7 +203,7 @@ The name of model selected on defining it is exposed in context of model.
 
 ### Model.adapter
 
-This property exposes the adapter selected to persistently store instances of the model.
+This property exposes the [adapter](./adapter.md) selected to persistently store instances of the model.
 
 ### Model.schema
 
@@ -330,18 +373,36 @@ When integrating with Hitchy its API is available via this property making it ve
 
 ## Hooks
 
-For every supported life cycle event there is an instance method of same name to be invoked whenever either event occurs. Using a model's definition those _hooks_ can be replaced via definition section **hooks**, only.
+An item's _life cycle_ consists of certain actions it is performing during its life as an instance of model's class at runtime. Some actions also affect its existence in an attached data storage.
+
+### Life Cycle Events
+
+An item's life cycle includes these actions:
+
+| Action | Remarks |
+|---|---|
+| create | An instance of `Model` is constructed. |
+| load | An item's properties are loaded from attached data storage. |
+| validate | An item's properties are validated for being written to attached data storage afterwards. |
+| save | An item's properties are written to attached data storage. |
+| remove | An item's record is removed from attached data storage. |
+
+For every action there is a pair of life cycle events: one occurs before either action and one occurs right after it (unless either action has failed). The events are named with prefixes `before` or `after` followed by related action's name resulting in camelCase name, e.g. `beforeCreate` or `afterValidate`.
+
+For every supported life cycle event there is an instance method of same name to be invoked whenever either event occurs. When [defining a model](../guides/defining-models.md) those _hooks_ can be replaced in [section **hooks**](../guides/defining-models.md#hooks-for-life-cycle-events).
 
 :::tip Asynchronous Hooks
-By intention every hook may return promise to delay further processing. Whenever some hook is required to return data that data may be promised as well.
+By intention all hooks but `beforeCreate` and `afterCreate` may return a promise to delay further processing. Whenever one of those hooks is required to return data that data may be promised as well.
+
+`beforeCreate` and `afterCreate` can't delay processing for being called in model's constructor which has to work synchronously.
 :::
 
 :::warning Calling Parent Class Hooks   
 In combination with `instance.$super` any code is capable of including related hook of parent class.
 
 ```javascript
-afterValidate() {
-    const errors = this.$super.afterValidate.call( this );
+afterValidate( errors ) {
+    const errors = this.$super.afterValidate.call( this, errors );
 
     // add your code here
     
@@ -353,7 +414,7 @@ In addition, though, you must be aware of either hook of parent class might retu
 
 ```javascript
 afterValidate( errors ) {
-    return Promise.resolve( this.$super.afterValidate.call( this ) )
+    return Promise.resolve( this.$super.afterValidate.call( this, errors ) )
         .then( errors => {
             // add your code here
             
@@ -363,35 +424,78 @@ afterValidate( errors ) {
 ```
 :::
 
+### instance.beforeCreate()
+
+**Signature:** `instance.beforeCreate( { uuid, options } ) : { uuid, options }`
+
+When creating an item by means of wrapping it in an instance of defined model's class this hook is invoked. Given constructor arguments it is required to return the constructor arguments as provided or adjust them to be used instead.
+
+The **uuid** is given as instance of **Buffer** or as string. The **options** object might contain a reference on a backend adapter to use instead of model's default adapter. In addition there might be a [mode for handling multiple consecutive assignments to a property without saving intermittently](#model-onunsaved).
+
+:::warning Important!
+Talking about _creating_ an item refers to creating an instance in runtime. It doesn't mean that there is a new item currently missing in connected data storage. It is just about the moment when a runtime instance of this model is constructed to represented the item.
+:::
+
+:::warning No Promise!
+For being invoked in context of new instance's constructor this hook can't delay processing by returning a promise. Any returned promise is ignored.
+:::
+
+### instance.afterCreate()
+
+**Signature:** `instance.afterCreate()`
+
+This hook is invoked at the very end of a new instance's constructor.
+
+:::warning No Promise!
+For being invoked in context of new instance's constructor this hook can't delay processing by returning a promise. Any returned promise is ignored.
+:::
+
+### instance.beforeLoad() <Badge type="info">0.2.7+</Badge>
+
+**Signature:** `instance.beforeLoad()`
+
+This hook is invoked right before loading item's record from attached data storage.
+
+### instance.afterLoad() <Badge type="info">0.2.7+</Badge>
+
+**Signature:** `instance.afterLoad( object ) : object`
+
+When having read item's record from attached data storage this hook is invoked with that record as argument to optionally adjust it before returning it. The hook's return value is eventually used to setting new values of item's properties.
+
 ### instance.beforeValidate()
 
-**Signature:** `instance.beforeValidate()`
+**Signature:** `instance.beforeValidate() : Error[]`
 
-This hook is invoked prior to validating all property values of current instance to comply with 
-defined constraints.
+This hook is invoked before validating all properties of current instance to comply with defined constraints. It might return a list of errors to be concatenated with any error encountered by definition-based validation.
 
-### instance.afterValidate( errors ) : errors
+### instance.afterValidate()
 
-**Signature:** `instance.afterValidate( errors ) : errora`
+**Signature:** `instance.afterValidate( Error[] ) : Error[]`
 
 This hook is invoked after validating all property values of current instance to comply with 
 defined constraints. The list of error messages is passed in first argument as an error of strings. The probably adjusted list of messages is meant to be returned by this hook.
 
 :::warning Important
-Any validation of properties fails if there is at least one error message returned. If this hook fails to pass provided errors a failed validation e.g. won't prevent property values from being saved anymore.  
+Any validation of properties fails if there is at least one error message returned. On failed validation properties aren't saved to attached data storage.
+
+Invalid properties may be saved unless this hook is passing provided errors on return.  
 :::
 
 ### instance.beforeSave()
 
-**Signature:** `instance.beforeSave()`
+**Signature:** `instance.beforeSave( object, boolean ) : object`
 
 This hook is invoked prior to persistently saving property values of current instance in a datasource connected via backend adapter.
 
+First provided argument is the serialized record of item to be saved ready for writing in attache data storage. The hook is required to return that record as-is or apply some modifications before returning it eventually. 
+
+Second provided argument indicates whether there is an existing record in attached data storage (`true`) or not.
+
 ### instance.afterSave()
 
-**Signature:** `instance.afterSave()`
+**Signature:** `instance.afterSave( boolean )`
 
-This hook is invoked after saving property values of current instance in a datasource connected via backend adapter.
+This hook is invoked after saving property values of current instance in a datasource connected via backend adapter. Provided argument indicates whether there was an existing record in attached data storage (`true`) before saving this time or not.
 
 ### instance.beforeRemove()
 

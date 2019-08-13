@@ -10,3 +10,4 @@ Hitchy's ODM is Hitchy's odem.
 * [Glossary](glossary.md)
 * [Model Definition](guides/defining-models.md)
 * [Using Models](guides/using-models.md)
+* [API](api)

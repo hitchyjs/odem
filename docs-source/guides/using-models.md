@@ -27,7 +27,7 @@ module.exports = {
 	getByLoginNameAction( req, res ) {
 		const { User } = this.api.runtime.models;
 		
-		User.findByAttribute( "loginName", req.params.name )
+		User.find( { eq: { name: "loginName", value: req.params.name } } )
 			.then( matches => res.json );
 	},
 };
