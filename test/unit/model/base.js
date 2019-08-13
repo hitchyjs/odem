@@ -194,8 +194,16 @@ describe( "Abstract Model", () => {
 		return instance.save().should.be.Promise().which.is.resolvedWith( instance );
 	} );
 
-	it( "rejects saving instance bound to unknown item to persistent storage using Model#save()", () => {
+	it( "accepts saving instance bound to unknown item to persistent storage using Model#save() w/o loading or changing anything first", () => {
 		const instance = new DerivedModel( "01234567-89ab-cdef-fedc-ba9876543210", { adapter: memory } );
+
+		return instance.save().should.be.Promise().which.is.resolvedWith( instance );
+	} );
+
+	it( "rejects saving instance bound to unknown item to persistent storage using Model#save() w/o loading, but changing something first", () => {
+		const instance = new DerivedModel( "01234567-89ab-cdef-fedc-ba9876543210", { adapter: memory } );
+
+		instance.$properties.adjusted = "1";
 
 		return instance.save().should.be.Promise().which.is.rejected();
 	} );
@@ -233,13 +241,21 @@ describe( "Abstract Model", () => {
 		} );
 
 
-		it( "saves instance bound to known item to persistent storage using Model#save()", () => {
+		it( "saves instance bound to known item to persistent storage using Model#save() w/o loading or changing anything first", () => {
 			const instance = new DerivedModel( created.uuid, { adapter: memory } );
+
+			return instance.save().should.be.Promise().which.is.resolvedWith( instance );
+		} );
+
+		it( "rejects saving instance bound to known item to persistent storage using Model#save() w/o loading, but changing something first", () => {
+			const instance = new DerivedModel( created.uuid, { adapter: memory } );
+
+			instance.$properties.adjusted = "1";
 
 			return instance.save().should.be.Promise().which.is.rejected();
 		} );
 
-		it( "rejects saving instance bound to known item to persistent storage using Model#save() w/o loading first", () => {
+		it( "saves instance bound to known item to persistent storage using Model#save()", () => {
 			const instance = new DerivedModel( created.uuid, { adapter: memory } );
 
 			return instance.load()
