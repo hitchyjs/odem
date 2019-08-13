@@ -342,6 +342,107 @@ In case of `firstName` an index for finding instances having the exactly same va
 
 The second case of `age` is defining two separate indices to be managed for searching instances with `age` being **g**reater **t**han (thus `gt`) or **l**ess **t**han (thus `lt`) some given value. Defining multiple indices requires provision of an array listing either one's operation.
 
+#### Index Reducer
+
+By default any index is created using selected property's values as-is. In several case this isn't desired, though.
+
+* String-based indices work case-sensitive by default. Often it is sufficient to work case-insensitively. An index reducer can be used to establish this.
+
+* When defining index for a property of type **date** there might be different values for every item due to creating another item every second. This would result in a very inefficient index tree. Probably the application doesn't need to find values of that property for every second, but is satisfied with searching all items of a day.
+
+* When defining index on a string property this property might have arbitrarily long string values resulting in a huge waste of memory when redundantly using either string for indexing in full. The related application might be okay with distinguishing between given string values when focusing on first 20 characters per string. In this case saving more than 20 characters per string value doesn't make sense.
+
+In either situation an _index reducer_ may be defined. This is a function invoked to derive a value for use in declared index from either actual value of related property. When defining index reducer for single equality index you may provide a definition property **index** which is a function. Just replace:
+
+```javascript
+module.exports = {
+    props: {
+        firstName: {
+            index: "eq"
+        },
+    },
+};
+```
+
+with 
+
+```javascript
+module.exports = {
+    props: {
+        firstName: {
+            index: value => value.substr( 0, 20 ), 
+        },
+    },
+};
+```
+
+to declare index reducer for equality index that is causing index to always cover first 20 characters per string value at most.
+
+:::warning Important!
+Any index reducer is invoked if related value is set, only. Thus index reducers are never invoked with `null` or `undefined`.
+:::
+
+The definition property **index** must be given as object when declaring index reducer for other types of indices or when defining multiple indices with one or more of them using index reducer. The following example is equivalent to the previous one:
+
+```javascript
+module.exports = {
+    props: {
+        firstName: {
+            index: {
+                eq: value => value.substr( 0, 20 ),
+            },
+        },
+    },
+};
+```
+
+You can declare different reducers per type of index this way:
+
+```javascript
+module.exports = {
+    props: {
+        firstName: {
+            index: {
+                eq: value => value.substr( 0, 20 ),
+                gt: value => value.substr( 0, 3 ),
+            },
+        },
+    },
+};
+```
+
+Reducers are always invoked of context of related item. That's why any reducer can access full API of that item when using regular function instead of arrow-function:
+
+```javascript
+module.exports = {
+    props: {
+        firstName: {
+            index: {
+                eq( value ) { return this.scrumble( value ); },
+            },
+        },
+    },
+};
+```
+
+When combining definition of multiple indices you may provide `true` instead of a reducer function to define related type of index without custom index reducer:
+
+```javascript
+module.exports = {
+    props: {
+        firstName: {
+            index: {
+                eq( value ) { return this.scrumble( value ); },
+                gt: true,
+            },
+        },
+    },
+};
+```
+
+When searching a model for property value with index using index reducer the search value is passed through either index reducer as well.
+
+
 ### Naming Models
 
 The name of a model is provided as first argument to `Model.define()`. In case of defining via filesystem this name is derived from the defining file as described before. 
