@@ -196,17 +196,21 @@ describe( "A model-related index", () => {
 
 		const NumRecords = 1000;
 
+		const fileAdapter = new FileAdapter( {
+			dataSource: Path.resolve( __dirname, "../../../data" ),
+		} );
+
 		const Adapters = [
 			[ "default (memory) adapter", undefined ],
-			[ "FileAdapter", new FileAdapter( {
-				dataSource: Path.resolve( __dirname, "../../../data" ),
-			} ) ],
+			[ "FileAdapter", fileAdapter ],
 		];
 
 		const Values = [
 			[ "integer", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => index ) ],
 			[ "string", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => `prefix${index}suffix` ) ],
 		];
+
+		after( () => fileAdapter.purge() );
 
 		Adapters.forEach( ( [ adapterLabel, adapter ] ) => {
 			describe( adapterLabel, () => {
