@@ -483,13 +483,13 @@ Invalid properties may be saved unless this hook is passing provided errors on r
 
 ### instance.beforeSave()
 
-**Signature:** `instance.beforeSave( object, boolean ) : object`
+**Signature:** `instance.beforeSave( boolean, object ) : object`
 
 This hook is invoked prior to persistently saving property values of current instance in a datasource connected via backend adapter.
 
-First provided argument is the serialized record of item to be saved ready for writing in attache data storage. The hook is required to return that record as-is or apply some modifications before returning it eventually. 
+First provided argument indicates whether there is an existing record in attached data storage (`true`) or not.
 
-Second provided argument indicates whether there is an existing record in attached data storage (`true`) or not.
+Second provided argument is the serialized record of item to be saved ready for writing in attache data storage. The hook is required to return that record as-is or apply some modifications before returning it eventually. 
 
 ### instance.afterSave()
 
