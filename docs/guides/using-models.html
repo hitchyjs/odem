@@ -7,7 +7,7 @@
     <meta name="description" content="">
     
     
-    <link rel="preload" href="/plugin-odem/assets/css/0.styles.9a76685a.css" as="style"><link rel="preload" href="/plugin-odem/assets/js/app.ea58bf78.js" as="script"><link rel="preload" href="/plugin-odem/assets/js/2.e140ca38.js" as="script"><link rel="preload" href="/plugin-odem/assets/js/12.1847b2d7.js" as="script"><link rel="prefetch" href="/plugin-odem/assets/js/10.ad677380.js"><link rel="prefetch" href="/plugin-odem/assets/js/11.231eaf49.js"><link rel="prefetch" href="/plugin-odem/assets/js/13.5bf27648.js"><link rel="prefetch" href="/plugin-odem/assets/js/14.53d8d9de.js"><link rel="prefetch" href="/plugin-odem/assets/js/3.c550c7f8.js"><link rel="prefetch" href="/plugin-odem/assets/js/4.a9ddf9ce.js"><link rel="prefetch" href="/plugin-odem/assets/js/5.ee9df8b9.js"><link rel="prefetch" href="/plugin-odem/assets/js/6.c67cb26e.js"><link rel="prefetch" href="/plugin-odem/assets/js/7.0db96d56.js"><link rel="prefetch" href="/plugin-odem/assets/js/8.61a5828f.js"><link rel="prefetch" href="/plugin-odem/assets/js/9.63b1b993.js">
+    <link rel="preload" href="/plugin-odem/assets/css/0.styles.9a76685a.css" as="style"><link rel="preload" href="/plugin-odem/assets/js/app.fe434111.js" as="script"><link rel="preload" href="/plugin-odem/assets/js/2.e140ca38.js" as="script"><link rel="preload" href="/plugin-odem/assets/js/13.d99ae081.js" as="script"><link rel="prefetch" href="/plugin-odem/assets/js/10.9767c14d.js"><link rel="prefetch" href="/plugin-odem/assets/js/11.f1663ad2.js"><link rel="prefetch" href="/plugin-odem/assets/js/12.a9146e44.js"><link rel="prefetch" href="/plugin-odem/assets/js/14.3fc50dc2.js"><link rel="prefetch" href="/plugin-odem/assets/js/15.8e090e6d.js"><link rel="prefetch" href="/plugin-odem/assets/js/3.c550c7f8.js"><link rel="prefetch" href="/plugin-odem/assets/js/4.a9ddf9ce.js"><link rel="prefetch" href="/plugin-odem/assets/js/5.1414eee2.js"><link rel="prefetch" href="/plugin-odem/assets/js/6.ccff43a9.js"><link rel="prefetch" href="/plugin-odem/assets/js/7.944c64ce.js"><link rel="prefetch" href="/plugin-odem/assets/js/8.125b38b9.js"><link rel="prefetch" href="/plugin-odem/assets/js/9.7b5639b9.js">
     <link rel="stylesheet" href="/plugin-odem/assets/css/0.styles.9a76685a.css">
   </head>
   <body>
@@ -21,7 +21,7 @@
 	<span class="token function">getByLoginNameAction</span><span class="token punctuation">(</span> <span class="token parameter">req<span class="token punctuation">,</span> res</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
 		<span class="token keyword">const</span> <span class="token punctuation">{</span> User <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>api<span class="token punctuation">.</span>runtime<span class="token punctuation">.</span>models<span class="token punctuation">;</span>
 		
-		User<span class="token punctuation">.</span><span class="token function">findByAttribute</span><span class="token punctuation">(</span> <span class="token string">&quot;loginName&quot;</span><span class="token punctuation">,</span> req<span class="token punctuation">.</span>params<span class="token punctuation">.</span>name <span class="token punctuation">)</span>
+		User<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span> <span class="token punctuation">{</span> eq<span class="token punctuation">:</span> <span class="token punctuation">{</span> name<span class="token punctuation">:</span> <span class="token string">&quot;loginName&quot;</span><span class="token punctuation">,</span> value<span class="token punctuation">:</span> req<span class="token punctuation">.</span>params<span class="token punctuation">.</span>name <span class="token punctuation">}</span> <span class="token punctuation">}</span> <span class="token punctuation">)</span>
 			<span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span> <span class="token parameter">matches</span> <span class="token operator">=&gt;</span> res<span class="token punctuation">.</span>json <span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token punctuation">}</span><span class="token punctuation">,</span>
 <span class="token punctuation">}</span><span class="token punctuation">;</span>
@@ -30,6 +30,6 @@
         <a href="/plugin-odem/guides/defining-models.html" class="prev">
           Model Definition
         </a></span> <!----></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/plugin-odem/assets/js/app.ea58bf78.js" defer></script><script src="/plugin-odem/assets/js/2.e140ca38.js" defer></script><script src="/plugin-odem/assets/js/12.1847b2d7.js" defer></script>
+    <script src="/plugin-odem/assets/js/app.fe434111.js" defer></script><script src="/plugin-odem/assets/js/2.e140ca38.js" defer></script><script src="/plugin-odem/assets/js/13.d99ae081.js" defer></script>
   </body>
 </html>
