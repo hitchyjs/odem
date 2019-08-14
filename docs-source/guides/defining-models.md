@@ -143,6 +143,8 @@ Every definition of a module needs to contain at least one property. As demonstr
 
 * **options** provides model-related options adjusting its behaviour in certain situations.
 
+* **indices** (or **indexes**) provides index definitions used to improve performance on searching and sorting items.
+
 Either part is described in detail below.
 
 ### Actual Properties
@@ -309,17 +311,15 @@ These options are supported currently:
 
 ### Indices
 
-Defining a model basically does not require definition of indices. However, managing large amounts of instances strongly benefits from indices that support common operations used to search and sort instances by the property covered by either index. Indices result in redundantly stored information and thus shouldn't be created for every property and every operation probably used for searching instances some day. Managing indices has an impact on saving data. Temporary indices also result in Hitchy applications taking more time to come up full. That's why you should explicitly define the indices you need, only.
+Defining a model basically does not require definition of any index. However, managing large amounts of items strongly benefits from indices that support operations frequently used to search and sort instances by a property either index is covering. 
 
-Indices are defined in conjunction with either property just like its type and optional constraints. A property's indices are defined in another definition property named `index` there. This definition property is listing comparison operations presumably used on finding instances by this particular property.
- 
-::: warning  
-Defining indices work with actual, non-computed properties, only.  
-::: 
- 
-::: warning  
-Currently, there is no support for multi-property indices.  
-::: 
+Indices result in redundantly stored information and thus shouldn't be created for each and every property and operation probably used for searching instances some day. Managing indices has a negative impact on saving data, too. In addition, temporary indices result in Hitchy applications taking more time to start. That's why you should always explicitly define as many indices as required and as little indices as needed.
+
+There are two opportunities for defining indices to be described below.
+
+#### Defining Per Actual Property
+
+Indices may be defined in conjunction with either property just like its type and optional constraints. A property's indices are defined in another definition property named `index` there. This definition property is listing types of indices each usually related to some test operation used on searching items by this particular property. The resulting index is meant to improve that related operation's performance.
 
 ```javascript
 module.exports = {
@@ -338,13 +338,81 @@ module.exports = {
 
 This example is declaring indices for the properties `firstName` and `age`. It doesn't define an index for property `lastName`. 
 
-In case of `firstName` an index for finding instances having the exactly same value as searched (a.k.a. equality, thus using abbreviation `eq`) is defined. Since there is only one index defined the comparison operation may be given as string. When compiling model its schema is always exposing this string converted into a single-item array.
+In case of `firstName` an index of type `eq` is defined, which is an abbreviation for _equality_. This index is meant to improve searching items exactly matching some given value.
 
-The second case of `age` is defining two separate indices to be managed for searching instances with `age` being **g**reater **t**han (thus `gt`) or **l**ess **t**han (thus `lt`) some given value. Defining multiple indices requires provision of an array listing either one's operation.
+:::tip Equality is sufficient
+By design, an _equality_ index is suitable for improving additional search operations as well. That's why you would stick with equality indices in most cases and it is why Odem currently isn't supporting any other type of index.
+:::
 
-#### Index Reducer
+The second case of `age` is illustrating opportunity to define separate indices suitable for improving search by `age` being **g**reater **t**han (thus `gt`) or **l**ess **t**han (thus `lt`) some given value. 
 
-By default any index is created using selected property's values as-is. In several case this isn't desired, though.
+When defining single index per property the index type may be given as string, too. Using `true` instead of an index type name is identical to using `"eq"`.
+
+Multiple indices may be defined per property. This requires use of an array listing type of either index. Alternatively an object may be used to map either type of index into some truthy value. This organisation is adopted by schema of resulting model. See the [section on index reducers](#index-reducer) below for some examples.
+
+
+#### Defining Index in Separate Section <Badge type="info" text="0.2.8+"></Badge>
+
+Some use cases can't be defined in context of an actual property's definition. That's why defining indices in a dedicated section of your schema definition is supported as well.
+
+Section **indices** (or **indexes** or **index** which are checked in this order as fallback, only) of your schema definition may provide an object mapping either name of an index into its definition. The latter is given as another object.
+
+```javascript
+{
+    indices: {
+        firstName: { ... },
+        age: { ... },
+    }
+}
+```
+
+In this example two indices named `firstName` and `age` are defined. The names must be unique in context of defined model. 
+
+The index options are customizing the kind of index. There is a default for every supported option. If you just want to rely on all defaults you might provide `true` instead of the options object.
+
+```javascript
+{
+    indices: {
+        firstName: true,
+        age: true,
+    }
+}
+```
+
+Here come the commonly supported options per index definition:
+
+* The **type** of index is usually `"eq"` selecting definition of an equality index. It is the default type and as of now it is the only supported one as well.
+* The index **reducer** is a function to be invoked on every value that's passed to the index e.g. for tracking its containing item on change of indexed property's value or for searching items by indexed property.
+
+When defining a property-related index here (instead of doing so in context of property as described before) another option **property** selects the model's property which is to be covered by resulting index. This may name may address an actual or a computed property. 
+
+```javascript
+{
+    props: {
+        firstName: {},
+        lastName: {},    
+    },
+    computed: {
+        fullName() { return this.lastName + ", " + this.firstName; },
+    }, 
+    indices: {
+        lastName: true,
+        fullName: true,
+    }
+}
+```
+
+In this example two indices of type _equality_ are defined for covering the actual property **lastName** and the computed one called **fullName**.
+
+:::warning Important
+A schema must not define multiple indices of same type for the same property. This holds true even when defining some indices in context of properties and some in context of this dedicated section.
+::: 
+
+
+
+#### Index Reducer <Badge type="info" text="0.2.7+"></Badge>
+
+By default any index is created using selected property's values as-is. In several cases this isn't desired, though.
 
 * String-based indices work case-sensitive by default. Often it is sufficient to work case-insensitively. An index reducer can be used to establish this.
 
