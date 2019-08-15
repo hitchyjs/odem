@@ -384,7 +384,9 @@ Here come the commonly supported options per index definition:
 * The **type** of index is usually `"eq"` selecting definition of an equality index. It is the default type and as of now it is the only supported one as well.
 * The index **reducer** is a function to be invoked on every value that's passed to the index e.g. for tracking its containing item on change of indexed property's value or for searching items by indexed property.
 
-When defining a property-related index here (instead of doing so in context of property as described before) another option **property** selects the model's property which is to be covered by resulting index. This may name may address an actual or a computed property. 
+When defining a property-related index here (instead of doing so in context of property as described before) another option **property** selects the model's property which is to be covered by resulting index. This may name may address an actual or a computed property.
+
+When defining an index for a computed property there is no reliable information on what type of values the computed property will return for indexing. Thus you should provide a particular type in option **propertyType**. Its value works equivalent to the **type** option provided on defining actual properties. However, when omitted the default isn't `"string"` but some abstract base type which is slightly more capable of handling different types of values than string type handler.
 
 ```javascript
 {
@@ -393,16 +395,24 @@ When defining a property-related index here (instead of doing so in context of p
         lastName: {},    
     },
     computed: {
-        fullName() { return this.lastName + ", " + this.firstName; },
+        fullName() { 
+            return this.lastName + ", " + this.firstName;
+        },
+        searchable() {
+            return ( this.lastName + ", " + this.firstName ).toLowerCase();
+        },
     }, 
     indices: {
         lastName: true,
         fullName: true,
+        searchable: {
+            propertyType: "string"
+        },
     }
 }
 ```
 
-In this example two indices of type _equality_ are defined for covering the actual property **lastName** and the computed one called **fullName**.
+In this example three indices of type _equality_ are defined for covering the actual property **lastName** and the computed properties **fullName** and **searchable**. Definition of the latter includes declaration of assuming string values, only.
 
 :::warning Important
 A schema must not define multiple indices of same type for the same property. This holds true even when defining some indices in context of properties and some in context of this dedicated section.
@@ -535,38 +545,6 @@ Due to using a model's name in string interpolations in context of evaluated cod
 
 When putting this in a file **api/model/public-holiday.js** the resulting model won't be implicitly named **PublicHoliday**, but **MyCustomName**.
 
-### Concluding with an Example
-
-Let's define a model for managing users:
-
-```javascript
-{
-    name: "User",
-    props: {
-        name: {},
-        password: {},
-        lastLogin: {},
-    },
-    computed: {
-        hasLoggedInBefore() {
-            return this.lastLogin != null;
-        },
-    },
-    methods: {
-        lockAccount() {
-            this.password = "LOCKED";
-        },
-        unlockAccount( newPassword ) {
-            this.password = create_hash( newPassword );
-        },
-    },
-    hooks: {
-        afterSave() {
-            // invoked when instance has been saved in database ...
-        },
-    }
-}
-```
 
 ## Property Types
 
