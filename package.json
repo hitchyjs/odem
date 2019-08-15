@@ -42,7 +42,7 @@
   "dependencies": {
     "file-essentials": "0.*",
     "functional-red-black-tree": "^1.0.1",
-    "object-monitor": "0.0.7",
+    "object-monitor": "0.0.8",
     "promise-essentials": "0.*"
   }
 }
