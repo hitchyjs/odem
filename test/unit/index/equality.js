@@ -552,7 +552,7 @@ describe( "EqualityIndex", () => {
 				instance.tree.should.have.length( 4 );
 
 				const iterator = instance.findBetween( {
-					appendNulItems: true,
+					appendNullItems: true,
 				} )();
 
 				iterator.next().value.should.be.eql( uuids[0] );
@@ -569,7 +569,7 @@ describe( "EqualityIndex", () => {
 				instance.tree.should.have.length( 4 );
 
 				const iterator = instance.findBetween( {
-					appendNulItems: true,
+					appendNullItems: true,
 					descending: true,
 				} )();
 

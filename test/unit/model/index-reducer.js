@@ -45,7 +45,9 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.schema.props.a.index.eq.should.be.Function();
+		MyModel.schema.props.a.index.eq.property.should.be.equal( "a" );
+		MyModel.schema.props.a.index.eq.type.should.be.equal( "eq" );
+		MyModel.schema.props.a.index.eq.reducer.should.be.Function();
 
 		return MyModel.indexLoaded
 			.then( () => {
@@ -62,7 +64,9 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.schema.props.a.index.eq.should.be.true();
+		MyModel.schema.props.a.index.eq.property.should.be.equal( "a" );
+		MyModel.schema.props.a.index.eq.type.should.be.equal( "eq" );
+		( MyModel.schema.props.a.index.eq.reducer == null ).should.be.true();
 
 		return MyModel.indexLoaded
 			.then( () => {
@@ -81,7 +85,9 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.schema.props.a.index.eq.should.be.Function();
+		MyModel.schema.props.a.index.eq.property.should.be.equal( "a" );
+		MyModel.schema.props.a.index.eq.type.should.be.equal( "eq" );
+		MyModel.schema.props.a.index.eq.reducer.should.be.Function();
 
 		return MyModel.indexLoaded
 			.then( () => {
@@ -100,7 +106,9 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.schema.props.a.index.eq.should.be.true();
+		MyModel.schema.props.a.index.eq.property.should.be.equal( "a" );
+		MyModel.schema.props.a.index.eq.type.should.be.equal( "eq" );
+		( MyModel.schema.props.a.index.eq.reducer == null ).should.be.true();
 
 		return MyModel.indexLoaded
 			.then( () => {
@@ -121,11 +129,17 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.schema.props.a.index.eq.should.be.true();
-		MyModel.schema.props.a.index.gt.should.be.true();
-		MyModel.schema.props.a.index.lt.should.be.true();
+		MyModel.schema.props.a.index.eq.property.should.be.equal( "a" );
+		MyModel.schema.props.a.index.eq.type.should.be.equal( "eq" );
+		( MyModel.schema.props.a.index.eq.reducer == null ).should.be.true();
 
-		return MyModel.indexLoaded.should.be.rejectedWith( /not yet supported/ );
+		MyModel.schema.props.a.index.gt.property.should.be.equal( "a" );
+		MyModel.schema.props.a.index.gt.type.should.be.equal( "gt" );
+		( MyModel.schema.props.a.index.gt.reducer == null ).should.be.true();
+
+		MyModel.schema.props.a.index.lt.property.should.be.equal( "a" );
+		MyModel.schema.props.a.index.lt.type.should.be.equal( "lt" );
+		( MyModel.schema.props.a.index.lt.reducer == null ).should.be.true();
 	} );
 
 	it( "property exposes reducer function for any index in a combined definition of indices that's got an index reducer there", () => {
@@ -140,10 +154,13 @@ describe( "A model-related index", () => {
 			},
 		} );
 
-		MyModel.schema.props.a.index.gt.should.be.Function();
-		MyModel.schema.props.a.index.eq.should.be.true();
+		MyModel.schema.props.a.index.eq.property.should.be.equal( "a" );
+		MyModel.schema.props.a.index.eq.type.should.be.equal( "eq" );
+		( MyModel.schema.props.a.index.eq.reducer == null ).should.be.true();
 
-		return MyModel.indexLoaded.should.be.rejectedWith( /gt not yet supported/ );
+		MyModel.schema.props.a.index.gt.property.should.be.equal( "a" );
+		MyModel.schema.props.a.index.gt.type.should.be.equal( "gt" );
+		MyModel.schema.props.a.index.gt.reducer.should.be.Function();
 	} );
 
 	describe( "defined on a model", () => {

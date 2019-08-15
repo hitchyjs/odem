@@ -49,9 +49,24 @@ const Properties = [
 	[ "slowNumber", "numbers" ],
 	[ "fastString", "texts" ],
 	[ "slowString", "texts" ],
+	[ "derivedString", "texts", stringDeriver ],
+	[ "derivedInteger", "integers", integerDeriver ],
 ];
 
 
+/**
+ * Derives integer value from actual property.
+ *
+ * @returns {number} derived integer
+ */
+function integerDeriver() { return 2 * this.slowInteger; }
+
+/**
+ * Derives string value from actual property.
+ *
+ * @returns {number} derived string
+ */
+function stringDeriver() { return ">> " + this.slowString; }
 
 /**
  * Generates array of values using provided value generator.
@@ -105,7 +120,6 @@ function isSorted( records, up = true ) {
 	return true;
 }
 
-
 /**
  * Detects if provided list of records is a straight sorted excerpt.
  *
@@ -134,6 +148,19 @@ function isStraight( records, up = true ) {
 
 	return true;
 }
+
+/**
+ * Invokes provided function in context of proxy that's redirecting any access
+ * on `this` returning provided value.`
+ *
+ * @param {function} providerFn function to invoke
+ * @param {*} value value to provide whenever function is accessing property of `this`
+ * @returns {*} value returned by invoked function
+ */
+function anyThis( providerFn, value ) {
+	return providerFn.call( new Proxy( {}, { get: () => value, } ) );
+}
+
 
 describe( "Inspecting collection of a model's items", function() {
 	this.timeout( 5000 );
@@ -168,6 +195,16 @@ describe( "Inspecting collection of a model's items", function() {
 				slowString: { type: "string" },
 				fastString: { type: "string", index: "eq" },
 			},
+			computed: {
+				derivedInteger: integerDeriver,
+				derivedString: stringDeriver,
+			},
+			indices: {
+				derivedInteger: true,
+				derivedString: {
+					propertyType: "string",
+				},
+			}
 		} );
 
 		return MyModel.adapter.purge().then( () => MyModel.indexLoaded );
@@ -196,6 +233,7 @@ describe( "Inspecting collection of a model's items", function() {
 	} );
 
 
+
 	it( "lists all generated records in unsorted order by default", () => {
 		return MyModel.list()
 			.then( records => {
@@ -205,13 +243,13 @@ describe( "Inspecting collection of a model's items", function() {
 
 	it( "lists all generated records in unsorted order by default with metaCollector", () => {
 		const metaCollector = {};
-		return MyModel.list( undefined,{ metaCollector } )
+
+		return MyModel.list( undefined, { metaCollector } )
 			.then( records => {
 				records.should.be.Array().which.has.length( NumRecords );
 				metaCollector.count.should.be.eql( NumRecords );
 			} );
 	} );
-
 
 	[ 1, 2, 5, 10, 20, 34 ].forEach( limit => {
 		[ 0, 1, 2, 5, 10, 20, 34 ].forEach( offset => {
@@ -252,18 +290,25 @@ describe( "Inspecting collection of a model's items", function() {
 		} );
 	} );
 
-	Properties.forEach( ( [ propertyName, dataName ] ) => {
+	Properties.forEach( ( [ propertyName, dataName, deriver ] ) => {
 		it( `retrieves single match when searching records with ${propertyName} equal every value used on filling database`, () => {
-			const values = data[dataName];
-
-			return PromiseUtil.each( values, value => MyModel.find( { eq: { value, property: propertyName } } )
+			return PromiseUtil.each( data[dataName], ( value, index ) => MyModel.find( {
+				eq: { value: deriver ? anyThis( deriver, value ) : value, property: propertyName }
+			} )
 				.then( records => {
+					if ( !records.length ) console.log( value, index );
 					records.should.be.Array().which.has.length( 1 );
 				} ) );
 		} );
 	} );
 
-	Properties.forEach( ( [ propertyName, dataName ] ) => {
+	Properties.forEach( ( [ propertyName, dataName, deriver ] ) => {
+		if ( deriver ) {
+			// FIXME enable test on computed properties as soon as either non-indexed comparison or indexed neq-test can handle computed properties
+			it( `retrieves all but one record when searching records with ${propertyName} unequal every value used on filling database` );
+			return;
+		}
+
 		it( `retrieves all but one record when searching records with ${propertyName} unequal every value used on filling database`, () => {
 			const values = data[dataName];
 
@@ -274,7 +319,13 @@ describe( "Inspecting collection of a model's items", function() {
 		} );
 	} );
 
-	Properties.forEach( ( [ propertyName, dataName ] ) => {
+	Properties.forEach( ( [ propertyName, dataName, deriver ] ) => {
+		if ( deriver ) {
+			// FIXME enable test on computed properties as soon as either non-indexed comparison or indexed lt-test can handle computed properties
+			it( `retrieves multiple matches when searching records with ${propertyName} less than high values used on filling database` );
+			return;
+		}
+
 		it( `retrieves multiple matches when searching records with ${propertyName} less than high values used on filling database`, () => {
 			const values = data[dataName].slice( Math.floor( data[dataName].length / 2 ) );
 
@@ -286,7 +337,13 @@ describe( "Inspecting collection of a model's items", function() {
 		} );
 	} );
 
-	Properties.forEach( ( [ propertyName, dataName ] ) => {
+	Properties.forEach( ( [ propertyName, dataName, deriver ] ) => {
+		if ( deriver ) {
+			// FIXME enable test on computed properties as soon as either non-indexed comparison or indexed gt-test can handle computed properties
+			it( `retrieves multiple matches when searching records with ${propertyName} greater than high values used on filling database` );
+			return;
+		}
+
 		it( `retrieves multiple matches when searching records with ${propertyName} greater than high values used on filling database`, () => {
 			const values = data[dataName].slice( 0, Math.floor( data[dataName].length / 2 ) );
 
@@ -298,7 +355,7 @@ describe( "Inspecting collection of a model's items", function() {
 		} );
 	} );
 
-	Properties.forEach( ( [ propertyName, dataName ] ) => {
+	Properties.forEach( ( [ propertyName, dataName, deriver ] ) => {
 		if ( propertyName.startsWith( "slow" ) ) {
 			return;
 		}
@@ -306,7 +363,10 @@ describe( "Inspecting collection of a model's items", function() {
 		it( `retrieves multiple matches when searching records with ${propertyName} between two distant values used on filling database`, () => {
 			const lowers = data[dataName].slice( 0, Math.floor( data[dataName].length / 3 ) );
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
-			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
+			const values = lowers.map( ( lower, i ) => [
+				deriver ? anyThis( deriver, lower ) : lower,
+				deriver ? anyThis( deriver, uppers[i] ) : uppers[i],
+			] );
 
 			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( { between: { name: propertyName, lower, upper } } )
 				.then( records => {
@@ -318,7 +378,10 @@ describe( "Inspecting collection of a model's items", function() {
 		it( `delivers records with ${propertyName} values in range on searching matches between two distant values used on filling database`, () => {
 			const lowers = data[dataName].slice( 0, Math.floor( data[dataName].length / 3 ) );
 			const uppers = data[dataName].slice( Math.floor( data[dataName].length / 3 ) );
-			const values = lowers.map( ( lower, i ) => [ lower, uppers[i] ] );
+			const values = lowers.map( ( lower, i ) => [
+				deriver ? anyThis( deriver, lower ) : lower,
+				deriver ? anyThis( deriver, uppers[i] ) : uppers[i],
+			] );
 
 			return PromiseUtil.each( values, ( [ lower, upper ] ) => MyModel.find( {
 				between: { name: propertyName, lower, upper }

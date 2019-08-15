@@ -32,6 +32,7 @@ const Path = require( "path" );
 
 const { describe, it, before, after } = require( "mocha" );
 require( "should" );
+const PromiseUtils = require( "promise-essentials" );
 
 const { Model, FileAdapter } = require( "../../../" );
 
@@ -70,8 +71,8 @@ describe( "A model-related index", () => {
 		MyModel.indices[0].should.be.Object().and.have.size( 4 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
-		MyModel.indices[0].propertyType.should.a.Function().with.length( 0 );
-		( MyModel.indices[0].reducer == null ).should.be.true();
+		MyModel.indices[0].$type.should.be.a.Function().with.length( 0 );
+		MyModel.indices[0].handler.should.be.Object();
 	} );
 
 	it( "can be defined using single-item array listing sole operation", () => {
@@ -85,8 +86,8 @@ describe( "A model-related index", () => {
 		MyModel.indices[0].should.be.Object().and.have.size( 4 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
-		MyModel.indices[0].propertyType.should.be.a.Function().with.length( 0 );
-		( MyModel.indices[0].reducer == null ).should.be.true();
+		MyModel.indices[0].$type.should.be.a.Function().with.length( 0 );
+		MyModel.indices[0].handler.should.be.Object();
 	} );
 
 	[ [], null, undefined, 0, "", false ].forEach( value => {
@@ -113,10 +114,10 @@ describe( "A model-related index", () => {
 		} );
 	} );
 
-	it( "can be defined multiple times on same property", () => {
+	it( "can be defined multiple times on same property using different types", () => {
 		const MyModel = Model.define( "MyModel", {
 			props: {
-				a: { index: [ "eq", "neq" ] },
+				a: { index: [ "eq", "gt" ] },
 				b: {},
 			},
 		} );
@@ -126,14 +127,14 @@ describe( "A model-related index", () => {
 		MyModel.indices[0].should.be.Object().and.have.size( 4 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
-		MyModel.indices[0].propertyType.should.be.a.Function().with.length( 0 );
-		( MyModel.indices[0].reducer == null ).should.be.true();
+		MyModel.indices[0].$type.should.be.a.Function().with.length( 0 );
+		MyModel.indices[0].handler.should.be.Object();
 
 		MyModel.indices[1].should.be.Object().and.have.size( 4 );
 		MyModel.indices[1].property.should.be.eql( "a" );
-		MyModel.indices[1].type.should.be.eql( "neq" );
-		MyModel.indices[1].propertyType.should.be.a.Function().with.length( 0 );
-		( MyModel.indices[1].reducer == null ).should.be.true();
+		MyModel.indices[1].type.should.be.eql( "gt" );
+		MyModel.indices[1].$type.should.be.a.Function().with.length( 0 );
+		MyModel.indices[1].handler.should.be.Object();
 	} );
 
 	it( "rejects definition of multiple indices per property using same type of index", () => {
@@ -149,7 +150,7 @@ describe( "A model-related index", () => {
 		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: { index: "eq" },
-				b: { index: "neq" },
+				b: { index: "gt" },
 			},
 		} );
 
@@ -158,14 +159,14 @@ describe( "A model-related index", () => {
 		MyModel.indices[0].should.be.Object().and.have.size( 4 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
-		MyModel.indices[0].propertyType.should.be.a.Function().with.length( 0 );
-		( MyModel.indices[0].reducer == null ).should.be.true();
+		MyModel.indices[0].$type.should.be.a.Function().with.length( 0 );
+		MyModel.indices[0].handler.should.be.Object();
 
 		MyModel.indices[1].should.be.Object().and.have.size( 4 );
 		MyModel.indices[1].property.should.be.eql( "b" );
-		MyModel.indices[1].type.should.be.eql( "neq" );
-		MyModel.indices[1].propertyType.should.be.a.Function().with.length( 0 );
-		( MyModel.indices[1].reducer == null ).should.be.true();
+		MyModel.indices[1].type.should.be.eql( "gt" );
+		MyModel.indices[1].$type.should.be.a.Function().with.length( 0 );
+		MyModel.indices[1].handler.should.be.Object();
 	} );
 
 	it( "can be defined multiple times on separate properties using same type for different properties", () => {
@@ -181,14 +182,132 @@ describe( "A model-related index", () => {
 		MyModel.indices[0].should.be.Object().and.have.size( 4 );
 		MyModel.indices[0].property.should.be.eql( "a" );
 		MyModel.indices[0].type.should.be.eql( "eq" );
-		MyModel.indices[0].propertyType.should.be.a.Function().with.length( 0 );
-		( MyModel.indices[0].reducer == null ).should.be.true();
+		MyModel.indices[0].$type.should.be.a.Function().with.length( 0 );
+		MyModel.indices[0].handler.should.be.Object();
 
 		MyModel.indices[1].should.be.Object().and.have.size( 4 );
 		MyModel.indices[1].property.should.be.eql( "b" );
 		MyModel.indices[1].type.should.be.eql( "eq" );
-		MyModel.indices[1].propertyType.should.be.a.Function().with.length( 0 );
-		( MyModel.indices[1].reducer == null ).should.be.true();
+		MyModel.indices[1].$type.should.be.a.Function().with.length( 0 );
+		MyModel.indices[1].handler.should.be.Object();
+	} );
+
+	describe( "for computed properties", () => {
+		let MyModel;
+		let uuids;
+
+		beforeEach( () => {
+			MyModel = Model.define( "MyModel", {
+				props: {
+					offset: { type: "integer" },
+					label: {},
+				},
+				computed: {
+					fromOffset() { return 1000 + this.offset; },
+					fromLabel() { return "Hello " + this.label; },
+				},
+				indices: {
+					fromOffset: true,
+					fromLabel: {
+						propertyType: "string",
+					},
+				},
+			} );
+		} );
+
+		beforeEach( () => {
+			return MyModel.adapter.purge().then( () => {
+				uuids = [];
+
+				return PromiseUtils.each( [
+					[ 10, "John" ],
+					[ 20, "jane" ],
+					[ 35, "JosePH" ],
+					[ 100, "JILL" ],
+				], ( [ o, l ] ) => {
+					const item = new MyModel();
+
+					item.offset = o;
+					item.label = l;
+
+					return item.save()
+						.then( savedItem => uuids.push( savedItem.$uuid ) );
+				} );
+			} );
+		} );
+
+		it( "tracks computed integer values", () => {
+			const tree = MyModel.getIndex( "fromOffset" ).tree;
+
+			tree.keys.should.be.containDeep( [ 1010, 1020, 1035, 1100 ] );
+		} );
+
+		it( "tracks computed string values", () => {
+			const tree = MyModel.getIndex( "fromLabel" ).tree;
+
+			tree.keys.should.be.containDeep( [ "Hello John", "Hello jane", "Hello JosePH", "Hello JILL" ] );
+		} );
+
+		it( "tracks change of computed property on saving", () => {
+			const offsetIndex = MyModel.getIndex( "fromOffset" );
+			const labelIndex = MyModel.getIndex( "fromLabel" );
+
+			return new MyModel( uuids[0] ).load()
+				.then( item => {
+					offsetIndex.tree.keys.should.be.containDeep( [ 1010, 1020, 1035, 1100 ] );
+					labelIndex.tree.keys.should.be.containDeep( [ "Hello John", "Hello jane", "Hello JosePH", "Hello JILL" ] );
+
+					item.offset = 15;
+					item.label = "Jack";
+
+					offsetIndex.tree.keys.should.be.containDeep( [ 1010, 1020, 1035, 1100 ] );
+					labelIndex.tree.keys.should.be.containDeep( [ "Hello John", "Hello jane", "Hello JosePH", "Hello JILL" ] );
+
+					return item.save();
+				} )
+				.then( () => {
+					offsetIndex.tree.keys.should.be.containDeep( [ 1015, 1020, 1035, 1100 ] );
+					labelIndex.tree.keys.should.be.containDeep( [ "Hello Jack", "Hello jane", "Hello JosePH", "Hello JILL" ] );
+				} );
+		} );
+
+		it( "can be used for sorting", () => {
+			return MyModel.list( { sortBy: "fromLabel" }, { loadRecords: false } )
+				.then( items => {
+					// assumption: listing/searching w/ index works w/o loading records
+					items.some( i => i.label != null ).should.be.false();
+
+					return MyModel.list( { sortBy: "fromLabel", sortAscendingly: false }, { loadRecords: false } );
+				} )
+				.then( items => {
+					// assumption: listing/searching w/o index required records to be loaded for inspection
+					items.some( i => i.label != null ).should.be.false();
+
+					return MyModel.list( { sortBy: "fromOffset" }, { loadRecords: false } );
+				} )
+				.then( items => {
+					// assumption: listing/searching w/o index required records to be loaded for inspection
+					items.some( i => i.label != null ).should.be.false();
+
+					return MyModel.list( { sortBy: "fromOffset", sortAscendingly: false }, { loadRecords: false } );
+				} )
+				.then( items => {
+					// assumption: listing/searching w/o index required records to be loaded for inspection
+					items.some( i => i.label != null ).should.be.false();
+
+					return MyModel.list( { sortBy: "offset" }, { loadRecords: false } );
+				} )
+				.then( items => {
+					// assumption: listing/searching w/o index required records to be loaded for inspection
+					items.every( i => i.label != null ).should.be.true();
+
+					return MyModel.list( { sortBy: "label" }, { loadRecords: false } );
+				} )
+				.then( items => {
+					// assumption: listing/searching w/o index required records to be loaded for inspection
+					items.every( i => i.label != null ).should.be.true();
+				} );
+		} );
 	} );
 
 	describe( "on a model using", function() {
@@ -232,6 +351,12 @@ describe( "A model-related index", () => {
 										noIndex: { type: valueType },
 										number: { type: "integer" },
 									},
+									computed: {
+										derived() { return this.noIndex; }
+									},
+									indices: {
+										derived: true,
+									}
 								}, undefined, adapter );
 
 								Boolean( MyModel.indexPromise ).should.be.eql( false );
