@@ -116,7 +116,7 @@ Return to the previous URL [http://127.0.0.1:3000/api/post](http://127.0.0.1:300
 {"items":[{"title":"My First Blog Post","content":"read this","createdAt":"2019-08-16T09:01:52.000Z","uuid":"0ece354f-06d5-415c-8910-27ee72f380f7"}]}
 ```
 
-This time the list of **items** contains one object consisting of the properties **title** and **content** as provided on creating post. In addition there is a timestamp in property **createdAt** which is due to the [hook afterCreate()](./api/model.md#instance-aftercreate) included with the model's definition file above. Eventually there is the same UUID as returned on creating the post.
+This time the list of **items** contains one object consisting of the properties **title** and **content** as provided on creating post. In addition there is a timestamp in property **createdAt** which is due to the [hook afterCreate()](../api/model.md#instance-aftercreate) included with the model's definition file above. Eventually there is the same UUID as returned on creating the post.
 
 Append this UUID to the listing's URL to get that post's record, only. Open URL 
 [http://127.0.0.1:3000/api/post/0ece354f-06d5-415c-8910-27ee72f380f7](http://127.0.0.1:3000/api/post/0ece354f-06d5-415c-8910-27ee72f380f7).
