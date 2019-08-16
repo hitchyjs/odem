@@ -306,7 +306,7 @@ describe( "A model defining hook", () => {
 	} );
 
 	describe( "afterCreate()", () => {
-		let MyModel, hookData;
+		let MyModel, hookData, mode;
 
 		before( () => {
 			MyModel = Model.define( "MyModel", {
@@ -314,6 +314,13 @@ describe( "A model defining hook", () => {
 				hooks: {
 					afterCreate() {
 						hookData = this.uuid;
+
+						if ( mode === "assign" ) {
+							this.someProp = "a";
+							this.someProp = "b";
+
+							mode = "assigned";
+						}
 					}
 				}
 			} );
@@ -321,6 +328,7 @@ describe( "A model defining hook", () => {
 
 		beforeEach( () => {
 			hookData = false;
+			mode = null;
 		} );
 
 		it( "is invoking that hook", () => {
@@ -337,6 +345,17 @@ describe( "A model defining hook", () => {
 			new MyModel( "98761234-abcd-abcd-efde-012301230000" );
 
 			hookData.should.be.equal( "98761234-abcd-abcd-efde-012301230000" );
+		} );
+
+		it( "does not reject to re-assign property values by default", () => {
+			hookData.should.be.false();
+
+			mode = "assign";
+
+			new MyModel();
+
+			( hookData == null ).should.be.true();
+			mode.should.be.equal( "assigned" );
 		} );
 	} );
 
@@ -494,6 +513,13 @@ describe( "A model defining hook", () => {
 
 							case "empty" :
 								return [];
+
+							case "assign" :
+								this.someProp = "a";
+								this.someProp = "b";
+
+								mode = "assigned";
+								break;
 						}
 
 						return undefined;
@@ -689,6 +715,23 @@ describe( "A model defining hook", () => {
 					} );
 				} );
 		} );
+
+		it( "does not reject to re-assign property values by default", () => {
+			( hookData == null ).should.be.true();
+
+			mode = "assign";
+
+			const item = new MyModel();
+
+			item.someProp = "created";
+
+			( hookData == null ).should.be.true();
+
+			return item.save().then( () => {
+				hookData.should.be.equal( "missing UUID" );
+				mode.should.be.equal( "assigned" );
+			} );
+		} );
 	} );
 
 	describe( "afterValidate()", () => {
@@ -713,6 +756,13 @@ describe( "A model defining hook", () => {
 
 							case "softfail" :
 								return errors.concat( new Error( "want to fail softly" ) );
+
+							case "assign" :
+								this.someProp = "b";
+								this.someProp = "bb";
+
+								mode = "assigned";
+								break;
 						}
 
 						return undefined;
@@ -911,6 +961,24 @@ describe( "A model defining hook", () => {
 					} );
 				} );
 		} );
+
+		it( "does not reject to re-assign property values by default", () => {
+			( hookData == null ).should.be.true();
+
+			mode = "assign";
+
+			const item = new MyModel();
+
+			item.someProp = "created";
+
+			( hookData == null ).should.be.true();
+
+			return item.save().then( () => {
+				hookData.uuid.should.be.equal( "missing UUID" );
+				hookData.errors.should.be.Array().which.is.empty();
+				mode.should.be.equal( "assigned" );
+			} );
+		} );
 	} );
 
 	describe( "beforeSave()", () => {
@@ -930,6 +998,13 @@ describe( "A model defining hook", () => {
 
 						if ( mode === "fail" ) {
 							throw new TypeError( "want to fail" );
+						}
+
+						if ( mode === "assign" ) {
+							this.someProp = "f";
+							this.someProp = "g";
+
+							mode = "assigned";
 						}
 
 						return record;
@@ -1076,6 +1151,25 @@ describe( "A model defining hook", () => {
 					} );
 				} );
 		} );
+
+		it( "does not reject to re-assign property values by default", () => {
+			( hookData == null ).should.be.true();
+
+			mode = "assign";
+
+			const item = new MyModel();
+
+			item.someProp = "created";
+
+			( hookData == null ).should.be.true();
+
+			return item.save().then( () => {
+				hookData.should.be.Object().which.has.size( 2 ).and.properties( "record", "exists" );
+				hookData.record.should.be.deepEqual( { someProp: "created" } );
+				hookData.exists.should.be.false();
+				mode.should.be.equal( "assigned" );
+			} );
+		} );
 	} );
 
 	describe( "afterSave()", () => {
@@ -1094,6 +1188,13 @@ describe( "A model defining hook", () => {
 
 						if ( mode === "fail" ) {
 							throw new TypeError( "want to fail" );
+						}
+
+						if ( mode === "assign" ) {
+							this.someProp = "h";
+							this.someProp = "kl";
+
+							mode = "assigned";
 						}
 					}
 				}
@@ -1220,6 +1321,24 @@ describe( "A model defining hook", () => {
 					} );
 				} );
 		} );
+
+		it( "does not reject to re-assign property values by default", () => {
+			( hookData == null ).should.be.true();
+
+			mode = "assign";
+
+			const item = new MyModel();
+
+			item.someProp = "created";
+
+			( hookData == null ).should.be.true();
+
+			return item.save().then( () => {
+				hookData.should.be.Object().which.has.size( 1 ).and.properties( "exists" );
+				hookData.exists.should.be.false();
+				mode.should.be.equal( "assigned" );
+			} );
+		} );
 	} );
 
 	describe( "beforeRemove()", () => {
@@ -1234,6 +1353,13 @@ describe( "A model defining hook", () => {
 
 						if ( mode === "fail" ) {
 							throw new TypeError( "want to fail" );
+						}
+
+						if ( mode === "assign" ) {
+							this.someProp = "jukl";
+							this.someProp = "osdj";
+
+							mode = "assigned";
 						}
 					}
 				}
@@ -1342,6 +1468,21 @@ describe( "A model defining hook", () => {
 							exists.should.be.true();
 						} );
 				} );
+		} );
+
+		it( "does not reject to re-assign property values by default", () => {
+			( hookData == null ).should.be.true();
+
+			mode = "assign";
+
+			const item = new MyModel();
+
+			( hookData == null ).should.be.true();
+
+			return item.remove().then( () => {
+				hookData.should.be.equal( "missing UUID" );
+				mode.should.be.equal( "assigned" );
+			} );
 		} );
 	} );
 
