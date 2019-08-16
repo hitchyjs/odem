@@ -1,3 +1,8 @@
+---
+prev: defining-models.md
+next: using-models.md
+---
+
 # Defining a Hierarchy of Models
 
 Adopting aspects of the object-oriented programming models can be derived from each other. By relying on this kind of inheritance it is possible to declare similar models deriving from a common base model without repeating equivalent parts of either model.

@@ -1,6 +1,6 @@
 ---
-prev: ../glossary.md
-next: ./using-models.md
+prev: quickstart.md
+next: model-derivations.md
 ---
 
 # Model Definition

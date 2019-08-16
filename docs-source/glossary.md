@@ -1,6 +1,6 @@
 ---
 prev: introduction.md
-next: guides/defining-models.md
+next: guides/quickstart.md
 ---
 
 # Glossary
