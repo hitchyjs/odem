@@ -1,6 +1,6 @@
 ---
-prev: ./defining-models.md
-next: false
+prev: model-derivations.md
+next: ../api/model.md
 ---
 
 # Using Models

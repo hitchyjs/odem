@@ -1,3 +1,8 @@
+---
+prev: ../guides/using-models.md
+next: adapter.md
+---
+
 # Model API
 
 ## Constructor

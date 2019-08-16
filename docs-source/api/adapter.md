@@ -1,3 +1,8 @@
+---
+prev: model.md
+next: false
+---
+
 # Adapter API
 
 Models are relying on _adapters_ to access data in a persistent data storage. This document is about those adapters, how to use them and how to create one yourself.
