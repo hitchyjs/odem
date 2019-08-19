@@ -34,7 +34,7 @@ const { Model } = require( "../../../" );
 
 
 describe( "A computed property", () => {
-	describe( "when depending on an actual property", () => {
+	describe( "without index and while depending on an actual property", () => {
 		let MyModel;
 
 		beforeEach( () => {
@@ -55,6 +55,125 @@ describe( "A computed property", () => {
 								return null;
 						}
 					}
+				},
+			} );
+		} );
+
+		beforeEach( () => MyModel.adapter.purge() );
+
+		it( "can be defined", () => {
+			MyModel.prototype.should.be.instanceOf( Model );
+		} );
+
+		it( "can be read", () => {
+			return Promise.all( [
+				"printing", "print-cancelling", "deleting", "something", "nothing", "", null
+			].map( state => {
+				const item = new MyModel();
+				item.state = state;
+				return item.save();
+			} ) )
+				.then( items => {
+					items[0].spoolAction.should.be.equal( "print" );
+					items[1].spoolAction.should.be.equal( "cancel" );
+					items[2].spoolAction.should.be.equal( "delete" );
+					( items[3].spoolAction == null ).should.be.true();
+					( items[4].spoolAction == null ).should.be.true();
+					( items[5].spoolAction == null ).should.be.true();
+					( items[6].spoolAction == null ).should.be.true();
+				} );
+		} );
+
+		it( "can be listed", () => {
+			return Promise.all( [
+				"printing", "print-cancelling", "deleting", "something", "nothing", "", null
+			].map( state => {
+				const item = new MyModel();
+				item.state = state;
+				return item.save();
+			} ) )
+				.then( () => MyModel.list() )
+				.then( items => {
+					const values = items.map( item => item.spoolAction );
+					const setValues = values.filter( i => i != null );
+					const unsetValues = values.filter( i => i == null );
+
+					setValues.sort( ( l, r ) => l.localeCompare( r ) );
+
+					setValues.should.have.length( 3 );
+					setValues.should.be.deepEqual( [ "cancel", "delete", "print" ] );
+					unsetValues.should.have.length( 4 );
+				} );
+		} );
+
+		it( "can be searched for notnull values", () => {
+			return Promise.all( [
+				"printing", "print-cancelling", "deleting", "something", "nothing", "", null
+			].map( state => {
+				const item = new MyModel();
+				item.state = state;
+				return item.save();
+			} ) )
+				.then( () => MyModel.find( { notnull: { name: "spoolAction" } } ) )
+				.then( items => {
+					const values = items.map( item => item.spoolAction );
+					const setValues = values.filter( i => i != null );
+					const unsetValues = values.filter( i => i == null );
+
+					setValues.sort( ( l, r ) => l.localeCompare( r ) );
+
+					setValues.should.have.length( 3 );
+					setValues.should.be.deepEqual( [ "cancel", "delete", "print" ] );
+					unsetValues.should.have.length( 0 );
+				} );
+		} );
+
+		it( "can be searched for null values", () => {
+			return Promise.all( [
+				"printing", "print-cancelling", "deleting", "something", "nothing", "", null
+			].map( state => {
+				const item = new MyModel();
+				item.state = state;
+				return item.save();
+			} ) )
+				.then( () => MyModel.find( { null: { name: "spoolAction" } } ) )
+				.then( items => {
+					const values = items.map( item => item.spoolAction );
+					const setValues = values.filter( i => i != null );
+					const unsetValues = values.filter( i => i == null );
+
+					setValues.sort( ( l, r ) => l.localeCompare( r ) );
+
+					setValues.should.have.length( 0 );
+					unsetValues.should.have.length( 4 );
+				} );
+		} );
+	} );
+
+	describe( "with index and while depending on an actual property", () => {
+		let MyModel;
+
+		beforeEach( () => {
+			MyModel = Model.define( "MyModel", {
+				props: {
+					state: {},
+				},
+				computed: {
+					spoolAction() {
+						switch ( this.state ) {
+							case "printing" :
+								return "print";
+							case "print-cancelling" :
+								return "cancel";
+							case "deleting" :
+								return "delete";
+							default :
+								return null;
+						}
+					}
+				},
+				indices: {
+					spoolAction: { propertyType: "string" },
 				},
 			} );
 		} );
