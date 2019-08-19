@@ -190,7 +190,11 @@ Either types comes with a set of specific constraints to be defined in addition.
 
 ### Computed Properties
  
-Computed properties are defined in section **computed** by either one's unique name and the implementation as a function. Those functions are invoked in context of an instance of current model when reading the related computed property. The function is assumed to return any value which is provided as the 
+In addition to _actual_ properties a model may include computed properties. Every such computed property has a _unique_ name in scope of its model and an implementation actually computing its value.
+
+Computed properties are defined in section **computed**. This section is a regular object consisting of named methods. Every method in this section defines another computed property. 
+
+Either computed property's function is invoked in scope of an instance of its model. When reading computed property, the function is invoked without any argument. It is possible to assign values to computed properties, as well. This results in its function being invoked with provided value as sole argument.
 
 :::warning
 The name of an computed property mustn't be used by any other actual or computed property or method of same model. In addition it may neither start with `$` nor match name of any life cycle event nor match any of following keywords: `prototype`, `super`, `constructor`, `uuid`.  
