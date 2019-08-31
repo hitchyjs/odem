@@ -28,4 +28,4 @@ Of course, hitchy-plugin-odem isn't meant to compete with established database e
 
 ## Documentation
 
-The latest documentation is available at https://hitchyjs.github.io/odem/. 
+The latest documentation is available at https://hitchyjs.github.io/plugin-odem/. 
