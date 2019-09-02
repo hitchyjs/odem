@@ -27,28 +27,53 @@
  */
 
 
-module.exports = Object.seal( {
+/**
+ * Retrieves list of values covering all basic kinds of data supported in
+ * Javascript.
+ *
+ * @returns {*[]} list of values
+ */
+function allTypesOfData() {
+	return [
+		undefined,
+		null,
+		false,
+		true,
+		{},
+		{ property: "value" },
+		[ "item", "item" ],
+		"",
+		"hello world",
+		0,
+		NaN,
+		-Infinity,
+		Number( Infinity ),
+		-10.5,
+		+10.5,
+		() => {}, // eslint-disable-line no-empty-function
+		() => "",
+		function() { return ""; },
+	];
+}
 
-	allTypesOfData: function() {
-		return [
-			undefined,
-			null,
-			false,
-			true,
-			{},
-			{ property: "value" },
-			[ "item", "item" ],
-			"",
-			"hello world",
-			0,
-			NaN,
-			-Infinity,
-			Number( Infinity ),
-			-10.5,
-			+10.5,
-			() => {}, // eslint-disable-line no-empty-function
-			() => "",
-			function() { return ""; },
-		];
+module.exports = Object.seal( {
+	allTypesOfData,
+	allTypesOfDataButNullLike() {
+		return allTypesOfData().filter( i => i != null );
 	},
+	allComparisonOperations() {
+		return [
+			"eq",
+			"neq",
+			"noteq",
+			"not",
+			"null",
+			"notnull",
+			"between",
+			"lt",
+			"lte",
+			"gt",
+			"gte",
+		];
+	}
 } );

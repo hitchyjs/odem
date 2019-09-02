@@ -37,6 +37,41 @@ const Base = require( "../../../../lib/model/type/base" );
 const Type = require( "../../../../lib/model/type/string" );
 
 
+const ValidNonNullData = [
+	"",
+	"\x09",
+	"   \r\n   \t   ",
+	" this\tis\nsome text  ",
+	"a",
+	"this is some text",
+	"this is some very huge text ".repeat( 10000 ),
+];
+
+const ValidData = ValidNonNullData.concat( [ null, undefined ] );
+
+const ValidNonNullInput = ValidNonNullData.concat( [
+	false,
+	true,
+	{},
+	{ some: "value", and: 5 },
+	[],
+	[ 1, 2, 3 ],
+	() => {}, // eslint-disable-line no-empty-function
+	() => 1,
+	0,
+	-6,
+	6,
+	3.5,
+	-12.4356,
+	-Infinity,
+	Infinity,
+] );
+
+const ValidInput = ValidNonNullInput.concat( [ null, undefined ] );
+
+const InvalidInput = [];
+
+
 suite( "Model property type `string`", function() {
 	test( "is available", function() {
 		Should.exist( Type );
@@ -66,6 +101,10 @@ suite( "Model property type `string`", function() {
 	test( "is commonly exposed by its name and all its aliases case-insensitively", function() {
 		AllTypes.selectByName( "STRING" ).should.be.equal( Type );
 		AllTypes.selectByName( "TEXT" ).should.be.equal( Type );
+	} );
+
+	test( "advertises values of type to be sortable", function() {
+		Type.sortable.should.be.true();
 	} );
 
 	suite( "is exposing method `checkDefinition()` which", function() {
@@ -710,26 +749,7 @@ suite( "Model property type `string`", function() {
 		} );
 
 		test( "returns any provided value as-is", function() {
-			[
-				null,
-				undefined,
-				"",
-				" \r\t\n\f ",
-				"abc",
-				"null",
-				"\u00a0",
-				"\x00\x01\x02\x1b\x00",
-				false,
-				true,
-				0,
-				1.5,
-				-2.5e7,
-				[],
-				[ 1, 2, 3 ],
-				{},
-				{ value: 1, flag: false },
-				() => 1,
-			]
+			ValidInput
 				.forEach( value => {
 					Should( deserialize( value ) ).be.equal( value );
 				} );
@@ -746,10 +766,10 @@ suite( "Model property type `string`", function() {
 		test( "never throws exception", function() {
 			( () => compare() ).should.not.throw();
 
-			Helper.allTypesOfData().forEach( one => {
+			ValidData.forEach( one => {
 				( () => compare( one ) ).should.not.throw();
 
-				Helper.allTypesOfData().forEach( two => {
+				ValidData.forEach( two => {
 					( () => compare( one, two ) ).should.not.throw();
 
 					Helper.allComparisonOperations().forEach( three => {
@@ -760,8 +780,8 @@ suite( "Model property type `string`", function() {
 		} );
 
 		test( "always returns boolean", function() {
-			Helper.allTypesOfData().forEach( one => {
-				Helper.allTypesOfData().forEach( two => {
+			ValidData.forEach( one => {
+				ValidData.forEach( two => {
 					Helper.allComparisonOperations().forEach( three => {
 						compare( one, two, three ).should.be.Boolean();
 					} );
@@ -776,11 +796,13 @@ suite( "Model property type `string`", function() {
 		} );
 
 		test( "considers `null` and non-`null` as inequal", function() {
-			compare( null, "", "eq" ).should.be.false();
-			compare( "", null, "eq" ).should.be.false();
+			ValidNonNullData.forEach( data => {
+				compare( null, data, "eq" ).should.be.false();
+				compare( data, null, "eq" ).should.be.false();
 
-			compare( null, "", "noteq" ).should.be.true();
-			compare( "", null, "noteq" ).should.be.true();
+				compare( null, data, "noteq" ).should.be.true();
+				compare( data, null, "noteq" ).should.be.true();
+			} );
 		} );
 
 		test( "returns `true` on negating `null`", function() {
@@ -792,53 +814,76 @@ suite( "Model property type `string`", function() {
 		} );
 
 		test( "returns `false` on negating truthy coerced value", function() {
-			compare( "0", null, "not" ).should.be.false();
-			compare( "1", null, "not" ).should.be.false();
-			compare( "a", null, "not" ).should.be.false();
-			compare( "true", null, "not" ).should.be.false();
-			compare( "false", null, "not" ).should.be.false();
+			ValidNonNullData.filter( i => i ).forEach( value => {
+				compare( value, null, "not" ).should.be.false();
+			} );
 		} );
 
 		test( "detects two coerced equal values", function() {
-			compare( "", "", "eq" ).should.be.true();
-			compare( "foo", "foo", "eq" ).should.be.true();
-
-			compare( "", "", "noteq" ).should.be.false();
-			compare( "foo", "foo", "noteq" ).should.be.false();
+			ValidNonNullData.forEach( ( one, outer ) => {
+				ValidNonNullData.forEach( ( two, inner ) => {
+					if ( outer === inner ) {
+						compare( one, two, "eq" ).should.be.true( `failed on comparing #${outer} eq #${inner}` );
+					} else {
+						compare( one, two, "eq" ).should.be.false( `failed on comparing #${outer} eq #${inner}` );
+					}
+				} );
+			} );
 		} );
 
 		test( "detects two coerced inequal values", function() {
-			compare( "", "0", "eq" ).should.be.false();
-			compare( "foo", "bar", "eq" ).should.be.false();
-
-			compare( "", "0", "noteq" ).should.be.true();
-			compare( "foo", "bar", "noteq" ).should.be.true();
+			ValidNonNullData.forEach( ( one, outer ) => {
+				ValidNonNullData.forEach( ( two, inner ) => {
+					if ( outer === inner ) {
+						compare( one, two, "neq" ).should.be.false( `failed on comparing #${outer} neq #${inner}` );
+						compare( one, two, "noteq" ).should.be.false( `failed on comparing #${outer} noteq #${inner}` );
+					} else {
+						compare( one, two, "neq" ).should.be.true( `failed on comparing #${outer} neq #${inner}` );
+						compare( one, two, "noteq" ).should.be.true( `failed on comparing #${outer} noteq #${inner}` );
+					}
+				} );
+			} );
 		} );
 
 		test( "compares order of two coerced values", function() {
-			compare( "john", "jane", "gt" ).should.be.true();
-			compare( "john", "jane", "gte" ).should.be.true();
-			compare( "john", "john", "gt" ).should.be.false();
-			compare( "john", "john", "gte" ).should.be.true();
-
-			compare( "jane", "john", "lt" ).should.be.true();
-			compare( "jane", "john", "lte" ).should.be.true();
-			compare( "jane", "jane", "lt" ).should.be.false();
-			compare( "jane", "jane", "lte" ).should.be.true();
+			ValidNonNullData.forEach( ( one, outer ) => {
+				ValidNonNullData.forEach( ( two, inner ) => {
+					if ( outer > inner ) {
+						compare( one, two, "gt" ).should.be.true( `failed on comparing #${outer} gt #${inner}` );
+						compare( one, two, "gte" ).should.be.true( `failed on comparing #${outer} gte #${inner}` );
+						compare( one, two, "lt" ).should.be.false( `failed on comparing #${outer} lt #${inner}` );
+						compare( one, two, "lte" ).should.be.false( `failed on comparing #${outer} lte #${inner}` );
+					} else if ( outer < inner ) {
+						compare( one, two, "gt" ).should.be.false( `failed on comparing #${outer} gt #${inner}` );
+						compare( one, two, "gte" ).should.be.false( `failed on comparing #${outer} gte #${inner}` );
+						compare( one, two, "lt" ).should.be.true( `failed on comparing #${outer} lt #${inner}` );
+						compare( one, two, "lte" ).should.be.true( `failed on comparing #${outer} lte #${inner}` );
+					} else {
+						compare( one, two, "gt" ).should.be.false( `failed on comparing #${outer} gt #${inner}` );
+						compare( one, two, "gte" ).should.be.true( `failed on comparing #${outer} gte #${inner}` );
+						compare( one, two, "lt" ).should.be.false( `failed on comparing #${outer} lt #${inner}` );
+						compare( one, two, "lte" ).should.be.true( `failed on comparing #${outer} lte #${inner}` );
+					}
+				} );
+			} );
 		} );
 
 		test( "returns `false` on comparing non-`null`-value w/ `null`-value", function() {
-			compare( "john", null, "gt" ).should.be.false();
-			compare( "john", null, "gte" ).should.be.false();
-			compare( "john", null, "lt" ).should.be.false();
-			compare( "john", null, "lte" ).should.be.false();
+			ValidNonNullData.forEach( data => {
+				compare( data, null, "gt" ).should.be.false();
+				compare( data, null, "gte" ).should.be.false();
+				compare( data, null, "lt" ).should.be.false();
+				compare( data, null, "lte" ).should.be.false();
+			} );
 		} );
 
 		test( "returns `false` on comparing `null`-value w/ non-`null`-value", function() {
-			compare( null, "john", "gt" ).should.be.false();
-			compare( null, "john", "gte" ).should.be.false();
-			compare( null, "john", "lt" ).should.be.false();
-			compare( null, "john", "lte" ).should.be.false();
+			ValidNonNullData.forEach( data => {
+				compare( null, data, "gt" ).should.be.false();
+				compare( null, data, "gte" ).should.be.false();
+				compare( null, data, "lt" ).should.be.false();
+				compare( null, data, "lte" ).should.be.false();
+			} );
 		} );
 
 		test( "returns `false` on comparing `null`-value w/ `null`-value w/o accepting equality", function() {
@@ -854,13 +899,17 @@ suite( "Model property type `string`", function() {
 		test( "supports unary operation testing for value being `null`", function() {
 			compare( null, null, "null" ).should.be.true();
 
-			compare( "", null, "null" ).should.be.false();
+			ValidNonNullData.forEach( data => {
+				compare( data, null, "null" ).should.be.false();
+			} );
 		} );
 
 		test( "supports unary operation testing for value not being `null`", function() {
 			compare( null, null, "notnull" ).should.be.false();
 
-			compare( "", null, "notnull" ).should.be.true();
+			ValidNonNullData.forEach( data => {
+				compare( data, null, "notnull" ).should.be.true();
+			} );
 		} );
 	} );
 } );

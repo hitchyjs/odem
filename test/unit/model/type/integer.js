@@ -68,6 +68,10 @@ suite( "Model property type `integer`", function() {
 		AllTypes.selectByName( "INT" ).should.be.equal( Type );
 	} );
 
+	test( "advertises values of type to be sortable", function() {
+		Type.sortable.should.be.true();
+	} );
+
 	suite( "is exposing method `checkDefinition()` which", function() {
 		const { checkDefinition } = Type;
 
