@@ -30,7 +30,7 @@
 const { describe, it } = require( "mocha" );
 require( "should" );
 
-const { Model } = require( "../../../" );
+const { Model, ModelPropertyTypes } = require( "../../../" );
 
 
 describe( "Models API", () => {
@@ -167,7 +167,7 @@ describe( "Models API", () => {
 			Item.prototype.should.be.instanceOf( Model );
 		} );
 
-		it( "accepts schema defining attributes of type `string` (implicitly)", () => {
+		it( "accepts schema defining actual property of type `string` (implicitly)", () => {
 			const Item = Model.define( "Item", {
 				props: {
 					label: {},
@@ -181,6 +181,160 @@ describe( "Models API", () => {
 			Item.schema.props.should.have.ownProperty( "label" ).which.has.property( "type" ).which.is.equal( "string" );
 			Item.schema.props.should.have.ownProperty( "alias" ).which.has.property( "type" ).which.is.equal( "string" );
 			Item.schema.computed.should.be.empty();
+			Item.schema.methods.should.be.empty();
+			Item.schema.hooks.should.be.empty();
+		} );
+
+		it( "accepts schema defining computed property the simple way", () => {
+			const Item = Model.define( "Item", {
+				props: {
+					lastName: {},
+					firstName: {},
+				},
+				computed: {
+					fullName() { return this.lastName + ", " + this.firstName; },
+				},
+			} );
+
+			Item.schema.should.be.Object().which.has.properties( "props", "computed", "methods", "hooks" );
+			Item.schema.props.should.have.size( 2 );
+			Item.schema.props.should.have.ownProperty( "firstName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.props.should.have.ownProperty( "lastName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.computed.should.have.size( 1 );
+			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
+			Item.schema.computed.fullName.code.should.be.Function();
+			( Item.schema.computed.fullName.type === undefined ).should.be.true();
+			( Item.schema.computed.fullName.$type === undefined ).should.be.true();
+			Item.schema.methods.should.be.empty();
+			Item.schema.hooks.should.be.empty();
+		} );
+
+		it( "accepts schema defining computed property the simply way with type handler applied", () => {
+			const Item = Model.define( "Item", {
+				props: {
+					lastName: {},
+					firstName: {},
+				},
+				computed: {
+					"fullName:date"() { return this.lastName + ", " + this.firstName; },
+				},
+			} );
+
+			Item.schema.should.be.Object().which.has.properties( "props", "computed", "methods", "hooks" );
+			Item.schema.props.should.have.size( 2 );
+			Item.schema.props.should.have.ownProperty( "firstName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.props.should.have.ownProperty( "lastName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.computed.should.have.size( 1 );
+			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
+			Item.schema.computed.fullName.code.should.be.Function();
+			Item.schema.computed.fullName.type.should.be.equal( "date" );
+			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( ModelPropertyTypes.abstract );
+			Item.schema.methods.should.be.empty();
+			Item.schema.hooks.should.be.empty();
+		} );
+
+		it( "accepts schema defining computed property more explicitly", () => {
+			const Item = Model.define( "Item", {
+				props: {
+					lastName: {},
+					firstName: {},
+				},
+				computed: {
+					fullName: {
+						code() { return this.lastName + ", " + this.firstName; },
+					},
+				},
+			} );
+
+			Item.schema.should.be.Object().which.has.properties( "props", "computed", "methods", "hooks" );
+			Item.schema.props.should.have.size( 2 );
+			Item.schema.props.should.have.ownProperty( "firstName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.props.should.have.ownProperty( "lastName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.computed.should.have.size( 1 );
+			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
+			Item.schema.computed.fullName.code.should.be.Function();
+			( Item.schema.computed.fullName.type === undefined ).should.be.true();
+			( Item.schema.computed.fullName.$type === undefined ).should.be.true();
+			Item.schema.methods.should.be.empty();
+			Item.schema.hooks.should.be.empty();
+		} );
+
+		it( "accepts schema explicitly defining computed property with custom type handler applied", () => {
+			const Item = Model.define( "Item", {
+				props: {
+					lastName: {},
+					firstName: {},
+				},
+				computed: {
+					fullName: {
+						code() { return this.lastName + ", " + this.firstName; },
+						type: "date",
+					},
+				},
+			} );
+
+			Item.schema.should.be.Object().which.has.properties( "props", "computed", "methods", "hooks" );
+			Item.schema.props.should.have.size( 2 );
+			Item.schema.props.should.have.ownProperty( "firstName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.props.should.have.ownProperty( "lastName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.computed.should.have.size( 1 );
+			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
+			Item.schema.computed.fullName.code.should.be.Function();
+			Item.schema.computed.fullName.type.should.be.equal( "date" );
+			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( ModelPropertyTypes.abstract );
+			Item.schema.methods.should.be.empty();
+			Item.schema.hooks.should.be.empty();
+		} );
+
+		it( "accepts schema explicitly defining computed property with custom type handler applied implicitly", () => {
+			const Item = Model.define( "Item", {
+				props: {
+					lastName: {},
+					firstName: {},
+				},
+				computed: {
+					"fullName:date": {
+						code() { return this.lastName + ", " + this.firstName; },
+					},
+				},
+			} );
+
+			Item.schema.should.be.Object().which.has.properties( "props", "computed", "methods", "hooks" );
+			Item.schema.props.should.have.size( 2 );
+			Item.schema.props.should.have.ownProperty( "firstName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.props.should.have.ownProperty( "lastName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.computed.should.have.size( 1 );
+			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
+			Item.schema.computed.fullName.code.should.be.Function();
+			Item.schema.computed.fullName.type.should.be.equal( "date" );
+			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( ModelPropertyTypes.abstract );
+			Item.schema.methods.should.be.empty();
+			Item.schema.hooks.should.be.empty();
+		} );
+
+		it( "accepts schema explicitly defining computed property with explicitly defined custom type handler overriding implicitly defined one", () => {
+			const Item = Model.define( "Item", {
+				props: {
+					lastName: {},
+					firstName: {},
+				},
+				computed: {
+					"fullName:integer": {
+						code() { return this.lastName + ", " + this.firstName; },
+						type: "date",
+					},
+				},
+			} );
+
+			Item.schema.should.be.Object().which.has.properties( "props", "computed", "methods", "hooks" );
+			Item.schema.props.should.have.size( 2 );
+			Item.schema.props.should.have.ownProperty( "firstName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.props.should.have.ownProperty( "lastName" ).which.has.property( "type" ).which.is.equal( "string" );
+			Item.schema.computed.should.have.size( 1 );
+			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
+			Item.schema.computed.fullName.code.should.be.Function();
+			Item.schema.computed.fullName.type.should.be.equal( "date" );
+			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( ModelPropertyTypes.abstract );
 			Item.schema.methods.should.be.empty();
 			Item.schema.hooks.should.be.empty();
 		} );
