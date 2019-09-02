@@ -49,8 +49,11 @@ const Properties = [
 	[ "slowNumber", "numbers" ],
 	[ "fastString", "texts" ],
 	[ "slowString", "texts" ],
+	[ "fastUUID", "uuids" ],
+	[ "slowUUID", "uuids" ],
 	[ "derivedString", "texts", stringDeriver ],
 	[ "derivedInteger", "integers", integerDeriver ],
+	[ "derivedUUID", "uuids", uuidDeriver ],
 ];
 
 
@@ -69,6 +72,15 @@ function integerDeriver() { return 2 * this.slowInteger; }
 function stringDeriver() { return ">> " + this.slowString; }
 
 /**
+ * Derives UUID from actual property.
+ *
+ * @returns {Buffer} derived string
+ */
+function uuidDeriver() {
+	return Buffer.concat( [ Buffer.from( [ 0, 0 ] ), this.slowUUID.slice( 2 ) ] );
+}
+
+/**
  * Generates array of values using provided value generator.
  *
  * The resulting array is guaranteed to consist of different values, only.
@@ -81,7 +93,7 @@ function fill( generator ) {
 
 	for ( let i = 0; i < NumRecords; i++ ) {
 		const value = generator();
-		if ( data.indexOf( value ) < 0 ) {
+		if ( data.findIndex( v => ( Buffer.isBuffer( value ) ? value.equals( v ) : value === v ) ) < 0 ) {
 			data.push( value );
 		} else {
 			i--;
@@ -173,12 +185,14 @@ describe( "Inspecting collection of a model's items", function() {
 	const integers = fill( () => Integers.from + Math.round( Math.random() * ( Integers.to - Integers.from ) ) );
 	const numbers = fill( () => Numbers.from + ( Math.random() * ( Numbers.to - Numbers.from ) ) );
 	const texts = fill( () => textDriver.map( () => Chars[Math.floor( Math.random() * Chars.length )] ).join( "" ) );
-	const data = { integers, numbers, texts };
+	const uuids = fill( () => Buffer.from( ( "0000" + Math.round( Math.random() * 65536 ).toString( 16 ) ).slice( -4 ).repeat( 8 ), "hex" ) );
+	const data = { integers, numbers, texts, uuids };
 
 	indexes.sort( () => Math.round( Math.random() * 11 ) - 5 );
 	integers.sort( ( l, r ) => l - r );
 	numbers.sort( ( l, r ) => l - r );
 	texts.sort( ( l, r ) => l.localeCompare( r ) );
+	uuids.sort( ( l, r ) => l.compare( r ) );
 
 
 	let MyModel;
@@ -194,15 +208,21 @@ describe( "Inspecting collection of a model's items", function() {
 				fastNumber: { type: "number", index: "eq" },
 				slowString: { type: "string" },
 				fastString: { type: "string", index: "eq" },
+				slowUUID: { type: "uuid" },
+				fastUUID: { type: "uuid", index: "eq" },
 			},
 			computed: {
 				derivedInteger: integerDeriver,
-				derivedString: stringDeriver,
+				derivedString: { code: stringDeriver, type: "string" },
+				derivedUUID: { code: uuidDeriver, type: "uuid" },
 			},
 			indices: {
 				derivedInteger: true,
 				derivedString: {
 					propertyType: "string",
+				},
+				derivedUUID: {
+					propertyType: "uuid",
 				},
 			}
 		} );
@@ -222,6 +242,8 @@ describe( "Inspecting collection of a model's items", function() {
 			item.fastNumber = numbers[i];
 			item.slowString = texts[i];
 			item.fastString = texts[i];
+			item.slowUUID = uuids[i];
+			item.fastUUID = uuids[i];
 
 			return item.save();
 		} );
@@ -273,7 +295,7 @@ describe( "Inspecting collection of a model's items", function() {
 							.then( records => {
 								records.should.be.Array().which.has.length( limit || ( NumRecords - offset ) );
 
-								if( limit >= 5 ) {
+								if ( limit >= 5 ) {
 									isSorted( records ).should.be[dir ? "true" : "false"]();
 									isSorted( records, false ).should.be[dir ? "false" : "true"]();
 
@@ -292,27 +314,24 @@ describe( "Inspecting collection of a model's items", function() {
 
 	Properties.forEach( ( [ propertyName, dataName, deriver ] ) => {
 		it( `retrieves single match when searching records with ${propertyName} equal every value used on filling database`, () => {
-			return PromiseUtil.each( data[dataName], ( value, index ) => MyModel.find( {
-				eq: { value: deriver ? anyThis( deriver, value ) : value, property: propertyName }
-			} )
+			return PromiseUtil.each( data[dataName], value => MyModel.find( { eq: {
+				property: propertyName,
+				value: deriver ? anyThis( deriver, value ) : value,
+			} } )
 				.then( records => {
-					if ( !records.length ) console.log( value, index );
 					records.should.be.Array().which.has.length( 1 );
 				} ) );
 		} );
 	} );
 
 	Properties.forEach( ( [ propertyName, dataName, deriver ] ) => {
-		if ( deriver ) {
-			// FIXME enable test on computed properties as soon as either non-indexed comparison or indexed neq-test can handle computed properties
-			it( `retrieves all but one record when searching records with ${propertyName} unequal every value used on filling database` );
-			return;
-		}
-
 		it( `retrieves all but one record when searching records with ${propertyName} unequal every value used on filling database`, () => {
 			const values = data[dataName];
 
-			return PromiseUtil.each( values, value => MyModel.find( { neq: { name: propertyName, value } } )
+			return PromiseUtil.each( values, value => MyModel.find( { neq: {
+				name: propertyName,
+				value: deriver ? anyThis( deriver, value ) : value,
+			} } )
 				.then( records => {
 					records.should.be.Array().which.has.length( NumRecords - 1 );
 				} ) );
@@ -320,16 +339,13 @@ describe( "Inspecting collection of a model's items", function() {
 	} );
 
 	Properties.forEach( ( [ propertyName, dataName, deriver ] ) => {
-		if ( deriver ) {
-			// FIXME enable test on computed properties as soon as either non-indexed comparison or indexed lt-test can handle computed properties
-			it( `retrieves multiple matches when searching records with ${propertyName} less than high values used on filling database` );
-			return;
-		}
-
 		it( `retrieves multiple matches when searching records with ${propertyName} less than high values used on filling database`, () => {
 			const values = data[dataName].slice( Math.floor( data[dataName].length / 2 ) );
 
-			return PromiseUtil.each( values, value => MyModel.find( { lt: { name: propertyName, value } } )
+			return PromiseUtil.each( values, value => MyModel.find( { lt: {
+				name: propertyName,
+				value: deriver ? anyThis( deriver, value ) : value,
+			} } )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );
@@ -338,16 +354,13 @@ describe( "Inspecting collection of a model's items", function() {
 	} );
 
 	Properties.forEach( ( [ propertyName, dataName, deriver ] ) => {
-		if ( deriver ) {
-			// FIXME enable test on computed properties as soon as either non-indexed comparison or indexed gt-test can handle computed properties
-			it( `retrieves multiple matches when searching records with ${propertyName} greater than high values used on filling database` );
-			return;
-		}
-
 		it( `retrieves multiple matches when searching records with ${propertyName} greater than high values used on filling database`, () => {
 			const values = data[dataName].slice( 0, Math.floor( data[dataName].length / 2 ) );
 
-			return PromiseUtil.each( values, value => MyModel.find( { gt: { name: propertyName, value } } )
+			return PromiseUtil.each( values, value => MyModel.find( { gt: {
+				name: propertyName,
+				value: deriver ? anyThis( deriver, value ) : value,
+			} } )
 				.then( records => {
 					records.should.be.Array();
 					records.length.should.be.greaterThan( 1 );
@@ -391,7 +404,9 @@ describe( "Inspecting collection of a model's items", function() {
 					records.length.should.be.greaterThan( 1 );
 
 					if ( dataName === "texts" ) {
-						records.some( r => lower.localeCompare( r[propertyName] ) > 0 || upper.localeCompare( r[propertyName] ) < 0 ).should.be.false();
+						records.some( r => r[propertyName].localeCompare( lower ) < 0 || r[propertyName].localeCompare( upper ) > 0 ).should.be.false();
+					} else if ( dataName === "uuids" ) {
+						records.some( r => r[propertyName].compare( lower ) < 0 || r[propertyName].compare( upper ) > 0 ).should.be.false();
 					} else {
 						records.some( r => r[propertyName] < lower || r[propertyName] > upper ).should.be.false();
 					}

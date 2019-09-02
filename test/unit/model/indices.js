@@ -30,7 +30,7 @@
 
 const Path = require( "path" );
 
-const { describe, it, before, after } = require( "mocha" );
+const { describe, it, before, after, beforeEach } = require( "mocha" );
 require( "should" );
 const PromiseUtils = require( "promise-essentials" );
 
@@ -325,8 +325,11 @@ describe( "A model-related index", () => {
 		];
 
 		const Values = [
-			[ "integer", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => index ) ],
-			[ "string", num => new Array( num ).fill( 0, 0, num ).map( ( _, index ) => `prefix${index}suffix` ) ],
+			[ "integer", num => new Array( num ).fill( 0 ).map( ( _, index ) => index * index ) ],
+			[ "string", num => new Array( num ).fill( 0 ).map( ( _, index ) => `prefix${index * index}suffix` ) ],
+			[ "uuid", num => new Array( num ).fill( 0 ).map( ( _, index ) => Buffer.from(
+				( "0".repeat( 31 ) + ( index * index ).toString( 16 ) ).slice( -32 ), "hex"
+			) ) ],
 		];
 
 		after( () => fileAdapter.purge() );
