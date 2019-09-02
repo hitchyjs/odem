@@ -69,8 +69,6 @@ const ValidNonNullInput = ValidNonNullData.concat( [
 
 const ValidInput = ValidNonNullInput.concat( [ null, undefined ] );
 
-const InvalidInput = [];
-
 
 suite( "Model property type `string`", function() {
 	test( "is available", function() {

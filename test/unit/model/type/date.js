@@ -67,16 +67,6 @@ const ValidNonNullInput = ValidNonNullData.concat( [
 
 const ValidInput = ValidNonNullInput.concat( [ null, undefined ] );
 
-const InvalidInput = [
-	false,
-	true,
-	{},
-	{ some: "value", and: 5 },
-	[],
-	[ 1, 2, 3 ],
-	() => {}, // eslint-disable-line no-empty-function
-	() => 1,
-];
 
 
 suite( "Model property type `date`", function() {
