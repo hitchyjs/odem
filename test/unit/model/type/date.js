@@ -971,26 +971,28 @@ suite( "Model Attribute Type `date`", function() {
 			compare( new Date( "2018-02-25T08:57:00Z" ), new Date( "2018-02-25T08:57:00Z" ), "lte" ).should.be.true();
 		} );
 
-		test( "returns `false` on comparing non-`null` value w/ `null`-value", function() {
+		test( "returns `false` on comparing non-`null`-value w/ `null`-value", function() {
 			compare( new Date( "2018-02-25T08:57:01Z" ), null, "gt" ).should.be.false();
 			compare( new Date( "2018-02-25T08:57:01Z" ), null, "gte" ).should.be.false();
-			compare( new Date( "2018-02-25T08:57:01Z" ), null, "gt" ).should.be.false();
-			compare( new Date( "2018-02-25T08:57:01Z" ), null, "gte" ).should.be.false();
-			compare( new Date( "2018-02-25T08:57:01Z" ), null, "lt" ).should.be.false();
-			compare( new Date( "2018-02-25T08:57:01Z" ), null, "lte" ).should.be.false();
 			compare( new Date( "2018-02-25T08:57:01Z" ), null, "lt" ).should.be.false();
 			compare( new Date( "2018-02-25T08:57:01Z" ), null, "lte" ).should.be.false();
 		} );
 
-		test( "returns `false` on comparing `null` value w/ non-`null`-value", function() {
-			compare( null, new Date( "2018-02-25T08:57:01Z" ), "gt" ).should.be.false();
-			compare( null, new Date( "2018-02-25T08:57:01Z" ), "gte" ).should.be.false();
+		test( "returns `false` on comparing `null`-value w/ non-`null`-value", function() {
 			compare( null, new Date( "2018-02-25T08:57:01Z" ), "gt" ).should.be.false();
 			compare( null, new Date( "2018-02-25T08:57:01Z" ), "gte" ).should.be.false();
 			compare( null, new Date( "2018-02-25T08:57:01Z" ), "lt" ).should.be.false();
 			compare( null, new Date( "2018-02-25T08:57:01Z" ), "lte" ).should.be.false();
-			compare( null, new Date( "2018-02-25T08:57:01Z" ), "lt" ).should.be.false();
-			compare( null, new Date( "2018-02-25T08:57:01Z" ), "lte" ).should.be.false();
+		} );
+
+		test( "returns `false` on comparing `null`-value w/ `null`-value w/o accepting equality", function() {
+			compare( null, null, "gt" ).should.be.false();
+			compare( null, null, "lt" ).should.be.false();
+		} );
+
+		test( "returns `true` on comparing `null`-value w/ `null`-value accepting equality", function() {
+			compare( null, null, "gte" ).should.be.true();
+			compare( null, null, "lte" ).should.be.true();
 		} );
 
 		test( "supports unary operation testing for value being `null`", function() {

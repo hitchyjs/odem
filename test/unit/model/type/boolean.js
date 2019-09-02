@@ -634,36 +634,42 @@ suite( "Model Attribute Type `boolean`", function() {
 
 		test( "does not support comparing order of two coerced (boolean) values", function() {
 			compare( true, false, "gt" ).should.be.false();
-			compare( true, false, "gte" ).should.be.false();
 			compare( true, true, "gt" ).should.be.false();
-			compare( true, true, "gte" ).should.be.false();
 
 			compare( false, true, "lt" ).should.be.false();
-			compare( false, true, "lte" ).should.be.false();
 			compare( false, false, "lt" ).should.be.false();
-			compare( false, false, "lte" ).should.be.false();
 		} );
 
-		test( "returns `false` on comparing non-`null` value w/ `null`-value", function() {
-			compare( true, null, "gt" ).should.be.false();
-			compare( true, null, "gte" ).should.be.false();
-			compare( true, null, "gt" ).should.be.false();
-			compare( true, null, "gte" ).should.be.false();
-			compare( true, null, "lt" ).should.be.false();
-			compare( true, null, "lte" ).should.be.false();
-			compare( true, null, "lt" ).should.be.false();
-			compare( true, null, "lte" ).should.be.false();
+		test( "does obey equality when accepted on comparing order of two coerced (boolean) values", function() {
+			compare( true, false, "gte" ).should.be.false();
+			compare( true, true, "gte" ).should.be.true();
+
+			compare( false, true, "lte" ).should.be.false();
+			compare( false, false, "lte" ).should.be.true();
 		} );
 
-		test( "returns `false` on comparing `null` value w/ non-`null`-value", function() {
+		test( "returns `false` on comparing non-`null`-value w/ `null`-value", function() {
+			compare( true, null, "gt" ).should.be.false();
+			compare( true, null, "gte" ).should.be.false();
+			compare( false, null, "lt" ).should.be.false();
+			compare( false, null, "lte" ).should.be.false();
+		} );
+
+		test( "returns `false` on comparing `null`-value w/ non-`null`-value", function() {
 			compare( null, true, "gt" ).should.be.false();
 			compare( null, true, "gte" ).should.be.false();
-			compare( null, true, "gt" ).should.be.false();
-			compare( null, true, "gte" ).should.be.false();
-			compare( null, true, "lt" ).should.be.false();
-			compare( null, true, "lte" ).should.be.false();
-			compare( null, true, "lt" ).should.be.false();
-			compare( null, true, "lte" ).should.be.false();
+			compare( null, false, "lt" ).should.be.false();
+			compare( null, false, "lte" ).should.be.false();
+		} );
+
+		test( "returns `false` on comparing `null`-value w/ `null`-value w/o accepting equality", function() {
+			compare( null, null, "gt" ).should.be.false();
+			compare( null, null, "lt" ).should.be.false();
+		} );
+
+		test( "returns `false` on comparing `null`-value w/ `null`-value accepting equality", function() {
+			compare( null, null, "gte" ).should.be.true();
+			compare( null, null, "lte" ).should.be.true();
 		} );
 
 		test( "supports unary operation testing for value being `null`", function() {

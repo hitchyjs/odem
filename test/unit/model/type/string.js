@@ -827,26 +827,28 @@ suite( "Model Attribute Type `string`", function() {
 			compare( "jane", "jane", "lte" ).should.be.true();
 		} );
 
-		test( "returns `false` on comparing non-`null` value w/ `null`-value", function() {
+		test( "returns `false` on comparing non-`null`-value w/ `null`-value", function() {
 			compare( "john", null, "gt" ).should.be.false();
 			compare( "john", null, "gte" ).should.be.false();
-			compare( "john", null, "gt" ).should.be.false();
-			compare( "john", null, "gte" ).should.be.false();
-			compare( "john", null, "lt" ).should.be.false();
-			compare( "john", null, "lte" ).should.be.false();
 			compare( "john", null, "lt" ).should.be.false();
 			compare( "john", null, "lte" ).should.be.false();
 		} );
 
-		test( "returns `false` on comparing `null` value w/ non-`null`-value", function() {
-			compare( null, "john", "gt" ).should.be.false();
-			compare( null, "john", "gte" ).should.be.false();
+		test( "returns `false` on comparing `null`-value w/ non-`null`-value", function() {
 			compare( null, "john", "gt" ).should.be.false();
 			compare( null, "john", "gte" ).should.be.false();
 			compare( null, "john", "lt" ).should.be.false();
 			compare( null, "john", "lte" ).should.be.false();
-			compare( null, "john", "lt" ).should.be.false();
-			compare( null, "john", "lte" ).should.be.false();
+		} );
+
+		test( "returns `false` on comparing `null`-value w/ `null`-value w/o accepting equality", function() {
+			compare( null, null, "gt" ).should.be.false();
+			compare( null, null, "lt" ).should.be.false();
+		} );
+
+		test( "returns `true` on comparing `null`-value w/ `null`-value accepting equality", function() {
+			compare( null, null, "gte" ).should.be.true();
+			compare( null, null, "lte" ).should.be.true();
 		} );
 
 		test( "supports unary operation testing for value being `null`", function() {
