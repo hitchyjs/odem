@@ -897,7 +897,7 @@ suite( "Model property type `date`", function() {
 				Helper.allTypesOfData().forEach( two => {
 					( () => compare( one, two ) ).should.not.throw();
 
-					Helper.allTypesOfData().forEach( three => {
+					Helper.allComparisonOperations().forEach( three => {
 						( () => compare( one, two, three ) ).should.not.throw();
 					} );
 				} );
@@ -907,7 +907,7 @@ suite( "Model property type `date`", function() {
 		test( "always returns boolean", function() {
 			Helper.allTypesOfData().forEach( one => {
 				Helper.allTypesOfData().forEach( two => {
-					Helper.allTypesOfData().forEach( three => {
+					Helper.allComparisonOperations().forEach( three => {
 						compare( one, two, three ).should.be.Boolean();
 					} );
 				} );

@@ -573,7 +573,7 @@ suite( "Model property type `boolean`", function() {
 				Helper.allTypesOfData().forEach( two => {
 					( () => compare( one, two ) ).should.not.throw();
 
-					Helper.allTypesOfData().forEach( three => {
+					Helper.allComparisonOperations().forEach( three => {
 						( () => compare( one, two, three ) ).should.not.throw();
 					} );
 				} );
