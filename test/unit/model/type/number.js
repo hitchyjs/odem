@@ -37,7 +37,7 @@ const Base = require( "../../../../lib/model/type/base" );
 const Type = require( "../../../../lib/model/type/number" );
 
 
-suite( "Model Attribute Type `number`", function() {
+suite( "Model property type `number`", function() {
 	test( "is available", function() {
 		Should.exist( Type );
 	} );

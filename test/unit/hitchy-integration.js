@@ -72,7 +72,7 @@ describe( "Integration with hitchy", () => {
 			( () => processDiscoveredModelDefinitions( {}, {}, new MemoryAdapter() ) ).should.not.throw();
 		} );
 
-		it( "defines single model `sole` with single string attribute named `sole`", () => {
+		it( "defines single model `sole` with single string property named `sole`", () => {
 			const models = processDiscoveredModelDefinitions( {}, {
 				sole: { props: { sole: {} } },
 			}, new MemoryAdapter() );

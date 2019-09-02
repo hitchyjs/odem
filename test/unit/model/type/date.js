@@ -39,7 +39,7 @@ const Type = require( "../../../../lib/model/type/date" );
 const DateUtilities = require( "../../../../lib/utility/date" );
 
 
-suite( "Model Attribute Type `date`", function() {
+suite( "Model property type `date`", function() {
 	test( "is available", function() {
 		Should.exist( Type );
 	} );

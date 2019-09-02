@@ -41,7 +41,7 @@ describe( "Model API regarding a model's collection of items", () => {
 			Model.findByAttribute.should.be.a.Function();
 		} );
 
-		describe( "supports finding instances of model by attribute which", () => {
+		describe( "supports finding instances of model by property which", () => {
 			let adapter;
 			let Person;
 

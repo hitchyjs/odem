@@ -37,7 +37,7 @@ const Base = require( "../../../../lib/model/type/base" );
 const Type = require( "../../../../lib/model/type/integer" );
 
 
-suite( "Model Attribute Type `integer`", function() {
+suite( "Model property type `integer`", function() {
 	test( "is available", function() {
 		Should.exist( Type );
 	} );

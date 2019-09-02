@@ -37,7 +37,7 @@ const Base = require( "../../../../lib/model/type/base" );
 const Type = require( "../../../../lib/model/type/boolean" );
 
 
-suite( "Model Attribute Type `boolean`", function() {
+suite( "Model property type `boolean`", function() {
 	test( "is available", function() {
 		Should.exist( Type );
 	} );
@@ -583,7 +583,7 @@ suite( "Model Attribute Type `boolean`", function() {
 		test( "always returns boolean", function() {
 			Helper.allTypesOfData().forEach( one => {
 				Helper.allTypesOfData().forEach( two => {
-					Helper.allTypesOfData().forEach( three => {
+					Helper.allComparisonOperations().forEach( three => {
 						compare( one, two, three ).should.be.Boolean();
 					} );
 				} );
