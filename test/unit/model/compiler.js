@@ -378,7 +378,7 @@ describe( "Model compiler module", () => {
 			} );
 
 			it( "is expecting sole argument on invocation", () => {
-				serializer.should.be.Function().which.has.length( 1 );
+				serializer.should.be.Function().which.has.length( 2 );
 			} );
 
 			it( "is instantly invocable w/o any argument, though", () => {
@@ -414,7 +414,7 @@ describe( "Model compiler module", () => {
 			} );
 
 			it( "is expecting sole argument on invocation", () => {
-				serializer.should.be.Function().which.has.length( 1 );
+				serializer.should.be.Function().which.has.length( 2 );
 			} );
 
 			it( "is instantly invocable w/o any argument, though", () => {

@@ -740,7 +740,7 @@ suite( "Model Attribute Type `integer`", function() {
 		const { serialize } = Type;
 
 		test( "is a function to be invoked w/ one argument", function() {
-			serialize.should.be.a.Function().which.has.length( 1 );
+			serialize.should.be.a.Function().which.has.length( 2 );
 		} );
 
 		test( "never throws exception", function() {

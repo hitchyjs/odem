@@ -625,8 +625,8 @@ suite( "Model Attribute Type `string`", function() {
 	suite( "is exposing method `serialize()` which", function() {
 		const { serialize } = Type;
 
-		test( "is a function to be invoked w/ one argument", function() {
-			serialize.should.be.a.Function().which.has.length( 1 );
+		test( "is a function to be invoked w/ two arguments", function() {
+			serialize.should.be.a.Function().which.has.length( 2 );
 		} );
 
 		test( "never throws exception", function() {
