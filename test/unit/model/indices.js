@@ -407,21 +407,21 @@ describe( "A model-related index", () => {
 
 							describe( "lists all matches when searching by property with index for", () => {
 								it( `smallest used value ${values[0]}`, () => {
-									return MyModel.findByAttribute( "index", values[0], "eq" )
+									return MyModel.find( { eq: { name: "index", value: values[0] } } )
 										.then( items => {
 											items.length.should.be.eql( NumRecords / numValues );
 										} );
 								} );
 
 								it( `midrange value ${values[Math.floor( numValues / 2 )]}`, () => {
-									return MyModel.findByAttribute( "index", values[Math.floor( numValues / 2 )], "eq" )
+									return MyModel.find( { eq: { name: "index", value: values[Math.floor( numValues / 2 )] } } )
 										.then( items => {
 											items.length.should.be.eql( NumRecords / numValues );
 										} );
 								} );
 
 								it( `biggest used value ${values[numValues - 1]}`, () => {
-									return MyModel.findByAttribute( "index", values[numValues - 1], "eq" )
+									return MyModel.find( { eq: { name: "index", value: values[numValues - 1] } } )
 										.then( items => {
 											items.length.should.be.eql( NumRecords / numValues );
 										} );
@@ -449,21 +449,21 @@ describe( "A model-related index", () => {
 									describe( `lists all matches when searching by property ${label}`, () => {
 										describe( "with index for", () => {
 											it( `smallest used value ${values[0]}`, () => {
-												return NewModel.findByAttribute( "index", values[0], "eq", undefined, { loadRecords } )
+												return NewModel.find( { eq: { name: "index", value: values[0] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
 											} );
 
 											it( `mid-range value ${values[Math.floor( numValues / 2 )]}`, () => {
-												return NewModel.findByAttribute( "index", values[Math.floor( numValues / 2 )], "eq", undefined, { loadRecords } )
+												return NewModel.find( { eq: { name: "index", value: values[Math.floor( numValues / 2 )] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
 											} );
 
 											it( `for biggest used value ${values[numValues - 1]}`, () => {
-												return NewModel.findByAttribute( "index", values[numValues - 1], "eq", undefined, { loadRecords } )
+												return NewModel.find( { eq: { name: "index", value: values[numValues - 1] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
@@ -472,21 +472,21 @@ describe( "A model-related index", () => {
 
 										describe( "without index for", () => {
 											it( `smallest used value ${values[0]}`, () => {
-												return NewModel.findByAttribute( "noIndex", values[0], "eq", undefined, { loadRecords } )
+												return NewModel.find( { eq: { name: "noIndex", value: values[0] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
 											} );
 
 											it( `mid-range value ${values[Math.floor( numValues / 2 )]}`, () => {
-												return NewModel.findByAttribute( "noIndex", values[Math.floor( numValues / 2 )], "eq", undefined, { loadRecords } )
+												return NewModel.find( { eq: { name: "noIndex", value: values[Math.floor( numValues / 2 )] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
 											} );
 
 											it( `biggest used value ${values[numValues - 1]}`, () => {
-												return NewModel.findByAttribute( "noIndex", values[numValues - 1], "eq", undefined, { loadRecords } )
+												return NewModel.find( { eq: { name: "noIndex", value: values[numValues - 1] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
@@ -499,7 +499,6 @@ describe( "A model-related index", () => {
 					} );
 				} );
 			} );
-
 		} );
 	} );
 } );
