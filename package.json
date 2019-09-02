@@ -4,7 +4,7 @@
   "description": "ODM API used by hitchy framework",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint lib test index.js",
+    "lint": "eslint .",
     "test": "cross-env NODE_ENV=test mocha --ui=tdd 'test/unit/**/*.js'",
     "resilience": "cross-env NODE_ENV=test node --expose-gc test/resilience/index/index.js > test/resilience/index/memory.csv",
     "coverage": "cross-env NODE_ENV=test nyc mocha --ui=tdd test/**/*.js",
@@ -27,7 +27,7 @@
   "devDependencies": {
     "cross-env": "^5.2.0",
     "eslint": "^6.1.0",
-    "eslint-config-cepharum": "^1.0.9",
+    "eslint-config-cepharum": "^1.0.10",
     "eslint-plugin-promise": "^3.6.0",
     "hitchy-server-dev-tools": "^0.1.1",
     "mocha": "^4.0.1",
