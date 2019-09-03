@@ -771,7 +771,7 @@ describe( "FileAdapter", function() {
 
 		const promises = new Array( 200 )
 			.fill( 0 )
-			.map( i => adapter.write( `models/some-model/items/00000000-0000-0000-0000-00000000${( "000" + i ).slice( -4 )}`, record ) );
+			.map( ( _, i ) => adapter.write( `models/some-model/items/00000000-0000-0000-0000-00000000${( "000" + i ).slice( -4 )}`, record ) );
 
 		return Promise.all( promises );
 	} );
@@ -782,21 +782,18 @@ describe( "FileAdapter", function() {
 		const NumItems = 50000;
 		const adapter = new FileAdapter( { dataSource } );
 
+		const text = `lorem ipsum dolor sit amet consectetur`;
+		const record = { someProperty: new Array( NumItems ).fill( text ) };
+
 		const promises = new Array( 200 )
 			.fill( 0 )
-			.map( i => {
-				const text = `lorem ipsum dolor sit amet consectetur ${i}`;
-				const record = { someProperty: new Array( NumItems ).fill( text ) };
+			.map( () => adapter.write( `models/some-model/items/00000000-0000-0000-0000-000000000000`, record ) );
 
-				return adapter.write( `models/some-model/items/00000000-0000-0000-0000-000000000000`, record )
-					.then( () => adapter.read( `models/some-model/items/00000000-0000-0000-0000-000000000000` ) )
-					.then( loaded => {
-						if ( loaded.someProperty[0] !== text || loaded.someProperty[NumItems - 1] !== text ) {
-							throw new Error( `data got corrupted intermittently at index #${i}` );
-						}
-					} );
+		return Promise.all( promises )
+			.then( () => adapter.read( `models/some-model/items/00000000-0000-0000-0000-000000000000` ) )
+			.then( loaded => {
+				loaded.should.be.Object().which.has.size( 1 ).and.has.property( "someProperty" ).which.is.an.Array().which.has.length( NumItems );
+				loaded.someProperty.every( item => item === text ).should.be.true();
 			} );
-
-		return Promise.all( promises );
 	} );
 } );
