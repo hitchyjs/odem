@@ -27,7 +27,7 @@ The common use case for starting a web application is a blog. A blog has _posts_
 
 Every model consists of common **properties**. A blog is always having a _title_ and some _content_, a _time of creation_ and an _author_. In opposition to that a comment _belongs to a post_, but has an _author_, some _content_ and a _time of creation_ as well. Users have a unique _login name_, a secret _password_ and some _mail address_. 
 
-Some attributes are meant to be _unique_ or to be _always_ there. Such keywords indicate **constraints** that might apply on a property. Constraints are rules to be met by either instance of a model prior to saving it in a database or similar. This helps assuring the integrity of data.
+Some properties are meant to be _unique_ or to be _always_ there. Such keywords indicate **constraints** that might apply on a property. Constraints are rules to be met by either instance of a model prior to saving it in a database or similar. This helps assuring the integrity of data.
 
 All this describes similarities in records of actual data. It doesn't describe any actual data of your application, though, such as a user named Bob or Alice or any of either user's posts in particular. Information describing Bob and Alice as users are instances of the model _user_.
 :::

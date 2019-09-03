@@ -91,7 +91,7 @@ This method is just an alias for using [Model.find()](#model-find) with a partic
 
 ### Model.find() <Badge type="info">0.2.0+</Badge>
 
-:::warning Replacing findByteAttribute()
+:::warning Replacing findByAttribute()
 Starting with v0.2.0 this method is replacing previously provided method Model.findByAttribute().
 :::
 

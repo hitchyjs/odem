@@ -55,7 +55,7 @@ One property of model _person_ in the address book application will declare to h
 A model might define virtual properties that won't be stored persistently but will derive their information from other information of an instance on demand.
 
 ::: tip Example
-When having actual properties _last name_ and _first name_ there might be a computed property _full name_ that is combining the former two attributes.
+When having actual properties _last name_ and _first name_ there might be a computed property _full name_ that is combining the former two properties.
 :::
 
 ### Methods

@@ -242,6 +242,72 @@ In this case the defined function implementing the computed property's behaviour
 }
 ```
 
+#### Selecting Type Handler <Badge type="info">0.3.0+</Badge>
+
+Computed properties can be indexed and it's possible to use them for searching instances - with or without index. Discovering matches strongly depends on selected search operation, such as **eq** or **lte** testing for records with property's value equal or less than a given value.
+
+Any such operation depends on selected property's type of value in turn. For actualy properties you already know how to define a particular type of values. 
+
+:::tip
+A computed property doesn't need to be bound to a particular type of values unless using it for searching matches.
+:::
+
+For a computed property it is possible to select an assumed type of result value by appending type's name to the computed property's name separated by a single colon.
+
+```javascript
+{
+    props: {
+        ageInSeconds: { type: "integer" }
+    },
+    computed: {
+        "ageInDays:number"() { return this.ageInSeconds / 86400; }
+    }
+}
+```
+
+In this example the name `ageInDays` has been extended by some type selection: `ageInDays:number`. The quotation marks are required to have the colon considered part of name. 
+
+:::warning
+The suffix `:number` is not a part of resulting property's name. It is still called `ageInDays` and is used just like before.
+:::
+
+
+#### Extended Definition <Badge type="info">0.3.0+</Badge>
+
+A definition of computed properties as presented before is considered the simple and usual way. However, on processing such a concise definition a more complex format is created to firmly expose all information related to the computed property. 
+
+When inspecting a resulting model's schema for defined computed properties there will be an object instead of a function. 
+
+* In its property `code` there is the actually given function implementing the computed property. 
+* The optionally [defined result type to be assumed](#selecting-type-handler-0-3-0) is named in property `type` and the according _type handler_ is exposed as `$type`. Either property may be `undefined` in case of omitting definition of particular result type.
+
+In addition the name of computed property as used in model's schema is stripped off any appended type information.
+
+For example, a definition like
+
+```javascript
+computed: {
+    fullName() { return this.lastName + ", " + this.firstName; },
+    "ageInDays:number"() { return this.ageInSeconds / 86400; }
+}
+```
+
+will be exposed in schema like this:
+
+```javascript
+computed: {
+    fullName: {
+        code() { return this.lastName + ", " + this.firstName; },
+    },
+    ageInDays: {
+        code() { return this.ageInSeconds / 86400; },
+        type: "number",
+        $type: { ... API of type handler for numbers ... },
+    },
+},
+```
+
+This resulting format for defining a computed property may be used in the first place instead of that simple approach described before, as well.
 
 ### Instance Methods
 
@@ -550,9 +616,56 @@ Due to using a model's name in string interpolations in context of evaluated cod
 When putting this in a file **api/model/public-holiday.js** the resulting model won't be implicitly named **PublicHoliday**, but **MyCustomName**.
 
 
+## Property Processing
+
+A model's properties are passing separate stages in different situations of interacting with a model's instance. In general, those stages are:
+
+### Serialisation
+
+A property's value is serialised when writing it to persistent data storage through some adapter. Values are converted into a format which is basically just describing the original value and is suitable for being written into a data storage for later recovery.
+
+### Deserialisation
+
+A property's value is deserialised when reading it back from persistent data storage through some adapter. This is the counterpart to serialisation and recovers the original value of a property from its description resulting from previous serialisation.
+
+### Coercion
+
+A property's value is [_coerced_](https://en.wikipedia.org/wiki/Type_conversion)
+
+  * when assigning a value as in `instance.myProp = newValue`,
+  * after deserializing its value read from record in persistent data storage and
+  * when comparing it with another value (applying coercion to either value).
+  
+Coercion is meant to assure that a property's value always complies with the property's declared type. A type's implementation of any other stage should assume a provided value's type. That's why coercion is applied whenever trying to adjust a property's value or when trying to compare it with other values.
+
+### Validation
+
+A property's value is tested for complying with defined constraints.
+
+### Comparison
+
+A value is tested for satisfying some given comparison operation probably involving one or more additional values.
+
+### Chronology of Stages
+
+When interacting with a model's item described stages are passed in different combinations. When you load it from data storage its properties are _deserialized_ and _coerced_. After that you can adjust the properties which results in another _coercion_ of either assigned value. When saving changes to data storage _validation_ occurs right before _serializing_ properties' values.
+
+### Stage-Related Options
+
+Properties are processed using separate components each suitable for handling a particular type of values. Those _type handler_ provide implementations for either stage described before. 
+
+Implementations for stages **coercion** and **validation** may be customized using special options in either property's definition. Supported options are described for every type of property below. Badges <Badge>coercion</Badge> and <Badge type="warning">validation</Badge> are used there to indicate whether some option is obeyed in either stage of processing a related property.
+
+
 ## Property Types
 
-As described before every defined property is bound to one out of several supported types. Properties not picking any type explicitly are using type _string_ by default. The following example defines two properties of type _string_.
+As described before every property is bound to one out of several supported types. Properties not picking any type explicitly are bound to type _string_ by default.
+
+:::tip
+`null` or `undefined` are supported by either type of property. They are used to indicate that there is no actual property value.
+::: 
+
+The following example defines two properties of type _string_.
  
 ```javascript
 {
@@ -578,59 +691,55 @@ The same can be achieved by picking types explicitly like this:
 }
 ```
 
-In property definitions the `type` information selects a _type handler_ which is affecting the property's processing in many different ways.
-
-* It implements a type-specific coercion which is used to convert all kinds of different values assigned to a property being converted to the property's actual type.
-* It provides type-specific methods for serializing and unserializing values to persistently store them in a connected data storage.
-* Either type handler contains a method for comparing values of its type supporting a set of possible comparison operations. 
-* Eventually, support for defining constraints and for obeying those as part of validation processes strongly depends on the defined type of a property. Some common constraints are available without regards to the property's type, though.
+In property definitions the `type` option selects a _type handler_ which is affecting the [property's processing as described before](#property-processing).
 
 
 ### Strings
 
 Strings are declared with `type: "string"` or by omitting the declaration property `type` altogether.
 
-Attributes of type `string` are capable of holding a sequence of arbitrary characters. The following declaration properties customize the way either string attribute gets processed and validated. 
+Properties of type `string` are capable of holding a sequence of arbitrary characters. The following options customize the way either string property gets processed and validated. 
 
-#### trim
+#### trim <Badge>coercion</Badge>
 
 This boolean declares whether values should be trimmed implicitly or not. By trimming a string value all leading and trailing whitespace gets removed.
 
-#### reduceSpace
+#### reduceSpace <Badge>coercion</Badge>
 
-This boolean declares whether whitespace should be normalized or not. Normalization refers to replacing all sequences of multiple whitespaces by a single SPC character.
+This boolean option declares whether whitespace should be normalized or not. Normalization refers to replacing all sequences of multiple whitespaces by a single SPC character.
 
-#### upperCase
+#### upperCase <Badge>coercion</Badge>
 
-This boolean demands to replace any lowercase letter in value by its uppercase counterpart.
+This boolean option demands to replace any lowercase letter in value by its uppercase counterpart.
 
-#### lowerCase
+#### lowerCase <Badge>coercion</Badge>
 
-This boolean demands to replace any uppercase letter in value by its lowercase counterpart.
+This boolean option demands to replace any uppercase letter in value by its lowercase counterpart.
 
-#### minLength
+#### minLength <Badge type="warning">validation</Badge>
 
-This integer attaches constraint requiring any optionally trimmed value with whitespace optionally reduced to consist of this number of characters at least.
+This integer option applies constraint requiring minimum number of characters in a non-null value.
 
-#### maxLength
+#### maxLength <Badge type="warning">validation</Badge>
 
-This integer attaches constraint requiring any optionally trimmed value with whitespace optionally reduced to consist of this number of characters at most.
+This integer option applies constraint requiring maximum number of characters in a non-null value.
 
-#### pattern
+#### pattern <Badge type="warning">validation</Badge>
 
-This regular expression attaches constraint requiring any value to match this pattern. Provided pattern might be literally a regular expression or some string containing it.
+This regular expression applies constraint requiring any non-null value to match this pattern. Provided pattern might be literal regular expression like `/^some-pattern$/` or some string containing it, e.g. `"^some-pattern$"`.
 
-#### required
+#### required <Badge type="warning">validation</Badge>
 
-This boolean attaches constraint controlling whether this attribute requires a value or not. When set `true` instances of the model mustn't be saved without providing value for this attribute.
+This boolean options applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing non-null value for this property.
+
 
 ### Numbers
 
-Numbers are declared with `type: "number"`.
+Numbers are declared with `type: "number"`. Aliases are `type: "numeric"`, `type: "decimal"` or `type: "float"`.
 
-Attributes of type number are capable of holding numeric values with decimal digits.
+Properties of type number are capable of holding numeric values with decimal digits.
 
-#### step
+#### step <Badge>coercion</Badge>
 
 This numeric value results in snapping numbers to multitudes of this value related to configured minimum value in declaration property `min` or to 0 on omitting that declaration property.
 
@@ -638,17 +747,24 @@ This numeric value results in snapping numbers to multitudes of this value relat
 Declaring step size `1.0` while having integer minimum value constraint in `min` limits values to be integers, though they are still handled as fractional numbers without decimal digits.
 :::
 
-#### min
+#### min <Badge>coercion</Badge> <Badge type="warning">validation</Badge>
 
-This numeric value attaches constraint requiring any value to be greater than this value or equal it.
+This numeric value applies constraint requiring any non-null value to be greater than this value or equal it.
 
-#### max
+In coercion this option declares base value of optionally configured step size.
 
-This numeric value attaches constraint requiring any value to be less than this value or equal it.
+:::tip
+Declaring `min: 4.2` and `step: 5.3` results in numeric values snapped to values `4.2`, `9.5`, `14.8`, ...
+:::
 
-#### required
+#### max <Badge type="warning">validation</Badge>
 
-This boolean attaches constraint controlling whether this attribute requires a value or not. When set `true` instances of the model mustn't be saved without providing value for this attribute.
+This numeric value applies constraint requiring any non-null value to be less than this value or equal it.
+
+#### required <Badge type="warning">validation</Badge>
+
+This boolean applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing non-null value for this property.
+
 
 ### Integers
 
@@ -656,49 +772,72 @@ A separate type handler is provided to particularly handle _integers_. This type
 
 The type handler provides the same options as the more common type handler for numbers though working with any constraint value limited to integer values as well.
 
+
 ### Booleans
 
 Booleans are declared with `type: "boolean"`.
 
 Boolean values are `true` and `false`.
 
-#### isSet
+#### isSet <Badge type="warning">validation</Badge>
 
-This boolean attaches constraint requiring any provided value to be `true`.
+This boolean option applies constraint requiring any provided value to be `true`.
 
-#### required
+#### required <Badge type="warning">validation</Badge>
 
-This boolean attaches constraint controlling whether this attribute requires a value or not. When set `true` instances of the model mustn't be saved without providing value for this attribute.
+This boolean option applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing non-null value for this property.
+
 
 ### Timestamps
 
-Timestamps are declared with `type: "date"`.
+Timestamps are declared with `type: "date"`. A supported alias is `type: "time"`.
 
 Values are represented using instance of Javascript's native class for `Date`. Due to supported coercion it's possible to assign strings as well using a limited set of formats.
 
-#### time
+#### time <Badge>coercion</Badge>
 
-This boolean declaration property results in timestamps being stripped off their time of day information. It must be set `false` explicitly to achieve that.
+This boolean option results in timestamps being stripped off their time of day information. It must be set `false` explicitly to achieve that.
 
-#### step
+#### step <Badge>coercion</Badge>
 
 This numeric value is a number of milliseconds timestamp values are snapped to. The snapping occurs related to a given minimum timestamp declared in `min`.
 
-#### min
+#### min <Badge>coercion</Badge> <Badge type="warning">validation</Badge>
 
-This timestamp attaches constraint requiring any value to be greater than this timestamp or equal it.
+This timestamp applies constraint requiring any value to be greater than this timestamp or equal it.
 
-The value might be given as string complying with a limited set of formats, as a string providing number of milliseconds since midnight of January 1st, 1970 or as an instance of Javascript's natively supported class `Date`.
+The value might be given as string complying with a limited set of formats, as a string or numeric value representing number of milliseconds since midnight of January 1st, 1970 or as an instance of Javascript's natively supported class `Date`.
 
-#### max
+#### max <Badge type="warning">validation</Badge>
 
-This timestamp attaches constraint requiring any value to be less than this timestamp or equal it.
+This timestamp applies constraint requiring any value to be less than this timestamp or equal it.
 
-The value might be given as string complying with a limited set of formats, as a string providing number of milliseconds since midnight of January 1st, 1970 or as an instance of Javascript's natively supported class `Date`.
+The value might be given as string complying with a limited set of formats, as a string or numeric value representing number of milliseconds since midnight of January 1st, 1970 or as an instance of Javascript's natively supported class `Date`.
 
-#### required
+#### required <Badge type="warning">validation</Badge>
 
-This boolean attaches constraint controlling whether this attribute requires a value or not. When set `true` instances of the model mustn't be saved without providing value for this attribute.
+This boolean option applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing non-null value for this property.
+
+
+### UUIDs
+
+UUIDs are supported to track references on associated instances of same or any other model. 
+
+:::tip
+A relational database like MySQL supports referencing instances of same or different model(s). This includes fetching referenced instances or aggregating information on such related instances as part of a query.
+
+In Hitchy Odem - for being an ODM instead of an ORM - relations between instances are not supported implicitly. Instead it is up to your application to handle relations between instances. This property type is meant to save references on other instances you can use to indicate relations and handle those indicators as you like. 
+:::
+ 
+UUIDs are declared with `type: "uuid"`. A supported alias is `type: "key"`.
+
+Values are represented as instances of `Buffer` containing 16 bytes. Due to supported coercion it's possible to assign strings as well using the common format of UUIDs like `12345678-1234-1234-1234-123456789012`. 
+
+On assigning any incompatible value it is coerced to `null`. This includes buffers with more or less than 16 bytes.
+
+#### required <Badge type="warning">validation</Badge>
+
+This boolean option applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing a non-null value for this property.
 
 
 ## Life Cycle Events
