@@ -286,9 +286,11 @@ Promises removal of current instance from data storage.
 
 ### instance.toObject()
 
-**Signature:** `instance.toObject( omitComputed ) : object`
+**Signature:** `instance.toObject( { omitComputed, serialised } ) : object`
 
-Extracts values of all properties of current instance. By default, this includes values of computed properties. You might pass `true` as an argument to omit computed properties, though.
+Extracts values of all _set_ properties of current instance as-is. By default, this includes values of computed properties, but excludes properties set `null` currently.
+
+Using options object as parameter you might pass `true` as option `omitComputed` to omit computed properties. Separate option `serialised` can be set to get all values serialised. This will prepare the resulting object for being serialised in turn, e.g. by using `JSON.stringify()`.  
 
 
 ## Instance Properties
