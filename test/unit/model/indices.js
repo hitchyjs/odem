@@ -343,6 +343,9 @@ describe( "A model-related index", () => {
 
 					Values.forEach( ( [ valueType, valueGenerator ] ) => {
 						const values = valueGenerator( numValues );
+						const labels = values.map( v => {
+							return Buffer.isBuffer( v ) ? v.toString( "hex" ) : String( v );
+						} );
 
 						describe( `having ${NumRecords} records with ${numValues} different value(s) on a property of type ${valueType}`, () => {
 							let MyModel;
@@ -409,21 +412,21 @@ describe( "A model-related index", () => {
 							} );
 
 							describe( "lists all matches when searching by property with index for", () => {
-								it( `smallest used value ${values[0]}`, () => {
+								it( `smallest used value ${labels[0]}`, () => {
 									return MyModel.find( { eq: { name: "index", value: values[0] } } )
 										.then( items => {
 											items.length.should.be.eql( NumRecords / numValues );
 										} );
 								} );
 
-								it( `midrange value ${values[Math.floor( numValues / 2 )]}`, () => {
+								it( `midrange value ${labels[Math.floor( numValues / 2 )]}`, () => {
 									return MyModel.find( { eq: { name: "index", value: values[Math.floor( numValues / 2 )] } } )
 										.then( items => {
 											items.length.should.be.eql( NumRecords / numValues );
 										} );
 								} );
 
-								it( `biggest used value ${values[numValues - 1]}`, () => {
+								it( `biggest used value ${labels[numValues - 1]}`, () => {
 									return MyModel.find( { eq: { name: "index", value: values[numValues - 1] } } )
 										.then( items => {
 											items.length.should.be.eql( NumRecords / numValues );
@@ -451,21 +454,21 @@ describe( "A model-related index", () => {
 								[ [ true, "and loading records" ], [ false, "without loading records" ] ].forEach( ( [ loadRecords, label ] ) => {
 									describe( `lists all matches when searching by property ${label}`, () => {
 										describe( "with index for", () => {
-											it( `smallest used value ${values[0]}`, () => {
+											it( `smallest used value ${labels[0]}`, () => {
 												return NewModel.find( { eq: { name: "index", value: values[0] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
 											} );
 
-											it( `mid-range value ${values[Math.floor( numValues / 2 )]}`, () => {
+											it( `mid-range value ${labels[Math.floor( numValues / 2 )]}`, () => {
 												return NewModel.find( { eq: { name: "index", value: values[Math.floor( numValues / 2 )] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
 											} );
 
-											it( `for biggest used value ${values[numValues - 1]}`, () => {
+											it( `for biggest used value ${labels[numValues - 1]}`, () => {
 												return NewModel.find( { eq: { name: "index", value: values[numValues - 1] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
@@ -474,21 +477,21 @@ describe( "A model-related index", () => {
 										} );
 
 										describe( "without index for", () => {
-											it( `smallest used value ${values[0]}`, () => {
+											it( `smallest used value ${labels[0]}`, () => {
 												return NewModel.find( { eq: { name: "noIndex", value: values[0] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
 											} );
 
-											it( `mid-range value ${values[Math.floor( numValues / 2 )]}`, () => {
+											it( `mid-range value ${labels[Math.floor( numValues / 2 )]}`, () => {
 												return NewModel.find( { eq: { name: "noIndex", value: values[Math.floor( numValues / 2 )] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
 													} );
 											} );
 
-											it( `biggest used value ${values[numValues - 1]}`, () => {
+											it( `biggest used value ${labels[numValues - 1]}`, () => {
 												return NewModel.find( { eq: { name: "noIndex", value: values[numValues - 1] } }, undefined, { loadRecords } )
 													.then( items => {
 														items.length.should.be.eql( NumRecords / numValues );
