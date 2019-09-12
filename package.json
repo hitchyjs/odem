@@ -26,7 +26,7 @@
   "homepage": "https://hitchyjs.github.io/plugin-odem/",
   "devDependencies": {
     "cross-env": "^5.2.0",
-    "eslint": "^6.1.0",
+    "eslint": "^6.3.0",
     "eslint-config-cepharum": "^1.0.10",
     "eslint-plugin-promise": "^3.6.0",
     "hitchy-server-dev-tools": "^0.1.1",
