@@ -34,6 +34,8 @@ module.exports = {
 	themeConfig: {
 		displayAllHeaders: true,
 		sidebar: "auto",
+		repo: "hitchyjs/plugin-odem",
+		repoLabel: "Contribute!",
 		nav: [
 			{ text: "Home", link: "/" },
 			{ text: "Guides", link: "/guides/" },
