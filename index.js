@@ -43,7 +43,7 @@ module.exports = Object.assign( {},
 	}, {
 		onExposed( /* options */ ) {
 			const that = this;
-			const { log, runtime: { models, config } } = that;
+			const { log, config, runtime: { models } } = that;
 			const Log = log( "odem" );
 
 			// choose configured default adapter for storing model instances
