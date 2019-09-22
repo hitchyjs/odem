@@ -46,6 +46,23 @@ describe( "FileAdapter", function() {
 
 	afterEach( () => RmDir( dataSource, { subsOnly: true } ) );
 
+	after( () => {
+		return require( "file-essentials" ).Find( dataSource, {
+			depthFirst: true,
+			qualified: true,
+			minDepth: 0,
+			waitForConverter: true,
+			converter: ( localName, absoluteName, stats ) => new Promise( ( rmResolve ) => {
+				if ( stats.isDirectory() ) {
+					console.log( "D " + localName );
+				} else {
+					console.log( "F " + localName );
+				}
+
+				rmResolve();
+			} ),
+		} );
+	} );
 	after( () => RmDir( dataSource ) );
 
 
@@ -142,8 +159,8 @@ describe( "FileAdapter", function() {
 		const instance = new FileAdapter( { dataSource } );
 
 		return instance.remove( "model/some-id" ).should.be.Promise().which.is.resolvedWith( "model/some-id" )
-			.then( instance.write( "model/some-id", { someProperty: "its value" } ) )
-			.then( instance.remove( "model/some-id" ).should.be.Promise().which.is.resolvedWith( "model/some-id" ) );
+			.then( () => instance.write( "model/some-id", { someProperty: "its value" } ) )
+			.then( () => instance.remove( "model/some-id" ).should.be.Promise().which.is.resolvedWith( "model/some-id" ) );
 	} );
 
 	it( "returns promise on invoking begin() which is rejected due to lack of support for transactions", function() {
