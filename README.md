@@ -10,10 +10,10 @@ MIT
 
 [Hitchy](https://www.npmjs.com/package/hitchy) is a fast server-side framework focusing on these features:
 
-* Easily discovering extensions.
-* Fastly dispatching incoming requests to handlers of discovered extensions.
+* Easily discovering plugins.
+* Fastly dispatching incoming requests to handlers of discovered plugins.
 
-Thus, Hitchy starts lean and requires some extension to help with conveniently managing data. That's the job this package is made for: It is an object document management system for Hitchy.
+Thus, Hitchy starts lean and requires some plugin to help with conveniently managing data. That's the job this package is made for: It is an object document management system for Hitchy.
  
  This package is designed to work on top of a key-value store like LevelDB. Any such store is used via some backend API. Two backends are supported out of the box but neither of them is for LevelDB to keep the number of dependencies as little as possible.
  
