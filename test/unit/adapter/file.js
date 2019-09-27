@@ -52,7 +52,7 @@ describe( "FileAdapter", function() {
 			qualified: true,
 			minDepth: 0,
 			waitForConverter: true,
-			converter: ( localName, absoluteName, stats ) => new Promise( ( rmResolve ) => {
+			converter: ( localName, absoluteName, stats ) => new Promise( rmResolve => {
 				if ( stats.isDirectory() ) {
 					console.log( "D " + localName );
 				} else {
