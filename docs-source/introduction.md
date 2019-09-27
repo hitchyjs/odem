@@ -5,9 +5,9 @@ next: glossary.md
 
 # About Hitchy's ODM
 
-Hitchy is a server-side framework purely written in Javascript. It consists of a core which comes with limited abilities as it is basically capable of essentially handling requests via HTTP and discovering extensions to provide some actual request handlers.
+[Hitchy](https://hitchyjs.github.io/core/) is a server-side framework purely written in Javascript. It consists of a core which comes with limited abilities as it is basically capable of essentially handling requests via HTTP and discovering plugins to provide some actual request handlers.
 
-Hitchy's ODM is an _object document manager_ integrating with Hitchy as a discoverable extension. It doesn't provide actual request handlers, but provides an API for managing structured data. It 
+Hitchy's ODM is an _object document manager_ integrating with Hitchy as a discoverable plugin. It doesn't provide actual request handlers, but provides an API for managing structured data. It 
 
 * focuses on non-relational data, 
 * intends to provide a simple way for defining data structures,
@@ -15,7 +15,7 @@ Hitchy's ODM is an _object document manager_ integrating with Hitchy as a discov
 * offers another API for accessing structured data using server-side code.
 
 :::tip Using Hitchy's ODM
-If you intend to access your data via HTTP requests you should have a look at another extension to Hitchy called [hitchy-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest). Your application should depend on that one instead as it will add this extension in turn thus offering all the benefits this extension is providing.
+If you intend to access your data via HTTP requests you might be interested in another plugin called [hitchy-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest). Your application should depend on that one instead as it will add this plugin in turn and therefor is offering all the benefits this plugin is providing.
 :::
 
 ## Structured Data?

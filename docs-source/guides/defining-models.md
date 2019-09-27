@@ -10,7 +10,7 @@ next: model-derivations.md
 There are two ways supported for defining models:
 
 * In server-side code you may use the Model API directly to define new models.
-* Due to integrating with Hitchy's automatic discovery of extensions it is possible to place model definitions in files expected in certain locations of your project.
+* Due to integrating with Hitchy's automatic discovery of plugins it is possible to place model definitions in files expected in certain locations of your project.
 
 Both scenarios are described below.
 
@@ -32,12 +32,12 @@ This class is providing static method `Model.define()` accepting these arguments
 
 * First there is the name of the desired model. 
 
-  When defining models via filesystem this name is derived from the file's basename without extension and it is converted from kebab-case to PascalCase there. The resulting model's name is used to expose the model in context of Hitchy's runtime API there.
+  When defining models via filesystem those models are [discovered by Hitchy](https://hitchyjs.github.io/core/internals/components.html#models) and [exposed just like any other component](https://hitchyjs.github.io/core/internals/components.html#exposure-at-runtime). The resulting name of either model as a component will be used for naming the model by default.
   
   When defining in code you are responsible for applying any such derivations as desired. In this case the model's name isn't used in any sort of registry implicitly and thus might be ignored as well.
   
   ::: tip Reminder  
-  The definition in second argument might contain property [`name`](./defining-models-filesystem.md#naming-models) to define a different name. This information is always used in favour of the name provided in first argument here.  
+  The definition in second argument might contain property [`name`](./defining-models-filesystem.md#naming-models) to define a different name explicitly. This information is always used in favour of the name provided in first argument here.  
   :::
   
   The model's name is used to expose it as part of Hitchy's runtime API. It might be used to name the related set in datasource available via some adapter, as well.

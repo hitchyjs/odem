@@ -39,7 +39,7 @@ The [common API of models](../api/model.md) is providing additional information 
 
 ## Client-Side Code
 
-Accessing models from client-side code is beyond the scope of this extension. Exposing models over the network is a job you need to implement yourself using server-side code. 
+Accessing models from client-side code is beyond the scope of this plugin. Exposing models over the network is a job you need to implement yourself using server-side code. 
 
-As an option you might add an existing plugin that implements particular API for accessing models over the network. One of those plugins is [hitch-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest) and you should start with adding that one as a dependency right away for it will implicitly install this extension, too.
+As an option you might add an existing plugin that implements particular API for accessing models over the network. One of those plugins is [hitch-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest) and you should start with adding that one as a dependency right away for it will implicitly install this plugin, too.
 
