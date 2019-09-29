@@ -43,6 +43,6 @@
     "file-essentials": "^0.0.13",
     "functional-red-black-tree": "^1.0.1",
     "object-monitor": "^0.0.8",
-    "promise-essentials": "0.*"
+    "promise-essentials": "^0.0.8"
   }
 }
