@@ -151,61 +151,58 @@ suite( "Model property type `boolean`", function() {
 	suite( "is exposing method `coerce()` which", function() {
 		const { coerce } = Type;
 
-		test( "is a function to be invoked w/ at least one argument", function() {
-			coerce.should.be.a.Function().which.has.length( 1 );
+		test( "is a function to be invoked w/ at least three arguments", function() {
+			coerce.should.be.a.Function().which.has.length( 3 );
 		} );
 
-		test( "doesn't throw exception", function() {
-			( () => coerce() ).should.not.throw();
-			( () => coerce( undefined ) ).should.not.throw();
-			( () => coerce( null ) ).should.not.throw();
-			( () => coerce( false ) ).should.not.throw();
-			( () => coerce( true ) ).should.not.throw();
-			( () => coerce( 0 ) ).should.not.throw();
-			( () => coerce( -1 ) ).should.not.throw();
-			( () => coerce( 4.5 ) ).should.not.throw();
-			( () => coerce( "" ) ).should.not.throw();
-			( () => coerce( "required: true" ) ).should.not.throw();
-			( () => coerce( [] ) ).should.not.throw();
-			( () => coerce( ["required: true"] ) ).should.not.throw();
+		test( "doesn't throw when invoked with two arguments, only", function() {
+			( () => coerce( undefined, {} ) ).should.not.throw();
+			( () => coerce( null, {} ) ).should.not.throw();
+			( () => coerce( false, {} ) ).should.not.throw();
+			( () => coerce( true, {} ) ).should.not.throw();
+			( () => coerce( 0, {} ) ).should.not.throw();
+			( () => coerce( -1, {} ) ).should.not.throw();
+			( () => coerce( 4.5, {} ) ).should.not.throw();
+			( () => coerce( "", {} ) ).should.not.throw();
+			( () => coerce( "required: true", {} ) ).should.not.throw();
+			( () => coerce( [], {} ) ).should.not.throw();
+			( () => coerce( ["required: true"], {} ) ).should.not.throw();
 
-			( () => coerce( {} ) ).should.not.throw();
-			( () => coerce( { required: true } ) ).should.not.throw();
+			( () => coerce( {}, {} ) ).should.not.throw();
+			( () => coerce( { required: true }, {} ) ).should.not.throw();
 		} );
 
 		test( "always returns boolean unless providing `null` or `undefined`", function() {
-			Should( coerce() ).not.be.Boolean();
-			Should( coerce( undefined ) ).not.be.Boolean();
-			Should( coerce( null ) ).not.be.Boolean();
+			Should( coerce( undefined, {} ) ).not.be.Boolean();
+			Should( coerce( null, {} ) ).not.be.Boolean();
 
-			coerce( false ).should.be.Boolean();
-			coerce( true ).should.be.Boolean();
-			coerce( 0 ).should.be.Boolean();
-			coerce( -1 ).should.be.Boolean();
-			coerce( 4.5 ).should.be.Boolean();
-			coerce( "" ).should.be.Boolean();
-			coerce( "required: true" ).should.be.Boolean();
-			coerce( [] ).should.be.Boolean();
-			coerce( ["required: true"] ).should.be.Boolean();
-			coerce( {} ).should.be.Boolean();
-			coerce( { required: true } ).should.be.Boolean();
+			coerce( false, {} ).should.be.Boolean();
+			coerce( true, {} ).should.be.Boolean();
+			coerce( 0, {} ).should.be.Boolean();
+			coerce( -1, {} ).should.be.Boolean();
+			coerce( 4.5, {} ).should.be.Boolean();
+			coerce( "", {} ).should.be.Boolean();
+			coerce( "required: true", {} ).should.be.Boolean();
+			coerce( [], {} ).should.be.Boolean();
+			coerce( ["required: true"], {} ).should.be.Boolean();
+			coerce( {}, {} ).should.be.Boolean();
+			coerce( { required: true }, {} ).should.be.Boolean();
 		} );
 
 		test( "returns `null` on providing `undefined`", function() {
-			Should( coerce() ).be.null();
-			Should( coerce( undefined ) ).be.null();
+			Should( coerce( undefined, {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing `null`", function() {
-			Should( coerce( null ) ).be.null();
+			Should( coerce( null, {} ) ).be.null();
 		} );
 
 		test( "returns `false` on providing `false`", function() {
-			coerce( false ).should.be.equal( false );
+			coerce( false, {} ).should.be.equal( false );
 		} );
 
 		test( "returns `true` on providing `true`", function() {
-			coerce( true ).should.be.equal( true );
+			coerce( true, {} ).should.be.equal( true );
 		} );
 
 		test( "returns boolean matching truthiness of any provided integer", function() {
@@ -213,7 +210,7 @@ suite( "Model property type `boolean`", function() {
 
 			for ( let e = 1; e <= 16; e++ ) {
 				for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
-					coerce( i ).should.be.equal( Boolean( i ) );
+					coerce( i, {} ).should.be.equal( Boolean( i ) );
 				}
 			}
 		} );
@@ -225,36 +222,36 @@ suite( "Model property type `boolean`", function() {
 				for ( let de = -8; de < 16; de++ ) {
 					for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
 						const v = i / Math.pow( 10, de );
-						coerce( v ).should.be.equal( Boolean( v ) );
+						coerce( v, {} ).should.be.equal( Boolean( v ) );
 					}
 				}
 			}
 		} );
 
 		test( "always returns `true` on a provided object of any size or type", function() {
-			coerce( {} ).should.be.Boolean().which.is.true();
-			coerce( { someName: "someValue" } ).should.be.Boolean().which.is.true();
-			coerce( { toString: () => "me as a string" } ).should.be.Boolean().which.is.true();
-			coerce( { toString: () => "" } ).should.be.Boolean().which.is.true();
-			coerce( String( { toString: () => "" } ) ).should.be.Boolean().which.is.false();
+			coerce( {}, {} ).should.be.Boolean().which.is.true();
+			coerce( { someName: "someValue" }, {} ).should.be.Boolean().which.is.true();
+			coerce( { toString: () => "me as a string" }, {} ).should.be.Boolean().which.is.true();
+			coerce( { toString: () => "" }, {} ).should.be.Boolean().which.is.true();
+			coerce( String( { toString: () => "" } ), {} ).should.be.Boolean().which.is.false();
 
-			coerce( new Date() ).should.be.Boolean();
-			coerce( new TypeError() ).should.be.Boolean();
-			coerce( new Promise( resolve => resolve() ) ).should.be.Boolean();
+			coerce( new Date(), {} ).should.be.Boolean();
+			coerce( new TypeError(), {} ).should.be.Boolean();
+			coerce( new Promise( resolve => resolve() ), {} ).should.be.Boolean();
 		} );
 
 		test( "always returns `true` on a provided array of any length", function() {
-			coerce( [] ).should.be.Boolean().which.is.true();
-			coerce( ["someValue"] ).should.be.Boolean().which.is.true();
-			coerce( [""] ).should.be.Boolean().which.is.true();
+			coerce( [], {} ).should.be.Boolean().which.is.true();
+			coerce( ["someValue"], {} ).should.be.Boolean().which.is.true();
+			coerce( [""], {} ).should.be.Boolean().which.is.true();
 		} );
 
 		test( "always returns `true` on any provided function", function() {
-			coerce( () => {} ).should.be.Boolean().which.is.true(); // eslint-disable-line no-empty-function
-			coerce( () => 1 + 3 ).should.be.Boolean().which.is.true();
-			coerce( function() {} ).should.be.Boolean().which.is.true(); // eslint-disable-line no-empty-function
+			coerce( () => {}, {} ).should.be.Boolean().which.is.true(); // eslint-disable-line no-empty-function
+			coerce( () => 1 + 3, {} ).should.be.Boolean().which.is.true();
+			coerce( function() {}, {} ).should.be.Boolean().which.is.true(); // eslint-disable-line no-empty-function
 
-			coerce( Date.parse ).should.be.Boolean().which.is.true();
+			coerce( Date.parse, {} ).should.be.Boolean().which.is.true();
 		} );
 
 		test( "accepts definition in second argument", function() {

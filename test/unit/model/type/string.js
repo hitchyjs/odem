@@ -218,61 +218,75 @@ suite( "Model property type `string`", function() {
 	suite( "is exposing method `coerce()` which", function() {
 		const { coerce } = Type;
 
-		test( "is a function to be invoked w/ at least one argument", function() {
-			coerce.should.be.a.Function().which.has.length( 1 );
+		test( "is a function to be invoked w/ at least three arguments", function() {
+			coerce.should.be.a.Function().which.has.length( 3 );
+		} );
+
+		test( "doesn't throw when invoked with two arguments, only", function() {
+			( () => coerce( undefined, {} ) ).should.not.throw();
+			( () => coerce( null, {} ) ).should.not.throw();
+			( () => coerce( false, {} ) ).should.not.throw();
+			( () => coerce( true, {} ) ).should.not.throw();
+			( () => coerce( 0, {} ) ).should.not.throw();
+			( () => coerce( -1, {} ) ).should.not.throw();
+			( () => coerce( 4.5, {} ) ).should.not.throw();
+			( () => coerce( "", {} ) ).should.not.throw();
+			( () => coerce( "required: true", {} ) ).should.not.throw();
+			( () => coerce( [], {} ) ).should.not.throw();
+			( () => coerce( ["required: true"], {} ) ).should.not.throw();
+
+			( () => coerce( {}, {} ) ).should.not.throw();
+			( () => coerce( { required: true }, {} ) ).should.not.throw();
 		} );
 
 		test( "doesn't throw exception", function() {
-			( () => coerce() ).should.not.throw();
-			( () => coerce( undefined ) ).should.not.throw();
-			( () => coerce( null ) ).should.not.throw();
-			( () => coerce( false ) ).should.not.throw();
-			( () => coerce( true ) ).should.not.throw();
-			( () => coerce( 0 ) ).should.not.throw();
-			( () => coerce( -1 ) ).should.not.throw();
-			( () => coerce( 4.5 ) ).should.not.throw();
-			( () => coerce( "" ) ).should.not.throw();
-			( () => coerce( "required: true" ) ).should.not.throw();
-			( () => coerce( [] ) ).should.not.throw();
-			( () => coerce( ["required: true"] ) ).should.not.throw();
+			( () => coerce( undefined, {} ) ).should.not.throw();
+			( () => coerce( null, {} ) ).should.not.throw();
+			( () => coerce( false, {} ) ).should.not.throw();
+			( () => coerce( true, {} ) ).should.not.throw();
+			( () => coerce( 0, {} ) ).should.not.throw();
+			( () => coerce( -1, {} ) ).should.not.throw();
+			( () => coerce( 4.5, {} ) ).should.not.throw();
+			( () => coerce( "", {} ) ).should.not.throw();
+			( () => coerce( "required: true", {} ) ).should.not.throw();
+			( () => coerce( [], {} ) ).should.not.throw();
+			( () => coerce( ["required: true"], {} ) ).should.not.throw();
 
-			( () => coerce( {} ) ).should.not.throw();
-			( () => coerce( { required: true } ) ).should.not.throw();
+			( () => coerce( {}, {} ) ).should.not.throw();
+			( () => coerce( { required: true }, {} ) ).should.not.throw();
 		} );
 
 		test( "always returns string unless providing `null` or `undefined`", function() {
-			Should( coerce() ).not.be.String();
-			Should( coerce( undefined ) ).not.be.String();
-			Should( coerce( null ) ).not.be.String();
+			Should( coerce( undefined, {} ) ).not.be.String();
+			Should( coerce( null, {} ) ).not.be.String();
 
-			coerce( false ).should.be.String();
-			coerce( true ).should.be.String();
-			coerce( 0 ).should.be.String();
-			coerce( -1 ).should.be.String();
-			coerce( 4.5 ).should.be.String();
-			coerce( "" ).should.be.String();
-			coerce( "required: true" ).should.be.String();
-			coerce( [] ).should.be.String();
-			coerce( ["required: true"] ).should.be.String();
-			coerce( {} ).should.be.String();
-			coerce( { required: true } ).should.be.String();
+			coerce( false, {} ).should.be.String();
+			coerce( true, {} ).should.be.String();
+			coerce( 0, {} ).should.be.String();
+			coerce( -1, {} ).should.be.String();
+			coerce( 4.5, {} ).should.be.String();
+			coerce( "", {} ).should.be.String();
+			coerce( "required: true", {} ).should.be.String();
+			coerce( [], {} ).should.be.String();
+			coerce( ["required: true"], {} ).should.be.String();
+			coerce( {}, {} ).should.be.String();
+			coerce( { required: true }, {} ).should.be.String();
 		} );
 
 		test( "returns `null` on providing `undefined`", function() {
-			Should( coerce() ).be.null();
-			Should( coerce( undefined ) ).be.null();
+			Should( coerce( undefined, {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing `null`", function() {
-			Should( coerce( null ) ).be.null();
+			Should( coerce( null, {} ) ).be.null();
 		} );
 
 		test( "returns 'false' on providing `false`", function() {
-			coerce( false ).should.be.equal( "false" );
+			coerce( false, {} ).should.be.equal( "false" );
 		} );
 
 		test( "returns 'true' on providing `true`", function() {
-			coerce( true ).should.be.equal( "true" );
+			coerce( true, {} ).should.be.equal( "true" );
 		} );
 
 		test( "returns string representation of any provided integer", function() {
@@ -280,7 +294,7 @@ suite( "Model property type `string`", function() {
 
 			for ( let e = 1; e <= 16; e++ ) {
 				for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
-					coerce( i ).should.be.equal( String( i ) ).and.match( /^-?\d+$/ );
+					coerce( i, {} ).should.be.equal( String( i ) ).and.match( /^-?\d+$/ );
 				}
 			}
 		} );
@@ -292,35 +306,35 @@ suite( "Model property type `string`", function() {
 				for ( let de = -8; de < 16; de++ ) {
 					for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
 						const v = i / Math.pow( 10, de );
-						coerce( v ).should.be.equal( String( v ) ).and.match( /^(?:-?\d+(?:\.\d+)?|-?\d+(?:\.\d+)?e-?\d+)$/ );
+						coerce( v, {} ).should.be.equal( String( v ) ).and.match( /^(?:-?\d+(?:\.\d+)?|-?\d+(?:\.\d+)?e-?\d+)$/ );
 					}
 				}
 			}
 		} );
 
 		test( "returns string representation of a provided object", function() {
-			coerce( {} ).should.be.String().which.is.equal( "[object Object]" );
-			coerce( { someName: "someValue" } ).should.be.String().which.is.equal( "[object Object]" );
-			coerce( { toString: () => "me as a string" } ).should.be.String().which.is.equal( "me as a string" );
+			coerce( {}, {} ).should.be.String().which.is.equal( "[object Object]" );
+			coerce( { someName: "someValue" }, {} ).should.be.String().which.is.equal( "[object Object]" );
+			coerce( { toString: () => "me as a string" }, {} ).should.be.String().which.is.equal( "me as a string" );
 
-			coerce( new Date() ).should.be.String();
-			coerce( new TypeError() ).should.be.String();
-			coerce( new Promise( resolve => resolve() ) ).should.be.String();
+			coerce( new Date(), {} ).should.be.String();
+			coerce( new TypeError(), {} ).should.be.String();
+			coerce( new Promise( resolve => resolve() ), {} ).should.be.String();
 		} );
 
 		test( "returns string containing string representations of all items in a provided array concatenated by comma", function() {
-			coerce( [] ).should.be.String().which.is.empty();
-			coerce( [1] ).should.be.String().which.is.equal( "1" );
-			coerce( ["sole"] ).should.be.String().which.is.equal( "sole" );
-			coerce( [ true, false ] ).should.be.String().which.is.equal( "true,false" );
+			coerce( [], {} ).should.be.String().which.is.empty();
+			coerce( [1], {} ).should.be.String().which.is.equal( "1" );
+			coerce( ["sole"], {} ).should.be.String().which.is.equal( "sole" );
+			coerce( [ true, false ], {} ).should.be.String().which.is.equal( "true,false" );
 		} );
 
 		test( "returns code of a provided function - if available - as string", function() {
-			coerce( () => {} ).should.be.String(); // eslint-disable-line no-empty-function
-			coerce( () => 1 + 3 ).should.be.String().and.match( /1 \+ 3/ );
-			coerce( function() {} ).should.be.String(); // eslint-disable-line no-empty-function
+			coerce( () => {}, {} ).should.be.String(); // eslint-disable-line no-empty-function
+			coerce( () => 1 + 3, {} ).should.be.String().and.match( /1 \+ 3/ );
+			coerce( function() {}, {} ).should.be.String(); // eslint-disable-line no-empty-function
 
-			coerce( Date.parse ).should.be.String().and.match( /native/ );
+			coerce( Date.parse, {} ).should.be.String().and.match( /native/ );
 		} );
 
 		test( "accepts definition in second argument", function() {

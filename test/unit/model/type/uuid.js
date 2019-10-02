@@ -189,77 +189,74 @@ suite( "Model Attribute Type `uuid`", function() {
 	suite( "is exposing method `coerce()` which", function() {
 		const { coerce } = Type;
 
-		test( "is a function to be invoked w/ at least one argument", function() {
-			coerce.should.be.a.Function().which.has.length( 1 );
+		test( "is a function to be invoked w/ at least three arguments", function() {
+			coerce.should.be.a.Function().which.has.length( 3 );
 		} );
 
-		test( "doesn't throw exception", function() {
-			( () => coerce() ).should.not.throw();
-			( () => coerce( undefined ) ).should.not.throw();
-			( () => coerce( null ) ).should.not.throw();
-			( () => coerce( false ) ).should.not.throw();
-			( () => coerce( true ) ).should.not.throw();
-			( () => coerce( 0 ) ).should.not.throw();
-			( () => coerce( -1 ) ).should.not.throw();
-			( () => coerce( 4.5 ) ).should.not.throw();
-			( () => coerce( "" ) ).should.not.throw();
-			( () => coerce( "required: true" ) ).should.not.throw();
-			( () => coerce( [] ) ).should.not.throw();
-			( () => coerce( ["required: true"] ) ).should.not.throw();
+		test( "doesn't throw when invoked with two arguments, only", function() {
+			( () => coerce( undefined, {} ) ).should.not.throw();
+			( () => coerce( null, {} ) ).should.not.throw();
+			( () => coerce( false, {} ) ).should.not.throw();
+			( () => coerce( true, {} ) ).should.not.throw();
+			( () => coerce( 0, {} ) ).should.not.throw();
+			( () => coerce( -1, {} ) ).should.not.throw();
+			( () => coerce( 4.5, {} ) ).should.not.throw();
+			( () => coerce( "", {} ) ).should.not.throw();
+			( () => coerce( "required: true", {} ) ).should.not.throw();
+			( () => coerce( [], {} ) ).should.not.throw();
+			( () => coerce( ["required: true"], {} ) ).should.not.throw();
 
-			( () => coerce( {} ) ).should.not.throw();
-			( () => coerce( { required: true } ) ).should.not.throw();
+			( () => coerce( {}, {} ) ).should.not.throw();
+			( () => coerce( { required: true }, {} ) ).should.not.throw();
 		} );
 
 		test( "returns `null` unless providing instance of Buffer with 16 octets or properly formatted string providing UUID", function() {
-			Should( coerce() ).be.null();
-			Should( coerce( undefined ) ).be.null();
-			Should( coerce( null ) ).be.null();
+			Should( coerce( undefined, {} ) ).be.null();
+			Should( coerce( null, {} ) ).be.null();
 
-			Should( coerce( false ) ).be.null();
-			Should( coerce( true ) ).be.null();
-			Should( coerce( 0 ) ).be.null();
-			Should( coerce( -1 ) ).be.null();
-			Should( coerce( 4.5 ) ).be.null();
-			Should( coerce( "" ) ).be.null();
-			Should( coerce( "required: true" ) ).be.null();
-			Should( coerce( [] ) ).be.null();
-			Should( coerce( ["required: true"] ) ).be.null();
-			Should( coerce( {} ) ).be.null();
-			Should( coerce( { required: true } ) ).be.null();
+			Should( coerce( false, {} ) ).be.null();
+			Should( coerce( true, {} ) ).be.null();
+			Should( coerce( 0, {} ) ).be.null();
+			Should( coerce( -1, {} ) ).be.null();
+			Should( coerce( 4.5, {} ) ).be.null();
+			Should( coerce( "", {} ) ).be.null();
+			Should( coerce( "required: true", {} ) ).be.null();
+			Should( coerce( [], {} ) ).be.null();
+			Should( coerce( ["required: true"], {} ) ).be.null();
+			Should( coerce( {}, {} ) ).be.null();
+			Should( coerce( { required: true }, {} ) ).be.null();
 
-			Should( coerce( Buffer.alloc( 0 ) ) ).be.null();
-			Should( coerce( Buffer.alloc( 15 ) ) ).be.null();
-			Should( coerce( Buffer.alloc( 17 ) ) ).be.null();
-			Should( coerce( Buffer.allocUnsafe( 0 ) ) ).be.null();
-			Should( coerce( Buffer.allocUnsafe( 15 ) ) ).be.null();
-			Should( coerce( Buffer.allocUnsafe( 17 ) ) ).be.null();
+			Should( coerce( Buffer.alloc( 0 ), {} ) ).be.null();
+			Should( coerce( Buffer.alloc( 15 ), {} ) ).be.null();
+			Should( coerce( Buffer.alloc( 17 ), {} ) ).be.null();
+			Should( coerce( Buffer.allocUnsafe( 0 ), {} ) ).be.null();
+			Should( coerce( Buffer.allocUnsafe( 15 ), {} ) ).be.null();
+			Should( coerce( Buffer.allocUnsafe( 17 ), {} ) ).be.null();
 
-			coerce( Buffer.alloc( 16 ) ).should.be.instanceOf( Buffer );
-			coerce( Buffer.allocUnsafe( 16 ) ).should.be.instanceOf( Buffer );
+			coerce( Buffer.alloc( 16 ), {} ).should.be.instanceOf( Buffer );
+			coerce( Buffer.allocUnsafe( 16 ), {} ).should.be.instanceOf( Buffer );
 
-			coerce( "00000000-0000-0000-0000-000000000000" ).should.be.instanceOf( Buffer );
-			coerce( "12345678-1234-1234-1234-123456789012" ).should.be.instanceOf( Buffer );
+			coerce( "00000000-0000-0000-0000-000000000000", {} ).should.be.instanceOf( Buffer );
+			coerce( "12345678-1234-1234-1234-123456789012", {} ).should.be.instanceOf( Buffer );
 
-			Should( coerce( "00000000.0000.0000.0000.000000000000" ) ).be.null();
-			Should( coerce( "12345678.1234.1234.1234.123456789012" ) ).be.null();
-			Should( coerce( "00000000-0000-0000-0000000000000000" ) ).be.null();
-			Should( coerce( "12345678-1234-1234-1234123456789012" ) ).be.null();
-			Should( coerce( "00000000000000000000000000000000" ) ).be.null();
-			Should( coerce( "12345678123412341234123456789012" ) ).be.null();
+			Should( coerce( "00000000.0000.0000.0000.000000000000", {} ) ).be.null();
+			Should( coerce( "12345678.1234.1234.1234.123456789012", {} ) ).be.null();
+			Should( coerce( "00000000-0000-0000-0000000000000000", {} ) ).be.null();
+			Should( coerce( "12345678-1234-1234-1234123456789012", {} ) ).be.null();
+			Should( coerce( "00000000000000000000000000000000", {} ) ).be.null();
+			Should( coerce( "12345678123412341234123456789012", {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing `undefined`", function() {
-			Should( coerce() ).be.null();
-			Should( coerce( undefined ) ).be.null();
+			Should( coerce( undefined, {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing `null`", function() {
-			Should( coerce( null ) ).be.null();
+			Should( coerce( null, {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing `false`", function() {
-			Should( coerce( false ) ).be.null();
+			Should( coerce( false, {} ) ).be.null();
 		} );
 
 		test( "returns 'null' on providing `true`", function() {
@@ -271,7 +268,7 @@ suite( "Model Attribute Type `uuid`", function() {
 
 			for ( let e = 1; e <= 16; e++ ) {
 				for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
-					Should( coerce( i ) ).be.null();
+					Should( coerce( i, {} ) ).be.null();
 				}
 			}
 		} );
@@ -283,35 +280,35 @@ suite( "Model Attribute Type `uuid`", function() {
 				for ( let de = -8; de < 16; de++ ) {
 					for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
 						const v = i / Math.pow( 10, de );
-						Should( coerce( v ) ).be.null();
+						Should( coerce( v, {} ) ).be.null();
 					}
 				}
 			}
 		} );
 
 		test( "returns `null` on providing object", function() {
-			Should( coerce( {} ) ).be.null();
-			Should( coerce( { someName: "someValue" } ) ).be.null();
-			Should( coerce( { toString: () => "me as a string" } ) ).be.null();
+			Should( coerce( {}, {} ) ).be.null();
+			Should( coerce( { someName: "someValue" }, {} ) ).be.null();
+			Should( coerce( { toString: () => "me as a string" }, {} ) ).be.null();
 
-			Should( coerce( new Date() ) ).be.null();
-			Should( coerce( new TypeError() ) ).be.null();
-			Should( coerce( new Promise( resolve => resolve() ) ) ).be.null();
+			Should( coerce( new Date(), {} ) ).be.null();
+			Should( coerce( new TypeError(), {} ) ).be.null();
+			Should( coerce( new Promise( resolve => resolve() ), {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing array", function() {
-			Should( coerce( [] ) ).be.null();
-			Should( coerce( [1] ) ).be.null();
-			Should( coerce( ["sole"] ) ).be.null();
-			Should( coerce( [ true, false ] ) ).be.null();
+			Should( coerce( [], {} ) ).be.null();
+			Should( coerce( [1], {} ) ).be.null();
+			Should( coerce( ["sole"], {} ) ).be.null();
+			Should( coerce( [ true, false ], {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing function", function() {
-			Should( coerce( () => {} ) ).be.null(); // eslint-disable-line no-empty-function
-			Should( coerce( () => 1 + 3 ) ).be.null();
-			Should( coerce( function() {} ) ).be.null(); // eslint-disable-line no-empty-function
+			Should( coerce( () => {}, {} ) ).be.null(); // eslint-disable-line no-empty-function
+			Should( coerce( () => 1 + 3, {} ) ).be.null();
+			Should( coerce( function() {}, {} ) ).be.null(); // eslint-disable-line no-empty-function
 
-			Should( coerce( Date.parse ) ).be.null();
+			Should( coerce( Date.parse, {} ) ).be.null();
 		} );
 
 		test( "accepts definition in second argument", function() {

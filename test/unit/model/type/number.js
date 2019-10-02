@@ -228,51 +228,49 @@ suite( "Model property type `number`", function() {
 	suite( "is exposing method `coerce()` which", function() {
 		const { coerce } = Type;
 
-		test( "is a function to be invoked w/ at least one argument", function() {
-			coerce.should.be.a.Function().which.has.length( 1 );
+		test( "is a function to be invoked w/ at least three arguments", function() {
+			coerce.should.be.a.Function().which.has.length( 3 );
 		} );
 
-		test( "doesn't throw exception", function() {
-			( () => coerce() ).should.not.throw();
-			( () => coerce( undefined ) ).should.not.throw();
-			( () => coerce( null ) ).should.not.throw();
-			( () => coerce( false ) ).should.not.throw();
-			( () => coerce( true ) ).should.not.throw();
-			( () => coerce( 0 ) ).should.not.throw();
-			( () => coerce( -1 ) ).should.not.throw();
-			( () => coerce( 4.5 ) ).should.not.throw();
-			( () => coerce( "" ) ).should.not.throw();
-			( () => coerce( "required: true" ) ).should.not.throw();
-			( () => coerce( [] ) ).should.not.throw();
-			( () => coerce( ["required: true"] ) ).should.not.throw();
+		test( "doesn't throw when invoked with two arguments, only", function() {
+			( () => coerce( undefined, {} ) ).should.not.throw();
+			( () => coerce( null, {} ) ).should.not.throw();
+			( () => coerce( false, {} ) ).should.not.throw();
+			( () => coerce( true, {} ) ).should.not.throw();
+			( () => coerce( 0, {} ) ).should.not.throw();
+			( () => coerce( -1, {} ) ).should.not.throw();
+			( () => coerce( 4.5, {} ) ).should.not.throw();
+			( () => coerce( "", {} ) ).should.not.throw();
+			( () => coerce( "required: true", {} ) ).should.not.throw();
+			( () => coerce( [], {} ) ).should.not.throw();
+			( () => coerce( ["required: true"], {} ) ).should.not.throw();
 
-			( () => coerce( {} ) ).should.not.throw();
-			( () => coerce( { required: true } ) ).should.not.throw();
+			( () => coerce( {}, {} ) ).should.not.throw();
+			( () => coerce( { required: true }, {} ) ).should.not.throw();
 		} );
 
 		test( "returns `null` on providing `undefined`", function() {
-			Should( coerce() ).be.null();
-			Should( coerce( undefined ) ).be.null();
+			Should( coerce( undefined, {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing `null`", function() {
-			Should( coerce( null ) ).be.null();
+			Should( coerce( null, {} ) ).be.null();
 		} );
 
 		test( "returns `NaN` on providing `false`", function() {
-			coerce( false ).should.be.NaN();
+			coerce( false, {} ).should.be.NaN();
 		} );
 
 		test( "returns `NaN` on providing `true`", function() {
-			coerce( true ).should.be.NaN();
+			coerce( true, {} ).should.be.NaN();
 		} );
 
 		test( "returns `null` on providing empty string", function() {
-			Should( coerce( "" ) ).be.null();
+			Should( coerce( "", {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing string consisting of whitespaces, only", function() {
-			Should( coerce( " \r\t\n\f " ) ).be.null();
+			Should( coerce( " \r\t\n\f ", {} ) ).be.null();
 		} );
 
 		test( "returns `NaN` on providing non-numeric string", function() {
@@ -282,7 +280,7 @@ suite( "Model property type `number`", function() {
 				"\x00\x1b\x01\x00",
 			]
 				.forEach( s => {
-					coerce( s ).should.be.NaN();
+					coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
@@ -294,7 +292,7 @@ suite( "Model property type `number`", function() {
 				" 4 .\n5 ",
 			]
 				.forEach( s => {
-					coerce( s ).should.be.NaN();
+					coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
@@ -338,7 +336,7 @@ suite( "Model property type `number`", function() {
 				"\t+4.2E1\r",
 			]
 				.forEach( s => {
-					const n = coerce( s );
+					const n = coerce( s, {} );
 					n.should.be.Number().which.is.not.NaN();
 					Math.abs( n ).should.be.equal( 42 );
 				} );
@@ -355,7 +353,7 @@ suite( "Model property type `number`", function() {
 				[1e7],
 			]
 				.forEach( s => {
-					coerce( s ).should.be.NaN();
+					coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
@@ -373,7 +371,7 @@ suite( "Model property type `number`", function() {
 				{ toString: () => 1 },
 			]
 				.forEach( s => {
-					coerce( s ).should.be.NaN();
+					coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
@@ -385,7 +383,7 @@ suite( "Model property type `number`", function() {
 				function() { return 1; },
 			]
 				.forEach( s => {
-					coerce( s ).should.be.NaN();
+					coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
@@ -394,7 +392,7 @@ suite( "Model property type `number`", function() {
 
 			for ( let e = 1; e <= 16; e++ ) {
 				for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
-					coerce( i ).should.be.Number().which.is.equal( i );
+					coerce( i, {} ).should.be.Number().which.is.equal( i );
 				}
 			}
 		} );
@@ -406,7 +404,7 @@ suite( "Model property type `number`", function() {
 				for ( let de = -8; de < 16; de++ ) {
 					for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
 						const v = i / Math.pow( 10, de );
-						coerce( v ).should.be.Number().which.is.equal( v );
+						coerce( v, {} ).should.be.Number().which.is.equal( v );
 					}
 				}
 			}

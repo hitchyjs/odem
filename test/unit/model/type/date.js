@@ -427,51 +427,49 @@ suite( "Model property type `date`", function() {
 	suite( "is exposing method `coerce()` which", function() {
 		const { coerce } = Type;
 
-		test( "is a function to be invoked w/ at least one argument", function() {
-			coerce.should.be.a.Function().which.has.length( 1 );
+		test( "is a function to be invoked w/ at least three arguments", function() {
+			coerce.should.be.a.Function().which.has.length( 3 );
 		} );
 
-		test( "doesn't throw exception", function() {
-			( () => coerce() ).should.not.throw();
-			( () => coerce( undefined ) ).should.not.throw();
-			( () => coerce( null ) ).should.not.throw();
-			( () => coerce( false ) ).should.not.throw();
-			( () => coerce( true ) ).should.not.throw();
-			( () => coerce( 0 ) ).should.not.throw();
-			( () => coerce( -1 ) ).should.not.throw();
-			( () => coerce( 4.5 ) ).should.not.throw();
-			( () => coerce( "" ) ).should.not.throw();
-			( () => coerce( "required: true" ) ).should.not.throw();
-			( () => coerce( [] ) ).should.not.throw();
-			( () => coerce( ["required: true"] ) ).should.not.throw();
+		test( "doesn't throw when invoked with two arguments, only", function() {
+			( () => coerce( undefined, {} ) ).should.not.throw();
+			( () => coerce( null, {} ) ).should.not.throw();
+			( () => coerce( false, {} ) ).should.not.throw();
+			( () => coerce( true, {} ) ).should.not.throw();
+			( () => coerce( 0, {} ) ).should.not.throw();
+			( () => coerce( -1, {} ) ).should.not.throw();
+			( () => coerce( 4.5, {} ) ).should.not.throw();
+			( () => coerce( "", {} ) ).should.not.throw();
+			( () => coerce( "required: true", {} ) ).should.not.throw();
+			( () => coerce( [], {} ) ).should.not.throw();
+			( () => coerce( ["required: true"], {} ) ).should.not.throw();
 
-			( () => coerce( {} ) ).should.not.throw();
-			( () => coerce( { required: true } ) ).should.not.throw();
+			( () => coerce( {}, {} ) ).should.not.throw();
+			( () => coerce( { required: true }, {} ) ).should.not.throw();
 		} );
 
 		test( "returns `null` on providing `undefined`", function() {
-			Should( coerce() ).be.null();
-			Should( coerce( undefined ) ).be.null();
+			Should( coerce( undefined, {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing `null`", function() {
-			Should( coerce( null ) ).be.null();
+			Should( coerce( null, {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing empty string", function() {
-			Should( coerce( "" ) ).be.null();
+			Should( coerce( "", {} ) ).be.null();
 		} );
 
 		test( "returns `null` on providing string consisting of whitespace, only", function() {
-			Should( coerce( " \r\t\n\f " ) ).be.null();
+			Should( coerce( " \r\t\n\f ", {} ) ).be.null();
 		} );
 
 		test( "returns `NaN` on providing `false`", function() {
-			coerce( false ).should.be.NaN();
+			coerce( false, {} ).should.be.NaN();
 		} );
 
 		test( "returns 'NaN' on providing `true`", function() {
-			coerce( true ).should.be.NaN();
+			coerce( true, {} ).should.be.NaN();
 		} );
 
 		test( "considers any provided integer to be milliseconds since Unix Epoch returning according instance of Date", function() {
@@ -479,8 +477,8 @@ suite( "Model property type `date`", function() {
 
 			for ( let e = 1; e <= 12; e++ ) {
 				for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
-					coerce( i ).should.be.Date();
-					coerce( i ).getTime().should.be.Number().which.is.equal( i );
+					coerce( i, {} ).should.be.Date();
+					coerce( i, {} ).getTime().should.be.Number().which.is.equal( i );
 				}
 			}
 		} );
@@ -492,32 +490,32 @@ suite( "Model property type `date`", function() {
 				for ( let de = -4; de < 12; de++ ) {
 					for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
 						const v = i / Math.pow( 10, de );
-						coerce( v ).should.be.Date();
-						coerce( v ).getTime().should.be.Number().which.is.equal( Math.trunc( v ) );
+						coerce( v, {} ).should.be.Date();
+						coerce( v, {} ).getTime().should.be.Number().which.is.equal( Math.trunc( v ) );
 					}
 				}
 			}
 		} );
 
 		test( "returns `NaN` on providing non-Date object", function() {
-			coerce( {} ).should.be.NaN();
-			coerce( { someName: "someValue" } ).should.be.NaN();
-			coerce( { toString: () => "me as a string" } ).should.be.NaN();
-			coerce( { toString: () => "2018-02-25" } ).should.be.NaN();
-			coerce( { toString: () => "2018-02-25T08:57:00Z" } ).should.be.NaN();
-			coerce( { toString: () => "14567892" } ).should.be.NaN();
+			coerce( {}, {} ).should.be.NaN();
+			coerce( { someName: "someValue" }, {} ).should.be.NaN();
+			coerce( { toString: () => "me as a string" }, {} ).should.be.NaN();
+			coerce( { toString: () => "2018-02-25" }, {} ).should.be.NaN();
+			coerce( { toString: () => "2018-02-25T08:57:00Z" }, {} ).should.be.NaN();
+			coerce( { toString: () => "14567892" }, {} ).should.be.NaN();
 
-			coerce( [] ).should.be.NaN();
-			coerce( [1] ).should.be.NaN();
-			coerce( ["sole"] ).should.be.NaN();
-			coerce( [ true, false ] ).should.be.NaN();
-			coerce( ["2018-02-25"] ).should.be.NaN();
-			coerce( ["2018-02-25T08:57:00Z"] ).should.be.NaN();
-			coerce( ["14567892"] ).should.be.NaN();
-			coerce( [14567892] ).should.be.NaN();
+			coerce( [], {} ).should.be.NaN();
+			coerce( [1], {} ).should.be.NaN();
+			coerce( ["sole"], {} ).should.be.NaN();
+			coerce( [ true, false ], {} ).should.be.NaN();
+			coerce( ["2018-02-25"], {} ).should.be.NaN();
+			coerce( ["2018-02-25T08:57:00Z"], {} ).should.be.NaN();
+			coerce( ["14567892"], {} ).should.be.NaN();
+			coerce( [14567892], {} ).should.be.NaN();
 
-			coerce( new TypeError() ).should.be.NaN();
-			coerce( new Promise( resolve => resolve() ) ).should.be.NaN();
+			coerce( new TypeError(), {} ).should.be.NaN();
+			coerce( new Promise( resolve => resolve() ), {} ).should.be.NaN();
 		} );
 
 		test( "returns provided Date object as-is", function() {
@@ -527,20 +525,20 @@ suite( "Model property type `date`", function() {
 				new Date( 14567892 ),
 			]
 				.forEach( value => {
-					coerce( value ).should.be.equal( value );
+					coerce( value, {} ).should.be.equal( value );
 				} );
 		} );
 
 		test( "returns `NaN` on providing function", function() {
-			coerce( () => {} ).should.be.NaN(); // eslint-disable-line no-empty-function
-			coerce( () => 1 + 3 ).should.be.NaN();
-			coerce( function() {} ).should.be.NaN(); // eslint-disable-line no-empty-function
-			coerce( () => "2018-02-25" ).should.be.NaN();
-			coerce( () => "2018-02-25T08:57:00Z" ).should.be.NaN();
-			coerce( () => "14567892" ).should.be.NaN();
-			coerce( () => 14567892 ).should.be.NaN();
+			coerce( () => {}, {} ).should.be.NaN(); // eslint-disable-line no-empty-function
+			coerce( () => 1 + 3, {} ).should.be.NaN();
+			coerce( function() {}, {} ).should.be.NaN(); // eslint-disable-line no-empty-function
+			coerce( () => "2018-02-25", {} ).should.be.NaN();
+			coerce( () => "2018-02-25T08:57:00Z", {} ).should.be.NaN();
+			coerce( () => "14567892", {} ).should.be.NaN();
+			coerce( () => 14567892, {} ).should.be.NaN();
 
-			coerce( Date.parse ).should.be.NaN();
+			coerce( Date.parse, {} ).should.be.NaN();
 		} );
 
 		test( "accepts definition in second argument", function() {
