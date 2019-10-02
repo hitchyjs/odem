@@ -42,7 +42,10 @@ module.exports = {
 			{ text: "API", link: "/api/" },
 			{ text: "Hitchy", items: [
 					{ text: "Core", link: "https://hitchyjs.github.io/core/" },
-					{ text: "Odem", link: "/" },
+					{ text: "", items: [
+							{ text: "Odem", link: "/" },
+							{ text: "Auth", link: "https://hitchyjs.github.io/plugin-auth/" },
+						]}
 				] },
 		],
 	},
