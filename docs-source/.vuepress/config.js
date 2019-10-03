@@ -39,7 +39,10 @@ module.exports = {
 		nav: [
 			{ text: "Home", link: "/" },
 			{ text: "Guides", link: "/guides/" },
-			{ text: "API", link: "/api/" },
+			{ text: "API", items: [
+					{ text: "Model", link: "/api/model" },
+					{ text: "Adapter", link: "/api/adapter" },
+				] },
 			{ text: "Hitchy", items: [
 					{ text: "Core", link: "https://hitchyjs.github.io/core/" },
 					{ text: "", items: [

@@ -693,6 +693,38 @@ The same can be achieved by picking types explicitly like this:
 
 In property definitions the `type` option selects a _type handler_ which is affecting the [property's processing as described before](#property-processing).
 
+Every type of property comes with a set of definition properties or _constraints_ that can be optionally applied when defining the model. There are some commonly supported constraints to be listed here. Type-specific constraints are listed below in combination with introducing either type.
+
+### Commonalities
+
+#### required <Badge type="warning">validation</Badge>
+
+This boolean options applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing non-null value for this property.
+
+#### default <Badge type="info">coercion</Badge> <Badge type="info">0.4.3+</Badge>
+
+This optional definition property selects a value to assigned implicitly on creating new instances.
+
+:::tip Example  
+```javascript
+module.exports = {
+    name: "MyModel",
+    props: {
+        type: { default: "foo" },
+        score: {},
+    },
+};
+```  
+
+This results in a model with properties named `type` and `score`. Creating new instance of this model will assign any provided default alue implicitly:
+
+```javascript
+const instance = new MyModel();
+console.log( instance.type );     // "foo"
+console.log( instance.score );    // undefined
+```
+:::
+
 
 ### Strings
 
@@ -728,10 +760,6 @@ This integer option applies constraint requiring maximum number of characters in
 
 This regular expression applies constraint requiring any non-null value to match this pattern. Provided pattern might be literal regular expression like `/^some-pattern$/` or some string containing it, e.g. `"^some-pattern$"`.
 
-#### required <Badge type="warning">validation</Badge>
-
-This boolean options applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing non-null value for this property.
-
 
 ### Numbers
 
@@ -761,10 +789,6 @@ Declaring `min: 4.2` and `step: 5.3` results in numeric values snapped to values
 
 This numeric value applies constraint requiring any non-null value to be less than this value or equal it.
 
-#### required <Badge type="warning">validation</Badge>
-
-This boolean applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing non-null value for this property.
-
 
 ### Integers
 
@@ -777,15 +801,18 @@ The type handler provides the same options as the more common type handler for n
 
 Booleans are declared with `type: "boolean"`.
 
-Boolean values are `true` and `false`.
+Boolean values are `true` and `false`. 
+
+Starting with version v0.4.3 it is possible to assign certain keywords to be coerced to supported values given above.
+
+* Supported keywords resulting in `true` are `"yes"`, `"y"`, `"true"`, `"t"`, `"set"` and `"on"`. 
+* Supported keywords resulting in `false` are `"no"`, `"n"`, `"false"`, `"f"`, `"unset"` and `"off"`. 
+
+Either keyword is supported case-insensitively.
 
 #### isSet <Badge type="warning">validation</Badge>
 
 This boolean option applies constraint requiring any provided value to be `true`.
-
-#### required <Badge type="warning">validation</Badge>
-
-This boolean option applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing non-null value for this property.
 
 
 ### Timestamps
@@ -814,10 +841,6 @@ This timestamp applies constraint requiring any value to be less than this times
 
 The value might be given as string complying with a limited set of formats, as a string or numeric value representing number of milliseconds since midnight of January 1st, 1970 or as an instance of Javascript's natively supported class `Date`.
 
-#### required <Badge type="warning">validation</Badge>
-
-This boolean option applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing non-null value for this property.
-
 
 ### UUIDs
 
@@ -835,9 +858,6 @@ Values are represented as instances of `Buffer` containing 16 bytes. Due to supp
 
 On assigning any incompatible value it is coerced to `null`. This includes buffers with more or less than 16 bytes.
 
-#### required <Badge type="warning">validation</Badge>
-
-This boolean option applies constraint controlling whether this property requires a non-null value or not. When set `true` instances of the model mustn't be saved without providing a non-null value for this property.
 
 
 ## Life Cycle Events

@@ -2,9 +2,9 @@
 sidebar: false
 ---
 
-# Hitchy ODM Manual
+# Hitchy Data Management
 
-Hitchy's ODM is Hitchy's odem.
+_Hitchy's ODM is Hitchy's odem._
 
 * [About](introduction.md)
 * [Glossary](glossary.md)

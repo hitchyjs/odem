@@ -161,6 +161,19 @@ Model.find( { null: { name: "started" } } )
 This example is querying the model for all items with unset property **started**.
 
 
+### Model.fromObject() <Badge type="info">0.4.3+</Badge>
+
+**Signature:** `Model.fromObject( data, { omitComputed, serialised } ) : instance`
+
+Creates new instance of model instantly adopting values of properties in provided data object using resulting [instance's method `fromObject()`](#instance-fromobject-0-4-3). 
+
+In addition provided object may include property `uuid` to use it for identifying the resulting instance.
+
+:::tip
+See the [instance's counterpart for additional information](#instance-fromobject-0-4-3).
+:::
+
+
 ### Model.uuidToKey()
 
 **Signature:** `Model.uuidToKey( uuid ) : string`
@@ -290,8 +303,23 @@ Promises removal of current instance from data storage.
 
 Extracts values of all _set_ properties of current instance as-is. By default, this includes values of computed properties, but excludes properties set `null` currently.
 
-Using options object as parameter you might pass `true` as option `omitComputed` to omit computed properties. Separate option `serialised` can be set to get all values serialised. This will prepare the resulting object for being serialised in turn, e.g. by using `JSON.stringify()`.  
+Using options you might pass `true` as option `omitComputed` to omit computed properties. Separate option `serialised` can be set to get all values serialised. This will prepare the resulting object for being serialised in turn, e.g. by using `JSON.stringify()`.  
 
+### instance.fromObject() <Badge type="info">0.4.3+</Badge>
+
+**Signature:** `instance.fromObject( data, { omitComputed, serialised } ) : instance`
+
+Adopts values of properties in provided data object for defined actual and computed properties of current model's instance. Any adopted value gets coerced. 
+
+Using options you might pass `true` as option `omitComputed` to ignore any property of provided data object matching a defined computed property of current instance. Separate option `serialised` can be set to demand deserialisation of either adopted value before coercing it.  
+
+:::tip  
+Due to current coercion implementations deserialisation isn't required in most cases but might be enabled to build future-proof implementations, e.g. when you are definitely processing data initially provided as JSON-formatted string.  
+:::
+
+:::warning
+This method ignores any UUID included with provided data object. See the [static counterpart for creating instances](#model-fromobject-0-4-3) from such objects instead.
+:::
 
 ## Instance Properties
 
@@ -377,6 +405,52 @@ When integrating with Hitchy its API is available via this property making it ve
 }
 ```
 
+### instance.$default <Badge type="info">0.4.3+</Badge>
+
+Every property may be [defined with a default value](../guides/defining-models.md#default-coercion-0-4-3) to be set on creating a model's instance. Whenever assigning value to either property it is possible to re-assign the declared default value by assigning this property, though it isn't either property's default value but some marker, only.
+
+:::tip Example
+Consider having model defined like this:
+
+```javascript
+module.exports = {
+    name: "MyModel",
+    props: {
+        type: { default: "foo" },
+        score: { default: 50 },
+    },
+};
+```  
+
+This results in a model with properties named `type` and `score`. Creating new instance of this model will assign provided default implicitly:
+
+```javascript
+const instance = new MyModel();
+console.log( instance.type );     // "foo"
+console.log( instance.score );    // 50
+```
+
+You can use this instance as usual and assign any value to its properties. 
+
+
+```javascript
+instance.type = "bar";
+instance.score = 100;
+
+console.log( instance.type );     // "bar"
+console.log( instance.score );    // 100
+```
+
+Whenever you wish to return to the default you don't need to look it up in schema but assign `instance.$default` instead:
+
+```javascript
+instance.type = instance.$default;
+instance.score = instance.$default;
+
+console.log( instance.type );     // "foo"
+console.log( instance.score );    // 50
+```
+:::
 
 ## Hooks
 
