@@ -37,7 +37,7 @@
     "vuepress": "^1.1.0"
   },
   "peerDependencies": {
-    "hitchy": "^0.4.0"
+    "hitchy": "^0.4.3"
   },
   "dependencies": {
     "file-essentials": "^0.0.13",
