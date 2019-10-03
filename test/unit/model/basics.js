@@ -182,7 +182,7 @@ describe( "Using Model", () => {
 			data.aNumber.should.be.equal( item.aNumber );
 			data.anInteger.should.be.equal( item.anInteger );
 			data.aBoolean.should.be.Number().which.is.equal( 0 );
-			data.aDate.should.be.String().which.is.equal( "2020-01-04T04:30:00Z" );
+			data.aDate.should.be.String().which.is.equal( "2020-01-04T04:30:00.000Z" );
 			data.aUUID.should.be.String().which.is.equal( "00000000-0000-0000-0000-000000000000" );
 
 			data.aComputedString.should.be.String().and.equal( "truthy" );
