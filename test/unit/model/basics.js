@@ -198,7 +198,7 @@ describe( "Using Model", () => {
 			data.aTypedComputedNumber.should.be.Number().and.equal( 1.5 );
 			data.aTypedComputedInteger.should.be.Number().and.equal( 1 );
 			data.aTypedComputedBoolean.should.be.Number().which.is.equal( 1 );
-			data.aTypedComputedDate.should.be.String().which.is.equal( "2040-12-31T23:59:59Z" );
+			data.aTypedComputedDate.should.be.String().which.is.equal( "2040-12-31T23:59:59.000Z" );
 			data.aTypedComputedUUID.should.be.String().which.is.equal( "00000000-0000-0000-0000-000000000000" );
 		} );
 	} );
