@@ -41,7 +41,7 @@ module.exports = Object.assign( {},
 	{
 		defaults: require( "./lib/defaults" )
 	}, {
-		onExposed( /* options */ ) {
+		initialize( /* options */ ) {
 			const that = this;
 			const { log, config, runtime: { models } } = that;
 			const Log = log( "odem" );
