@@ -53,7 +53,6 @@ suite( "Abstract Adapter", function() {
 		instance.should.have.property( "write" ).which.is.a.Function().of.length( 2 );
 		instance.should.have.property( "remove" ).which.is.a.Function().of.length( 1 );
 		instance.should.have.property( "keyStream" ).which.is.a.Function().of.length( 0 );
-		instance.should.have.property( "valueStream" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "begin" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "rollBack" ).which.is.a.Function().of.length( 0 );
 		instance.should.have.property( "commit" ).which.is.a.Function().of.length( 0 );
