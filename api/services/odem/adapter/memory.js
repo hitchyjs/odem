@@ -82,9 +82,9 @@ module.exports = function() {
 
 		/** @inheritDoc */
 		create( keyTemplate, data ) {
-			return Services.UUID.create()
+			return Services.OdemUtilityUuid.create()
 				.then( uuid => {
-					const key = this.constructor.keyToPath( keyTemplate.replace( /%u/g, Services.UUID.format( uuid ) ) );
+					const key = this.constructor.keyToPath( keyTemplate.replace( /%u/g, Services.OdemUtilityUuid.format( uuid ) ) );
 
 					this.dataSource.set( key, data );
 

@@ -27,6 +27,9 @@
  */
 
 module.exports = function() {
+	const api = this; // eslint-disable-line consistent-this
+	const { services: Services } = api.runtime;
+
 	/**
 	 * Implements abstract base for any tester supported by model collection
 	 * processing.
