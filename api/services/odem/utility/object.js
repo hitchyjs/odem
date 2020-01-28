@@ -26,7 +26,6 @@
  * @author: cepharum
  */
 
-
 module.exports = function() {
 	/**
 	 * Implements object-related utility functions.
@@ -73,5 +72,5 @@ module.exports = function() {
 		}
 	}
 
-	module.exports = OdemUtilityObject;
+	return OdemUtilityObject;
 };
