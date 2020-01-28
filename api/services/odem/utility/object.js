@@ -26,29 +26,52 @@
  * @author: cepharum
  */
 
-module.exports = function() {
-	return Object.assign( {},
-		{
-			defaults: this.runtime.services.OdemDefaults,
-		}, {
-			initialize( /* options */ ) {
-				const that = this;
-				const { log, config, runtime: { models, services } } = that;
-				const Log = log( "odem" );
 
-				// choose configured default adapter for storing model instances
-				let adapter = ( config.database || {} ).default;
-				if ( adapter ) {
-					if ( !( adapter instanceof services.OdemAdapter ) ) {
-						Log( "invalid adapter:", adapter );
-						return;
-					}
-				} else {
-					adapter = new services.OdemAdapterMemory();
+module.exports = function() {
+	/**
+	 * Implements object-related utility functions.
+	 */
+	class OdemUtilityObject {
+		/**
+		 * Deeply seals some provided object.
+		 *
+		 * @param {*} object object to be sealed
+		 * @returns {*} sealed object, any other type of value is returned as-is
+		 */
+		static deepSeal( object ) {
+			if ( object && typeof object === "object" && object.constructor === Object ) {
+				const names = Object.keys( object );
+				for ( let i = 0, length = names.length; i < length; i++ ) {
+					const name = names[i];
+					object[name] = this.deepSeal( object[name] );
 				}
 
-				services.OdemConverter.processModelDefinitions( models, adapter );
+				return Object.seal( object );
 			}
+
+			return object;
 		}
-	);
+
+		/**
+		 * Deeply freezes some provided object.
+		 *
+		 * @param {*} object object to be frozen
+		 * @returns {*} frozen object, any other type of value is returned as-is
+		 */
+		static deepFreeze( object ) {
+			if ( object && typeof object === "object" && object.constructor === Object ) {
+				const names = Object.keys( object );
+				for ( let i = 0, length = names.length; i < length; i++ ) {
+					const name = names[i];
+					object[name] = this.deepFreeze( object[name] );
+				}
+
+				return Object.freeze( object );
+			}
+
+			return object;
+		}
+	}
+
+	module.exports = OdemUtilityObject;
 };

@@ -27,28 +27,31 @@
  */
 
 module.exports = function() {
-	return Object.assign( {},
-		{
-			defaults: this.runtime.services.OdemDefaults,
-		}, {
-			initialize( /* options */ ) {
-				const that = this;
-				const { log, config, runtime: { models, services } } = that;
-				const Log = log( "odem" );
+	/**
+	 * Implements date-related utilities.
+	 */
+	class OdemUtilityDate {
+	}
 
-				// choose configured default adapter for storing model instances
-				let adapter = ( config.database || {} ).default;
-				if ( adapter ) {
-					if ( !( adapter instanceof services.OdemAdapter ) ) {
-						Log( "invalid adapter:", adapter );
-						return;
-					}
-				} else {
-					adapter = new services.OdemAdapterMemory();
-				}
+	Object.defineProperties( OdemUtilityDate, {
+		/**
+		 * Matches any string representing date in ISO-8601 form.
+		 *
+		 * @type {RegExp}
+		 * @readonly
+		 */
+		ptnISO8601: {
+			value: /^\s*(?:\d\d\d\d-\d\d?-\d\d?)(?:T\d\d:\d\d:\d\d(?:[.,]\d+)?)?(?:Z|[+-]\d\d?:\d\d)?\s*$/i,
+			enumerable: true,
+		},
+	} );
 
-				services.OdemConverter.processModelDefinitions( models, adapter );
-			}
-		}
-	);
+	/*
+	 * Expose patterns used in re-compiled methods of model attribute type handlers
+	 * running w/o their current closure scope in recompiled use cases.
+	 */
+	global.hitchyPtnISO8601 = OdemUtilityDate.ptnISO8601;
+
+	return OdemUtilityDate;
 };
+

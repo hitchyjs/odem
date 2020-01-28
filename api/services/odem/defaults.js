@@ -27,28 +27,10 @@
  */
 
 module.exports = function() {
-	return Object.assign( {},
-		{
-			defaults: this.runtime.services.OdemDefaults,
-		}, {
-			initialize( /* options */ ) {
-				const that = this;
-				const { log, config, runtime: { models, services } } = that;
-				const Log = log( "odem" );
-
-				// choose configured default adapter for storing model instances
-				let adapter = ( config.database || {} ).default;
-				if ( adapter ) {
-					if ( !( adapter instanceof services.OdemAdapter ) ) {
-						Log( "invalid adapter:", adapter );
-						return;
-					}
-				} else {
-					adapter = new services.OdemAdapterMemory();
-				}
-
-				services.OdemConverter.processModelDefinitions( models, adapter );
-			}
-		}
-	);
+	return {
+		/**
+		 * Selects backend to use on storing model data persistently.
+		 */
+		defaultAdapter: new this.runtime.services.OdemAdapterMemory(),
+	};
 };

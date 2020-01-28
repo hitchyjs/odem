@@ -27,28 +27,46 @@
  */
 
 module.exports = function() {
-	return Object.assign( {},
-		{
-			defaults: this.runtime.services.OdemDefaults,
-		}, {
-			initialize( /* options */ ) {
-				const that = this;
-				const { log, config, runtime: { models, services } } = that;
-				const Log = log( "odem" );
+	/**
+	 * Implements utilities for processing numbers.
+	 *
+	 * @alias this.runtime.services.OdemUtilityNumber
+	 */
+	class OdemUtilityNumber {}
 
-				// choose configured default adapter for storing model instances
-				let adapter = ( config.database || {} ).default;
-				if ( adapter ) {
-					if ( !( adapter instanceof services.OdemAdapter ) ) {
-						Log( "invalid adapter:", adapter );
-						return;
-					}
-				} else {
-					adapter = new services.OdemAdapterMemory();
-				}
+	Object.defineProperties( OdemUtilityNumber, {
+		/**
+		 * Matches any string representing number.
+		 *
+		 * @name OdemUtilityNumber.ptnFloat
+		 * @property {RegExp}
+		 * @readonly
+		 */
+		ptnFloat: {
+			value: /^\s*[+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?\s*$/i,
+			enumerable: true,
+		},
 
-				services.OdemConverter.processModelDefinitions( models, adapter );
-			}
-		}
-	);
+		/**
+		 * Matches any string representing integer.
+		 *
+		 * @name OdemUtilityNumber.ptnFloat
+		 * @property {RegExp}
+		 * @readonly
+		 */
+		ptnInteger: {
+			value: /^\s*[+-]?\d+\*$/,
+			enumerable: true,
+		},
+	} );
+
+	/*
+	 * Expose patterns used in re-compiled methods of model attribute type handlers
+	 * running w/o their current closure scope in recompiled use cases.
+	 */
+	global.hitchyPtnFloat = OdemUtilityNumber.ptnFloat;
+	global.hitchyPtnInteger = OdemUtilityNumber.ptnInteger;
+
+	return OdemUtilityNumber;
 };
+

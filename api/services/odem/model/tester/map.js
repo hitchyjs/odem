@@ -28,24 +28,35 @@
 
 module.exports = function() {
 	const api = this; // eslint-disable-line consistent-this
+	const { services: Services } = api.runtime;
 
 	/**
-	 * Implements public API of common model concept.
+	 * Maps operator names used in query filters into classes implementing test
+	 * for picking records considered matches accordingly.
 	 */
-	class Model {
-		/**
-		 * Programmatically creates model implementation from provided
-		 * definition.
-		 *
-		 * @param {string} name name of model to create
-		 * @param {object} schema schema definition of model
-		 * @param {*} args additional arguments to be passed
-		 * @returns {class} implementation of defined model's class
-		 */
-		static define( name, schema, ...args ) {
-			return api.runtime.services.OdemModel.define( name, schema, ...args );
-		}
+	class OdemModelTesterMap {
+		/* eslint-disable require-jsdoc */
+		static get true() { return Services.OdemModelTesterNonIndexedAll; }
+
+		static get eq() { return Services.OdemModelTesterIndexedEquality; }
+
+		static get neq() { return Services.OdemModelTesterNonIndexedComparison; }
+
+		static get lt() { return Services.OdemModelTesterNonIndexedComparison; }
+
+		static get gt() { return Services.OdemModelTesterNonIndexedComparison; }
+
+		static get lte() { return Services.OdemModelTesterNonIndexedComparison; }
+
+		static get gte() { return Services.OdemModelTesterNonIndexedComparison; }
+
+		static get null() { return Services.OdemModelTesterIndexedNull; }
+
+		static get notnull() { return Services.OdemModelTesterIndexedNotNull; }
+
+		static get between() { return Services.OdemModelTesterIndexedBetween; }
+		/* eslint-enable require-jsdoc */
 	}
 
-	return Model;
+	return OdemModelTesterMap;
 };

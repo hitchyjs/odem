@@ -27,28 +27,46 @@
  */
 
 module.exports = function() {
-	return Object.assign( {},
-		{
-			defaults: this.runtime.services.OdemDefaults,
-		}, {
-			initialize( /* options */ ) {
-				const that = this;
-				const { log, config, runtime: { models, services } } = that;
-				const Log = log( "odem" );
+	/**
+	 * Imeplements boolean-related utility functions.
+	 *
+	 * @alias this.runtime.services.OdemUtilityBoolean
+	 */
+	class OdemUtilityBoolean {}
 
-				// choose configured default adapter for storing model instances
-				let adapter = ( config.database || {} ).default;
-				if ( adapter ) {
-					if ( !( adapter instanceof services.OdemAdapter ) ) {
-						Log( "invalid adapter:", adapter );
-						return;
-					}
-				} else {
-					adapter = new services.OdemAdapterMemory();
-				}
+	Object.defineProperties( OdemUtilityBoolean, {
+		/**
+		 * Matches any string representing boolean true.
+		 *
+		 * @name OdemUtilityBoolean.ptnTrue
+		 * @property {RegExp}
+		 * @readonly
+		 */
+		ptnTrue: {
+			value: /^(?:y(?:es)?|ja?|on|hi(?:gh)?|true|t|set|x)$/i,
+			enumerable: true,
+		},
 
-				services.OdemConverter.processModelDefinitions( models, adapter );
-			}
-		}
-	);
+		/**
+		 * Matches any string representing boolean false.
+		 *
+		 * @name OdemUtilityBoolean.ptnFalse
+		 * @property {RegExp}
+		 * @readonly
+		 */
+		ptnFalse: {
+			value: /^(?:n(?:o|ein)?|off|low?|false|f|cl(?:ea)?r|-)$/i,
+			enumerable: true,
+		},
+	} );
+
+	/*
+	 * Expose patterns used in re-compiled methods of model attribute type
+	 * handlers running w/o their current closure scope in recompiled use cases.
+	 */
+	global.hitchyPtnTrue = OdemUtilityBoolean.ptnTrue;
+	global.hitchyPtnFalse = OdemUtilityBoolean.ptnFalse;
+
+	return OdemUtilityBoolean;
 };
+
