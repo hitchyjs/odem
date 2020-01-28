@@ -50,7 +50,7 @@ module.exports = function() {
 	/**
 	 * Implements basic behaviour of a model.
 	 *
-	 * @alias AbstractModel
+	 * @alias OdemModel
 	 * @alias this.runtime.services.OdemModel
 	 */
 	class OdemModel {
@@ -298,7 +298,7 @@ module.exports = function() {
 		 * @returns {string} defined name of model
 		 */
 		static get name() {
-			return "$$AbstractModel$$";
+			return "$$OdemModel$$";
 		}
 
 		/**
@@ -1184,12 +1184,12 @@ module.exports = function() {
 		}
 
 		/**
-		 * Compiles provided schema into model class derived from AbstractModel or
+		 * Compiles provided schema into model class derived from OdemModel or
 		 * some explicitly provided model class.
 		 *
 		 * @param {string} modelName name of model
 		 * @param {object} schema definition of model's schema
-		 * @param {class} customBaseClass model class inheriting from AbstractModel
+		 * @param {class} customBaseClass model class inheriting from OdemModel
 		 * @param {Adapter} adapter selects adapter to use on instances of resulting model by default
 		 * @returns {class} compiled model class
 		 */

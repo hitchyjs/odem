@@ -42,27 +42,28 @@ module.exports = function() {
 		 * @return {object} provided object with contained definitions replaced with according implementations
 		 */
 		static processModelDefinitions( models, adapter ) {
-			const { services } = api.runtime;
+			const { services: Services } = api.runtime;
 
 			if ( !models || typeof models !== "object" ) {
 				throw new TypeError( "missing or invalid map of model definitions" );
 			}
 
-			if ( !adapter || !( adapter instanceof services.OdemAdapter ) ) {
+			if ( !adapter || !( adapter instanceof Services.OdemAdapter ) ) {
 				throw new TypeError( "missing or invalid adapter" );
 			}
 
 
 			// prepare data to detect either models' weight on being dependent of other models
 			const tree = {};
-			const { autoKebabToPascal } = services.OdemUtilityString;
+			const { OdemUtilityString } = Services;
 
 			for ( let names = Object.keys( models ), i = 0, numNames = names.length; i < numNames; i++ ) {
 				const name = names[i];
 				const definition = models[name] || {};
 
-				const modelName = autoKebabToPascal( definition.name || name );
-				const parentName = Object.prototype.hasOwnProperty.call( definition, "parent" ) ? autoKebabToPascal( definition.parent ) : null;
+				const modelName = OdemUtilityString.autoKebabToPascal( definition.name || name );
+				const parentName = Object.prototype.hasOwnProperty.call( definition, "parent" ) ?
+					OdemUtilityString.autoKebabToPascal( definition.parent ) : null;
 
 				tree[modelName] = {
 					weight: 0,
@@ -107,7 +108,7 @@ module.exports = function() {
 				}
 
 				try {
-					models[raw] = services.OdemModel.define( name, definition, parent ? models[tree[parent].raw] : null, adapter );
+					models[raw] = Services.OdemModel.define( name, definition, parent ? models[tree[parent].raw] : null, adapter );
 				} catch ( error ) {
 					throw new TypeError( `definition of model ${name} failed: ${error.message}` );
 				}
