@@ -30,165 +30,167 @@
 const { describe, it, beforeEach } = require( "mocha" );
 const Should = require( "should" );
 
-
-const Model = require( "../../../lib/model/base" );
-const Compiler = require( "../../../lib/model/compiler" );
-const { Adapter, MemoryAdapter, FileAdapter } = require( "../../../lib/adapter" );
-
+const { loadAllServices } = require( "../helper" );
 
 describe( "Model compiler module", () => {
+	let OdemModel, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory;
+
+	before( () => loadAllServices().then( s => { ( { OdemModel, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory } = s ); } ) );
+
 	it( "exposes internally used functions for unit-testing", () => {
-		Compiler.should.have.property( "_utility" ).which.is.an.Object();
+		OdemModelCompiler.should.have.property( "normalizeSchema" ).which.is.a.Function();
+		OdemModelCompiler.should.have.property( "normalizeSchemaProperties" ).which.is.a.Function();
+		OdemModelCompiler.should.have.property( "normalizeSchemaComputedProperties" ).which.is.a.Function();
+		OdemModelCompiler.should.have.property( "normalizeSchemaMethods" ).which.is.a.Function();
+		OdemModelCompiler.should.have.property( "normalizeSchemaHooks" ).which.is.a.Function();
 
-		Compiler._utility.should.have.property( "normalizeSchema" ).which.is.a.Function();
-		Compiler._utility.should.have.property( "normalizeSchemaProperties" ).which.is.a.Function();
-		Compiler._utility.should.have.property( "normalizeSchemaComputedProperties" ).which.is.a.Function();
-		Compiler._utility.should.have.property( "normalizeSchemaMethods" ).which.is.a.Function();
-		Compiler._utility.should.have.property( "normalizeSchemaHooks" ).which.is.a.Function();
-
-		Compiler._utility.should.have.property( "compileCoercion" ).which.is.a.Function();
-		Compiler._utility.should.have.property( "compileValidator" ).which.is.a.Function();
-		Compiler._utility.should.have.property( "compileSerializer" ).which.is.a.Function();
-		Compiler._utility.should.have.property( "compileDeserializer" ).which.is.a.Function();
+		OdemModelCompiler.should.have.property( "compileCoercion" ).which.is.a.Function();
+		OdemModelCompiler.should.have.property( "compileValidator" ).which.is.a.Function();
+		OdemModelCompiler.should.have.property( "compileSerializer" ).which.is.a.Function();
+		OdemModelCompiler.should.have.property( "compileDeserializer" ).which.is.a.Function();
 	} );
 
 	describe( "exports compiler function which", () => {
 		/** Does not inherit from basic model class. */
 		class ImproperBaseClass {}
 
-		/** Inherits from basic model class. */
-		class ProperBaseClass extends Model {}
+		let ProperBaseClassRef;
+
+		before( () => {
+			/** Inherits from basic model class. */
+			ProperBaseClassRef = class ProperBaseClass extends OdemModel {};
+		} );
 
 		const MostSimpleSchema = { props: { a: {} } };
 
 
 		it( "is a function", () => {
-			Compiler.should.be.Function();
+			OdemModelCompiler.compileModel.should.be.Function();
 		} );
 
 		it( "requires at least two arguments", () => {
-			Compiler.should.have.length( 1 );
+			OdemModelCompiler.compileModel.should.have.length( 1 );
 
-			( () => Compiler() ).should.throw( TypeError );
-			( () => Compiler( "name" ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel() ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name" ) ).should.throw( TypeError );
 
-			( () => Compiler( "name", MostSimpleSchema ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema ) ).should.not.throw();
 		} );
 
 		it( "requires provision of valid name of model to define in first argument", () => {
-			( () => Compiler( undefined, MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( null, MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( false, MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( true, MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( 5, MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( -3.5, MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( 0, MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( [], MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( ["name"], MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( { name: "name" }, MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( () => "name", MostSimpleSchema ) ).should.throw( TypeError );
-			( () => Compiler( "", MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( undefined, MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( null, MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( false, MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( true, MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( 5, MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( -3.5, MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( 0, MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( [], MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( ["name"], MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( { name: "name" }, MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( () => "name", MostSimpleSchema ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "", MostSimpleSchema ) ).should.throw( TypeError );
 
-			( () => Compiler( "name", MostSimpleSchema ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema ) ).should.not.throw();
 		} );
 
 		it( "requires provision of proper schema definition in second argument", () => {
-			( () => Compiler( "name", undefined ) ).should.throw( TypeError );
-			( () => Compiler( "name", null ) ).should.throw( TypeError );
-			( () => Compiler( "name", false ) ).should.throw( TypeError );
-			( () => Compiler( "name", true ) ).should.throw( TypeError );
-			( () => Compiler( "name", 5 ) ).should.throw( TypeError );
-			( () => Compiler( "name", -3.5 ) ).should.throw( TypeError );
-			( () => Compiler( "name", 0 ) ).should.throw( TypeError );
-			( () => Compiler( "name", [] ) ).should.throw( TypeError );
-			( () => Compiler( "name", [{}] ) ).should.throw( TypeError );
-			( () => Compiler( "name", () => {} ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
-			( () => Compiler( "name", "" ) ).should.throw( TypeError );
-			( () => Compiler( "name", "schema" ) ).should.throw( TypeError );
-			( () => Compiler( "name", {} ) ).should.throw( TypeError );
-			( () => Compiler( "name", { props: {} } ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", undefined ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", null ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", false ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", true ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", 5 ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", -3.5 ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", 0 ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", [] ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", [{}] ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", () => {} ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
+			( () => OdemModelCompiler.compileModel( "name", "" ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", "schema" ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", {} ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", { props: {} } ) ).should.throw( TypeError );
 
-			( () => Compiler( "name", { props: { a: {} } } ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", { props: { a: {} } } ) ).should.not.throw();
 		} );
 
 		it( "supports optional provision of base class derived from `Model` to become base class of defined Model implementation", () => {
-			( () => Compiler( "name", MostSimpleSchema ) ).should.not.throw();
-			( () => Compiler( "name", MostSimpleSchema, undefined ) ).should.not.throw();
-			( () => Compiler( "name", MostSimpleSchema, null ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, undefined ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null ) ).should.not.throw();
 
-			( () => Compiler( "name", MostSimpleSchema, false ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, true ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, 5 ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, -3.5 ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, 0 ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, [] ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, [ProperBaseClass] ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, () => {} ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
-			( () => Compiler( "name", MostSimpleSchema, () => ProperBaseClass ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, {} ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, { base: ProperBaseClass } ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, "" ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, "CustomBaseClass" ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, ImproperBaseClass ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, false ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, true ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, 5 ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, -3.5 ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, 0 ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, [] ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, [ProperBaseClassRef] ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, () => {} ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, () => ProperBaseClassRef ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, {} ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, { base: ProperBaseClassRef } ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, "" ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, "CustomBaseClass" ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, ImproperBaseClass ) ).should.throw( TypeError );
 
-			( () => Compiler( "name", MostSimpleSchema, Model ) ).should.not.throw();
-			( () => Compiler( "name", MostSimpleSchema, ProperBaseClass ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, OdemModel ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, ProperBaseClassRef ) ).should.not.throw();
 		} );
 
 		it( "supports optional provision of adapter to use explicitly with resulting implementation of Model", () => {
-			( () => Compiler( "name", MostSimpleSchema, null ) ).should.not.throw();
-			( () => Compiler( "name", MostSimpleSchema, null, undefined ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, undefined ) ).should.not.throw();
 
-			( () => Compiler( "name", MostSimpleSchema, null, null ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, false ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, true ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, 5 ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, -3.5 ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, 0 ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, [] ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, [ProperBaseClass] ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, () => {} ) ).should.throw(); // eslint-disable-line no-empty-function
-			( () => Compiler( "name", MostSimpleSchema, null, () => ProperBaseClass ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, {} ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, { base: ProperBaseClass } ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, "" ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, "CustomBaseClass" ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, ImproperBaseClass ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, ProperBaseClass ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, null ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, false ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, true ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, 5 ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, -3.5 ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, 0 ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, [] ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, [ProperBaseClassRef] ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, () => {} ) ).should.throw(); // eslint-disable-line no-empty-function
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, () => ProperBaseClassRef ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, {} ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, { base: ProperBaseClassRef } ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, "" ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, "CustomBaseClass" ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, ImproperBaseClass ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, ProperBaseClassRef ) ).should.throw( TypeError );
 
-			( () => Compiler( "name", MostSimpleSchema, null, Adapter ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, MemoryAdapter ) ).should.throw( TypeError );
-			( () => Compiler( "name", MostSimpleSchema, null, FileAdapter ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, OdemAdapter ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, OdemAdapterMemory ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, OdemAdapterFile ) ).should.throw( TypeError );
 
-			( () => Compiler( "name", MostSimpleSchema, null, new Adapter() ) ).should.not.throw();
-			( () => Compiler( "name", MostSimpleSchema, null, new MemoryAdapter() ) ).should.not.throw();
-			( () => Compiler( "name", MostSimpleSchema, null, new FileAdapter() ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, new OdemAdapter() ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, new OdemAdapterMemory() ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, new OdemAdapterFile() ) ).should.not.throw();
 		} );
 
 		describe( "returns class that", () => {
 			it( "is derived from `Model`", () => {
-				const Sub = Compiler( "mySub", MostSimpleSchema );
+				const Sub = OdemModelCompiler.compileModel( "mySub", MostSimpleSchema );
 
-				Sub.prototype.should.be.instanceOf( Model );
+				Sub.prototype.should.be.instanceOf( OdemModel );
 			} );
 
 			it( "can be instantiated", () => {
-				const Sub = Compiler( "mySub", MostSimpleSchema );
+				const Sub = OdemModelCompiler.compileModel( "mySub", MostSimpleSchema );
 
 				const item = new Sub();
 
-				item.should.be.instanceOf( Model );
+				item.should.be.instanceOf( OdemModel );
 			} );
 
 			it( "can be used as base class in another model definition", () => {
-				const Sub = Compiler( "mySub", MostSimpleSchema );
-				const SubSub = Compiler( "mySub", MostSimpleSchema, Sub );
+				const Sub = OdemModelCompiler.compileModel( "mySub", MostSimpleSchema );
+				const SubSub = OdemModelCompiler.compileModel( "mySub", MostSimpleSchema, Sub );
 
 				const sub = new Sub();
 				const subSub = new SubSub();
 
-				sub.should.be.instanceOf( Model );
-				subSub.should.be.instanceOf( Model );
+				sub.should.be.instanceOf( OdemModel );
+				subSub.should.be.instanceOf( OdemModel );
 
 				sub.should.be.instanceOf( Sub );
 				subSub.should.be.instanceOf( Sub );
@@ -198,7 +200,7 @@ describe( "Model compiler module", () => {
 			} );
 
 			it( "is exposing properties defined in provided schema as properties of every instance", () => {
-				const Employee = Compiler( "employee", {
+				const Employee = OdemModelCompiler.compileModel( "employee", {
 					props: {
 						name: {},
 						age: {
@@ -220,15 +222,15 @@ describe( "Model compiler module", () => {
 			} );
 
 			it( "is exposing adapter provided on compilation as static property of model", () => {
-				const adapter = new MemoryAdapter();
-				const Employee = Compiler( "employee", { props: { name: {} } }, null, adapter );
+				const adapter = new OdemAdapterMemory();
+				const Employee = OdemModelCompiler.compileModel( "employee", { props: { name: {} } }, null, adapter );
 
 				Employee.adapter.should.be.equal( adapter );
 			} );
 
 			it( "is exposing adapter provided on compilation as property of model's every instance", () => {
-				const adapter = new MemoryAdapter();
-				const Employee = Compiler( "employee", { props: { name: {} } }, null, adapter );
+				const adapter = new OdemAdapterMemory();
+				const Employee = OdemModelCompiler.compileModel( "employee", { props: { name: {} } }, null, adapter );
 
 				const boss = new Employee();
 
@@ -236,8 +238,8 @@ describe( "Model compiler module", () => {
 			} );
 
 			it( "can be instantiated with instances suitable for validating properties, saving them to and reading them from a storage", () => {
-				const storage = new MemoryAdapter();
-				const MyModel = Compiler( "MyModel", {
+				const storage = new OdemAdapterMemory();
+				const MyModel = OdemModelCompiler.compileModel( "MyModel", {
 					props: {
 						name: {},
 						height: { type: "integer", min: 50 },
@@ -347,34 +349,32 @@ describe( "Model compiler module", () => {
 	} );
 
 	describe( "contains internal method for compiling code serializing all properties of model in a row which", () => {
-		const { compileSerializer } = Compiler._utility;
-
 		it( "requires provision of apparently valid and qualified definition of properties in first argument", () => {
-			( () => compileSerializer() ).should.throw();
-			( () => compileSerializer( undefined ) ).should.throw();
-			( () => compileSerializer( null ) ).should.throw();
-			( () => compileSerializer( false ) ).should.throw();
-			( () => compileSerializer( true ) ).should.throw();
-			( () => compileSerializer( 0 ) ).should.throw();
-			( () => compileSerializer( 4.5 ) ).should.throw();
-			( () => compileSerializer( -3000 ) ).should.throw();
-			( () => compileSerializer( [] ) ).should.throw();
-			( () => compileSerializer( ["name"] ) ).should.throw();
-			( () => compileSerializer( () => "name" ) ).should.throw();
-			( () => compileSerializer( "" ) ).should.throw();
-			( () => compileSerializer( "name" ) ).should.throw();
-			( () => compileSerializer( { name: "name" } ) ).should.throw();
-			( () => compileSerializer( { name: {} } ) ).should.throw(); // due to the lack of property `type`
+			( () => OdemModelCompiler.compileSerializer() ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( undefined ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( null ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( false ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( true ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( 0 ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( 4.5 ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( -3000 ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( [] ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( ["name"] ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( () => "name" ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( "" ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( "name" ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( { name: "name" } ) ).should.throw();
+			( () => OdemModelCompiler.compileSerializer( { name: {} } ) ).should.throw(); // due to the lack of property `type`
 
-			( () => compileSerializer( {} ) ).should.not.throw();
-			( () => compileSerializer( { name: { type: "int" } } ) ).should.not.throw();
+			( () => OdemModelCompiler.compileSerializer( {} ) ).should.not.throw();
+			( () => OdemModelCompiler.compileSerializer( { name: { type: "int" } } ) ).should.not.throw();
 		} );
 
 		describe( "can be invoked with empty definition of properties so it returns a function which", () => {
 			let serializer;
 
 			beforeEach( () => {
-				serializer = compileSerializer( {} );
+				serializer = OdemModelCompiler.compileSerializer( {} );
 			} );
 
 			it( "is expecting sole argument on invocation", () => {
@@ -407,7 +407,7 @@ describe( "Model compiler module", () => {
 			let serializer;
 
 			beforeEach( () => {
-				serializer = compileSerializer( {
+				serializer = OdemModelCompiler.compileSerializer( {
 					name: { type: "string" },
 					age: { type: "int" },
 				} );
@@ -475,34 +475,32 @@ describe( "Model compiler module", () => {
 	} );
 
 	describe( "contains internal method for compiling code deserializing all properties of model in a row which", () => {
-		const { compileDeserializer } = Compiler._utility;
-
 		it( "requires provision of apparently valid and qualified definition of properties in first argument", () => {
-			( () => compileDeserializer() ).should.throw();
-			( () => compileDeserializer( undefined ) ).should.throw();
-			( () => compileDeserializer( null ) ).should.throw();
-			( () => compileDeserializer( false ) ).should.throw();
-			( () => compileDeserializer( true ) ).should.throw();
-			( () => compileDeserializer( 0 ) ).should.throw();
-			( () => compileDeserializer( 4.5 ) ).should.throw();
-			( () => compileDeserializer( -3000 ) ).should.throw();
-			( () => compileDeserializer( [] ) ).should.throw();
-			( () => compileDeserializer( ["name"] ) ).should.throw();
-			( () => compileDeserializer( () => "name" ) ).should.throw();
-			( () => compileDeserializer( "" ) ).should.throw();
-			( () => compileDeserializer( "name" ) ).should.throw();
-			( () => compileDeserializer( { name: "name" } ) ).should.throw();
-			( () => compileDeserializer( { name: {} } ) ).should.throw(); // due to the lack of property `type`
+			( () => OdemModelCompiler.compileDeserializer() ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( undefined ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( null ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( false ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( true ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( 0 ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( 4.5 ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( -3000 ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( [] ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( ["name"] ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( () => "name" ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( "" ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( "name" ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( { name: "name" } ) ).should.throw();
+			( () => OdemModelCompiler.compileDeserializer( { name: {} } ) ).should.throw(); // due to the lack of property `type`
 
-			( () => compileDeserializer( {} ) ).should.not.throw();
-			( () => compileDeserializer( { name: { type: "int" } } ) ).should.not.throw();
+			( () => OdemModelCompiler.compileDeserializer( {} ) ).should.not.throw();
+			( () => OdemModelCompiler.compileDeserializer( { name: { type: "int" } } ) ).should.not.throw();
 		} );
 
 		describe( "can be invoked with empty definition of properties so it returns a function which", () => {
 			let deserializer;
 
 			beforeEach( () => {
-				deserializer = compileDeserializer( {} );
+				deserializer = OdemModelCompiler.compileDeserializer( {} );
 			} );
 
 			it( "is expecting two arguments on invocation", () => {
@@ -543,7 +541,7 @@ describe( "Model compiler module", () => {
 			};
 
 			beforeEach( () => {
-				deserializer = compileDeserializer( properties );
+				deserializer = OdemModelCompiler.compileDeserializer( properties );
 			} );
 
 			it( "is expecting two arguments on invocation", () => {

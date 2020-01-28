@@ -31,15 +31,19 @@ const Crypto = require( "crypto" );
 const { describe, it, before } = require( "mocha" );
 require( "should" );
 
-const { Model } = require( "../../.." );
+const { loadAllServices } = require( "../helper" );
 
 
 describe( "Using Model", () => {
+	let OdemModel;
+
+	before( () => loadAllServices().then( s => { ( { OdemModel } = s ); } ) );
+
 	describe( "supports extracting properties into regular object which", () => {
 		let MyModel;
 
 		before( () => {
-			MyModel = Model.define( "MyModel", {
+			MyModel = OdemModel.define( "MyModel", {
 				props: {
 					aString: {},
 					aNumber: { type: "number" },

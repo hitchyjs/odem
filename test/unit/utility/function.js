@@ -27,90 +27,94 @@
  */
 
 
-const { suite, test } = require( "mocha" );
+const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
-const FN = require( "../../../lib/utility/function" );
+const { loadAllServices } = require( "../helper" );
 
 
-suite( "Utility API for processing functions", function() {
-	test( "is available", function() {
-		Should.exist( FN );
+describe( "Utility API for processing functions", function() {
+	let OdemUtilityFunction;
 
-		FN.should.have.property( "extractBody" ).which.is.a.Function().and.has.length( 1 );
+	before( () => loadAllServices().then( s => { ( { OdemUtilityFunction } = s ); } ) );
+
+	it( "is available", function() {
+		Should.exist( OdemUtilityFunction );
+
+		OdemUtilityFunction.should.have.property( "extractBody" ).which.is.a.Function().and.has.length( 1 );
 	} );
 
-	suite( "exports extractBody() which", function() {
-		test( "requires provision of function", function() {
-			( () => FN.extractBody() ).should.throw();
-			( () => FN.extractBody( null ) ).should.throw();
-			( () => FN.extractBody( undefined ) ).should.throw();
-			( () => FN.extractBody( false ) ).should.throw();
-			( () => FN.extractBody( true ) ).should.throw();
-			( () => FN.extractBody( 0 ) ).should.throw();
-			( () => FN.extractBody( 1.5 ) ).should.throw();
-			( () => FN.extractBody( -3000000 ) ).should.throw();
-			( () => FN.extractBody( "" ) ).should.throw();
-			( () => FN.extractBody( "test" ) ).should.throw();
-			( () => FN.extractBody( [] ) ).should.throw();
-			( () => FN.extractBody( [() => {}] ) ).should.throw(); // eslint-disable-line no-empty-function
-			( () => FN.extractBody( {} ) ).should.throw();
-			( () => FN.extractBody( { function: () => {} } ) ).should.throw(); // eslint-disable-line no-empty-function
+	describe( "exports extractBody() which", function() {
+		it( "requires provision of function", function() {
+			( () => OdemUtilityFunction.extractBody() ).should.throw();
+			( () => OdemUtilityFunction.extractBody( null ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( undefined ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( false ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( true ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( 0 ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( 1.5 ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( -3000000 ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( "" ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( "test" ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( [] ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( [() => {}] ) ).should.throw(); // eslint-disable-line no-empty-function
+			( () => OdemUtilityFunction.extractBody( {} ) ).should.throw();
+			( () => OdemUtilityFunction.extractBody( { function: () => {} } ) ).should.throw(); // eslint-disable-line no-empty-function
 
-			( () => FN.extractBody( function() {} ) ).should.not.throw(); // eslint-disable-line no-empty-function
+			( () => OdemUtilityFunction.extractBody( function() {} ) ).should.not.throw(); // eslint-disable-line no-empty-function
 
-			( () => FN.extractBody( () => {} ) ).should.not.throw(); // eslint-disable-line no-empty-function
+			( () => OdemUtilityFunction.extractBody( () => {} ) ).should.not.throw(); // eslint-disable-line no-empty-function
 		} );
 
-		test( "returns information on provided function", function() {
-			FN.extractBody( function() {} ).should.be.Object().which.has.ownProperty( "args" ); // eslint-disable-line no-empty-function
-			FN.extractBody( function() {} ).should.be.Object().which.has.ownProperty( "body" ); // eslint-disable-line no-empty-function
+		it( "returns information on provided function", function() {
+			OdemUtilityFunction.extractBody( function() {} ).should.be.Object().which.has.ownProperty( "args" ); // eslint-disable-line no-empty-function
+			OdemUtilityFunction.extractBody( function() {} ).should.be.Object().which.has.ownProperty( "body" ); // eslint-disable-line no-empty-function
 
-			FN.extractBody( () => {} ).should.be.Object().which.has.ownProperty( "body" ); // eslint-disable-line no-empty-function
-			FN.extractBody( () => {} ).should.be.Object().which.has.ownProperty( "args" ); // eslint-disable-line no-empty-function
+			OdemUtilityFunction.extractBody( () => {} ).should.be.Object().which.has.ownProperty( "body" ); // eslint-disable-line no-empty-function
+			OdemUtilityFunction.extractBody( () => {} ).should.be.Object().which.has.ownProperty( "args" ); // eslint-disable-line no-empty-function
 		} );
 
-		test( "returns sorted list of names of all arguments of provided function", function() {
-			FN.extractBody( function() {} ).args.should.be.an.Array().which.has.length( 0 ); // eslint-disable-line no-empty-function
-			FN.extractBody( function( a ) {} ).args // eslint-disable-line no-unused-vars, no-empty-function
+		it( "returns sorted list of names of all arguments of provided function", function() {
+			OdemUtilityFunction.extractBody( function() {} ).args.should.be.an.Array().which.has.length( 0 ); // eslint-disable-line no-empty-function
+			OdemUtilityFunction.extractBody( function( a ) {} ).args // eslint-disable-line no-unused-vars, no-empty-function
 				.should.be.an.Array().which.is.containEql( "a" ).and.has.length( 1 );
-			FN.extractBody( function( first, second ) {} ).args // eslint-disable-line no-unused-vars, no-empty-function
+			OdemUtilityFunction.extractBody( function( first, second ) {} ).args // eslint-disable-line no-unused-vars, no-empty-function
 				.should.be.an.Array().which.is.eql( [ "first", "second" ] ).and.has.length( 2 );
 
-			FN.extractBody( () => {} ).args.should.be.an.Array().which.has.length( 0 ); // eslint-disable-line no-empty-function
-			FN.extractBody( a => {} ).args // eslint-disable-line no-unused-vars, no-empty-function
+			OdemUtilityFunction.extractBody( () => {} ).args.should.be.an.Array().which.has.length( 0 ); // eslint-disable-line no-empty-function
+			OdemUtilityFunction.extractBody( a => {} ).args // eslint-disable-line no-unused-vars, no-empty-function
 				.should.be.an.Array().which.is.containEql( "a" ).and.has.length( 1 );
-			FN.extractBody( ( first, second ) => {} ).args // eslint-disable-line no-unused-vars, no-empty-function
+			OdemUtilityFunction.extractBody( ( first, second ) => {} ).args // eslint-disable-line no-unused-vars, no-empty-function
 				.should.be.an.Array().which.is.eql( [ "first", "second" ] ).and.has.length( 2 );
 
-			FN.extractBody( () => false ).args.should.be.an.Array().which.has.length( 0 ); // eslint-disable-line no-empty-function
-			FN.extractBody( a => a ).args // eslint-disable-line no-unused-vars, no-empty-function
+			OdemUtilityFunction.extractBody( () => false ).args.should.be.an.Array().which.has.length( 0 ); // eslint-disable-line no-empty-function
+			OdemUtilityFunction.extractBody( a => a ).args // eslint-disable-line no-unused-vars, no-empty-function
 				.should.be.an.Array().which.is.containEql( "a" ).and.has.length( 1 );
-			FN.extractBody( ( first, second ) => 1 + 2 ).args // eslint-disable-line no-unused-vars, no-empty-function
+			OdemUtilityFunction.extractBody( ( first, second ) => 1 + 2 ).args // eslint-disable-line no-unused-vars, no-empty-function
 				.should.be.an.Array().which.is.eql( [ "first", "second" ] ).and.has.length( 2 );
 		} );
 
-		test( "returns body of provided function", function() {
-			FN.extractBody( function() {} ).body.should.be.a.String().which.is.equal( "" ); // eslint-disable-line no-empty-function
-			FN.extractBody( function( a ) { return a + a; } ).body.should.be.a.String().which.is.equal( "return a + a;" );
-			FN.extractBody( function( a ) {
+		it( "returns body of provided function", function() {
+			OdemUtilityFunction.extractBody( function() {} ).body.should.be.a.String().which.is.equal( "" ); // eslint-disable-line no-empty-function
+			OdemUtilityFunction.extractBody( function( a ) { return a + a; } ).body.should.be.a.String().which.is.equal( "return a + a;" );
+			OdemUtilityFunction.extractBody( function( a ) {
 				return a + a;
 			} ).body.should.be.a.String().which.is.equal( "return a + a;" );
-			FN.extractBody( function( a ) {
+			OdemUtilityFunction.extractBody( function( a ) {
 				const b = a * 2;
 				return b + a;
 			} ).body.should.be.a.String().which.is.equal( `const b = a * 2;
 				return b + a;` );
 
-			FN.extractBody( () => {} ).body.should.be.a.String().which.is.equal( "" ); // eslint-disable-line no-empty-function
-			FN.extractBody( a => { return a + a; } ).body.should.be.a.String().which.is.equal( "return a + a;" );
-			FN.extractBody( a => {
+			OdemUtilityFunction.extractBody( () => {} ).body.should.be.a.String().which.is.equal( "" ); // eslint-disable-line no-empty-function
+			OdemUtilityFunction.extractBody( a => { return a + a; } ).body.should.be.a.String().which.is.equal( "return a + a;" );
+			OdemUtilityFunction.extractBody( a => {
 				return a + a;
 			} ).body.should.be.a.String().which.is.equal( "return a + a;" );
 
-			FN.extractBody( () => false ).body.should.be.a.String().which.is.equal( "return false;" ); // eslint-disable-line no-empty-function
-			FN.extractBody( a => a ).body.should.be.a.String().which.is.equal( "return a;" );
-			FN.extractBody( a => a + a ).body.should.be.a.String().which.is.equal( "return a + a;" );
+			OdemUtilityFunction.extractBody( () => false ).body.should.be.a.String().which.is.equal( "return false;" ); // eslint-disable-line no-empty-function
+			OdemUtilityFunction.extractBody( a => a ).body.should.be.a.String().which.is.equal( "return a;" );
+			OdemUtilityFunction.extractBody( a => a + a ).body.should.be.a.String().which.is.equal( "return a + a;" );
 		} );
 	} );
 } );

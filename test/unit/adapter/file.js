@@ -26,23 +26,21 @@
  * @author: cepharum
  */
 
-
 const Path = require( "path" );
 const { Readable } = require( "stream" );
 
 const { describe, it, before, after, beforeEach, afterEach } = require( "mocha" );
 const Should = require( "should" );
-
-const { FileAdapter, Adapter } = require( "../../.." );
-const { ptnUuid } = require( "../../../lib/utility/uuid" );
-
 const { MkDir, RmDir } = require( "file-essentials" );
 
+const { loadAllServices } = require( "../helper" );
 
 const dataSource = Path.resolve( __dirname, "../../../data" );
 
 describe( "FileAdapter", function() {
-	before( () => MkDir( dataSource ) );
+	let OdemAdapterFile, OdemAdapter, OdemUtilityUuid;
+
+	before( () => MkDir( dataSource ).then( () => loadAllServices() ).then( s => { ( { OdemAdapter, OdemAdapterFile, OdemUtilityUuid } = s ); } ) );
 
 	afterEach( () => RmDir( dataSource, { subsOnly: true } ) );
 
@@ -67,23 +65,23 @@ describe( "FileAdapter", function() {
 
 
 	it( "is exposed in property `FileAdapter`", function() {
-		Should( FileAdapter ).be.ok();
+		Should( OdemAdapterFile ).be.ok();
 	} );
 
 	it( "can be used to create instance", function() {
-		( () => new FileAdapter() ).should.not.throw();
+		( () => new OdemAdapterFile() ).should.not.throw();
 	} );
 
 	it( "is derived from basic Adapter", function() {
-		new FileAdapter().should.be.instanceOf( Adapter );
+		new OdemAdapterFile().should.be.instanceOf( OdemAdapter );
 	} );
 
 	it( "is using ./data for storing data files by default", function() {
-		return new FileAdapter().dataSource.should.be.Promise().which.is.resolvedWith( Path.resolve( "data" ) );
+		return new OdemAdapterFile().dataSource.should.be.Promise().which.is.resolvedWith( Path.resolve( "data" ) );
 	} );
 
 	it( "exposes instance methods of Adapter API", function() {
-		const instance = new FileAdapter( { dataSource } );
+		const instance = new OdemAdapterFile( { dataSource } );
 
 		instance.should.have.property( "create" ).which.is.a.Function().of.length( 2 );
 		instance.should.have.property( "has" ).which.is.a.Function().of.length( 1 );
@@ -96,12 +94,12 @@ describe( "FileAdapter", function() {
 	} );
 
 	it( "exposes class/static methods of Adapter API", function() {
-		FileAdapter.should.have.property( "keyToPath" ).which.is.a.Function().of.length( 1 );
-		FileAdapter.should.have.property( "pathToKey" ).which.is.a.Function().of.length( 1 );
+		OdemAdapterFile.should.have.property( "keyToPath" ).which.is.a.Function().of.length( 1 );
+		OdemAdapterFile.should.have.property( "pathToKey" ).which.is.a.Function().of.length( 1 );
 	} );
 
 	it( "returns promise on invoking create() which is resolved with key of created record", function() {
-		const instance = new FileAdapter( { dataSource } );
+		const instance = new OdemAdapterFile( { dataSource } );
 
 		const myData = { someProperty: "its value" };
 
@@ -111,14 +109,14 @@ describe( "FileAdapter", function() {
 
 				segments.should.be.Array().which.has.length( 2 );
 				segments[0].should.be.String().which.is.equal( "model" );
-				segments[1].should.be.String().and.match( ptnUuid );
+				segments[1].should.be.String().and.match( OdemUtilityUuid.ptnUuid );
 
 				return instance.read( key ).should.be.Promise().which.is.resolvedWith( myData );
 			} );
 	} );
 
 	it( "returns promise on invoking read() which is rejected on missing record and resolved with data on existing record", function() {
-		const instance = new FileAdapter( { dataSource } );
+		const instance = new OdemAdapterFile( { dataSource } );
 
 		const myData = { someProperty: "its value" };
 
@@ -128,7 +126,7 @@ describe( "FileAdapter", function() {
 	} );
 
 	it( "promises provided fallback value on trying to read() missing record", function() {
-		const instance = new FileAdapter();
+		const instance = new OdemAdapterFile();
 
 		const myFallbackData = { someProperty: "its value" };
 
@@ -137,7 +135,7 @@ describe( "FileAdapter", function() {
 	} );
 
 	it( "returns promise on invoking write() which is resolved with written data", function() {
-		const instance = new FileAdapter( { dataSource } );
+		const instance = new OdemAdapterFile( { dataSource } );
 
 		const myData = { someProperty: "its value" };
 
@@ -148,7 +146,7 @@ describe( "FileAdapter", function() {
 	} );
 
 	it( "returns promise on invoking has() which is resolved with information on having selected record or not", function() {
-		const instance = new FileAdapter( { dataSource } );
+		const instance = new OdemAdapterFile( { dataSource } );
 
 		return instance.has( "model/some-id" ).should.be.Promise().which.is.resolvedWith( false )
 			.then( () => instance.write( "model/some-id", {} ) )
@@ -156,7 +154,7 @@ describe( "FileAdapter", function() {
 	} );
 
 	it( "returns promise on invoking remove() which is resolved with key of record no matter if record exists or not", function() {
-		const instance = new FileAdapter( { dataSource } );
+		const instance = new OdemAdapterFile( { dataSource } );
 
 		return instance.remove( "model/some-id" ).should.be.Promise().which.is.resolvedWith( "model/some-id" )
 			.then( () => instance.write( "model/some-id", { someProperty: "its value" } ) )
@@ -164,19 +162,19 @@ describe( "FileAdapter", function() {
 	} );
 
 	it( "returns promise on invoking begin() which is rejected due to lack of support for transactions", function() {
-		const instance = new FileAdapter( { dataSource } );
+		const instance = new OdemAdapterFile( { dataSource } );
 
 		return instance.begin().should.be.Promise().which.is.rejected();
 	} );
 
 	it( "returns promise on invoking rollBack() which is rejected due to lack of support for transactions", function() {
-		const instance = new FileAdapter( { dataSource } );
+		const instance = new OdemAdapterFile( { dataSource } );
 
 		return instance.rollBack().should.be.Promise().which.is.rejected();
 	} );
 
 	it( "returns promise on invoking commit() which is rejected due to lack of support for transactions", function() {
-		const instance = new FileAdapter( { dataSource } );
+		const instance = new OdemAdapterFile( { dataSource } );
 
 		return instance.commit().should.be.Promise().which.is.rejected();
 	} );
@@ -185,7 +183,7 @@ describe( "FileAdapter", function() {
 		let adapter;
 
 		beforeEach( function() {
-			adapter = new FileAdapter( { dataSource: "../data" } );
+			adapter = new OdemAdapterFile( { dataSource: "../data" } );
 
 			return adapter.purge().then( () => adapter.dataSource )
 				.then( () => adapter.write( "some/key/without/uuid-1", { id: "first" } ) )
@@ -388,154 +386,154 @@ describe( "FileAdapter", function() {
 	} );
 
 	it( "maps empty key empty path name", function() {
-		FileAdapter.keyToPath( "" ).should.be.String().which.is.empty();
+		OdemAdapterFile.keyToPath( "" ).should.be.String().which.is.empty();
 	} );
 
 	describe( "considers keys segmented by forward slash and thus", function() {
 		it( "prefixes non-UUID segments with letter 's'", function() {
-			FileAdapter.keyToPath( "a" ).should.be.String().which.is.equal( "sa" );
-			FileAdapter.keyToPath( "firstSegment" ).should.be.String().which.is.equal( "sfirstSegment" );
+			OdemAdapterFile.keyToPath( "a" ).should.be.String().which.is.equal( "sa" );
+			OdemAdapterFile.keyToPath( "firstSegment" ).should.be.String().which.is.equal( "sfirstSegment" );
 
-			FileAdapter.keyToPath( "a/b/c/d/e" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "sa/sb/sc/sd/se" );
-			FileAdapter.keyToPath( "first/Second" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "sfirst/sSecond" );
+			OdemAdapterFile.keyToPath( "a/b/c/d/e" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "sa/sb/sc/sd/se" );
+			OdemAdapterFile.keyToPath( "first/Second" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "sfirst/sSecond" );
 		} );
 
 		it( "detects UUID segments to be split into three resulting segments each prefixed with letter 'p'", function() {
-			FileAdapter.keyToPath( "12345678-1234-1234-1234-1234567890ab" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "p1/p23/p45678-1234-1234-1234-1234567890ab" );
+			OdemAdapterFile.keyToPath( "12345678-1234-1234-1234-1234567890ab" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "p1/p23/p45678-1234-1234-1234-1234567890ab" );
 		} );
 
 		it( "properly marks UUID- and non-UUID-segments in a single path", function() {
-			FileAdapter.keyToPath( "model/item/12345678-1234-1234-1234-1234567890ab/data" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "smodel/sitem/p1/p23/p45678-1234-1234-1234-1234567890ab/sdata" );
+			OdemAdapterFile.keyToPath( "model/item/12345678-1234-1234-1234-1234567890ab/data" ).replace( /\\/g, "/" ).should.be.String().which.is.equal( "smodel/sitem/p1/p23/p45678-1234-1234-1234-1234567890ab/sdata" );
 		} );
 	} );
 
 	it( "maps empty path name to empty key", function() {
-		FileAdapter.pathToKey( "" ).should.be.String().which.is.empty();
+		OdemAdapterFile.pathToKey( "" ).should.be.String().which.is.empty();
 	} );
 
 	describe( "considers all segments of path name to be marked by prefix 'p' or 's' and thus", function() {
 		it( "rejects segments w/o such prefix", function() {
-			( () => FileAdapter.pathToKey( "a" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "first" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "a/b/c/d/e" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "a\\b\\c\\d\\e" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "a" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "first" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "a/b/c/d/e" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "a\\b\\c\\d\\e" ) ).should.throw();
 		} );
 
 		it( "accepts segments prefixed w/ wrong case of marking letters", function() {
-			( () => FileAdapter.pathToKey( "Sa" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "sa" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "Sfirst" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "sfirst" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "Sa/Sb/Sc/Sd/Se" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "sa/sb/sc/sd/se" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "Sa\\Sb\\Sc\\Sd\\Se" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "sa\\sb\\sc\\sd\\se" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "Sa" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "sa" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "Sfirst" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "sfirst" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "Sa/Sb/Sc/Sd/Se" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "sa/sb/sc/sd/se" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "Sa\\Sb\\Sc\\Sd\\Se" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "sa\\sb\\sc\\sd\\se" ) ).should.not.throw();
 		} );
 
 		it( "always requires three successive segments marked with 'p'", function() {
-			( () => FileAdapter.pathToKey( "Pa" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "pa" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "Pfirst" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "pfirst" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "Pa/Pb" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "pa/pb" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "Pa\\Pb" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "pa\\pb" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "Pa" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "pa" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "Pfirst" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "pfirst" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "Pa/Pb" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "pa/pb" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "Pa\\Pb" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "pa\\pb" ) ).should.throw();
 
-			( () => FileAdapter.pathToKey( "Pa/Pb/Pc" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "pa/pb/pc" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "Pa\\Pb\\Pc" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "pa\\pb\\pc" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "Pa/Pb/Pc" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "pa/pb/pc" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "Pa\\Pb\\Pc" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "pa\\pb\\pc" ) ).should.not.throw();
 
-			( () => FileAdapter.pathToKey( "Pa/Pb/Pc/Pd" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "pa/pb/pc/pd" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "Pa\\Pb\\Pc\\Pd" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "pa\\pb\\pc\\pd" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "Pa/Pb/Pc/Pd" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "pa/pb/pc/pd" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "Pa\\Pb\\Pc\\Pd" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "pa\\pb\\pc\\pd" ) ).should.throw();
 
-			( () => FileAdapter.pathToKey( "Pa/Pb/Pc/Pd/Pe/Pf" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "pa/pb/pc/pd/pe/pf" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "Pa\\Pb\\Pc\\Pd\\Pe\\Pf" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "pa\\pb\\pc\\pd\\pe\\pf" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "Pa/Pb/Pc/Pd/Pe/Pf" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "pa/pb/pc/pd/pe/pf" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "Pa\\Pb\\Pc\\Pd\\Pe\\Pf" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "pa\\pb\\pc\\pd\\pe\\pf" ) ).should.not.throw();
 
-			( () => FileAdapter.pathToKey( "S0/Pa/Pb/Pc/Pd/Pe/Pf" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "s0/pa/pb/pc/pd/pe/pf" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "S0\\Pa\\Pb\\Pc\\Pd\\Pe\\Pf" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "s0\\pa\\pb\\pc\\pd\\pe\\pf" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "S0/Pa/Pb/Pc/Pd/Pe/Pf" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "s0/pa/pb/pc/pd/pe/pf" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "S0\\Pa\\Pb\\Pc\\Pd\\Pe\\Pf" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "s0\\pa\\pb\\pc\\pd\\pe\\pf" ) ).should.not.throw();
 
-			( () => FileAdapter.pathToKey( "S0/Pa/Pb/Pc/Pd/Pe/Pf/S2" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "s0/pa/pb/pc/pd/pe/pf/s2" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "S0\\Pa\\Pb\\Pc\\Pd\\Pe\\Pf\\S2" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "s0\\pa\\pb\\pc\\pd\\pe\\pf\\s2" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "S0/Pa/Pb/Pc/Pd/Pe/Pf/S2" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "s0/pa/pb/pc/pd/pe/pf/s2" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "S0\\Pa\\Pb\\Pc\\Pd\\Pe\\Pf\\S2" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "s0\\pa\\pb\\pc\\pd\\pe\\pf\\s2" ) ).should.not.throw();
 
-			( () => FileAdapter.pathToKey( "S0/Pa/Pb/Pc/S1/Pd/Pe/Pf/S2" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "s0/pa/pb/pc/s1/pd/pe/pf/s2" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "S0\\Pa\\Pb\\Pc\\S1\\Pd\\Pe\\Pf\\S2" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "s0\\pa\\pb\\pc\\s1\\pd\\pe\\pf\\s2" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "S0/Pa/Pb/Pc/S1/Pd/Pe/Pf/S2" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "s0/pa/pb/pc/s1/pd/pe/pf/s2" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "S0\\Pa\\Pb\\Pc\\S1\\Pd\\Pe\\Pf\\S2" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "s0\\pa\\pb\\pc\\s1\\pd\\pe\\pf\\s2" ) ).should.not.throw();
 
-			( () => FileAdapter.pathToKey( "S0/Pa/Pb/Pc/Pd/S1/Pe/Pf/S2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "s0/pa/pb/pc/pd/s1/pe/pf/s2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "S0\\Pa\\Pb\\Pc\\Pd\\S1\\Pe\\Pf\\S2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "s0\\pa\\pb\\pc\\pd\\s1\\pe\\pf\\s2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "S0/Pa/Pb/S1/Pc/Pd/Pe/Pf/S2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "s0/pa/pb/s1/pc/pd/pe/pf/s2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "S0\\Pa\\Pb\\S1\\Pc\\Pd\\Pe\\Pf\\S2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "s0\\pa\\pb\\s1\\pc\\pd\\pe\\pf\\s2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "S0/Pa/Pb/Pc/Pd/S1/Pe/Pf/S2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "s0/pa/pb/pc/pd/s1/pe/pf/s2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "S0\\Pa\\Pb\\Pc\\Pd\\S1\\Pe\\Pf\\S2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "s0\\pa\\pb\\pc\\pd\\s1\\pe\\pf\\s2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "S0/Pa/Pb/S1/Pc/Pd/Pe/Pf/S2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "s0/pa/pb/s1/pc/pd/pe/pf/s2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "S0\\Pa\\Pb\\S1\\Pc\\Pd\\Pe\\Pf\\S2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "s0\\pa\\pb\\s1\\pc\\pd\\pe\\pf\\s2" ) ).should.throw();
 		} );
 
 		it( "removes prefix 's' from segments on conversion", function() {
-			FileAdapter.pathToKey( "sa" ).should.be.String().which.is.equal( "a" );
-			FileAdapter.pathToKey( "sfirstSegment" ).should.be.String().which.is.equal( "firstSegment" );
-			FileAdapter.pathToKey( "Sa" ).should.be.String().which.is.equal( "a" );
-			FileAdapter.pathToKey( "SfirstSegment" ).should.be.String().which.is.equal( "firstSegment" );
+			OdemAdapterFile.pathToKey( "sa" ).should.be.String().which.is.equal( "a" );
+			OdemAdapterFile.pathToKey( "sfirstSegment" ).should.be.String().which.is.equal( "firstSegment" );
+			OdemAdapterFile.pathToKey( "Sa" ).should.be.String().which.is.equal( "a" );
+			OdemAdapterFile.pathToKey( "SfirstSegment" ).should.be.String().which.is.equal( "firstSegment" );
 
-			FileAdapter.pathToKey( "sa/sb/sc/sd/se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
-			FileAdapter.pathToKey( "sfirst/sSecond" ).should.be.String().which.is.equal( "first/Second" );
-			FileAdapter.pathToKey( "Sa/Sb/Sc/Sd/Se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
-			FileAdapter.pathToKey( "Sfirst/SSecond" ).should.be.String().which.is.equal( "first/Second" );
+			OdemAdapterFile.pathToKey( "sa/sb/sc/sd/se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
+			OdemAdapterFile.pathToKey( "sfirst/sSecond" ).should.be.String().which.is.equal( "first/Second" );
+			OdemAdapterFile.pathToKey( "Sa/Sb/Sc/Sd/Se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
+			OdemAdapterFile.pathToKey( "Sfirst/SSecond" ).should.be.String().which.is.equal( "first/Second" );
 		} );
 
 		it( "maps any OS-specific path name separator to forwards slash", function() {
-			FileAdapter.pathToKey( "sa\\sb\\sc\\sd\\se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
-			FileAdapter.pathToKey( "sfirst\\sSecond" ).should.be.String().which.is.equal( "first/Second" );
-			FileAdapter.pathToKey( "Sa\\Sb\\Sc\\Sd\\Se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
-			FileAdapter.pathToKey( "Sfirst\\SSecond" ).should.be.String().which.is.equal( "first/Second" );
+			OdemAdapterFile.pathToKey( "sa\\sb\\sc\\sd\\se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
+			OdemAdapterFile.pathToKey( "sfirst\\sSecond" ).should.be.String().which.is.equal( "first/Second" );
+			OdemAdapterFile.pathToKey( "Sa\\Sb\\Sc\\Sd\\Se" ).should.be.String().which.is.equal( "a/b/c/d/e" );
+			OdemAdapterFile.pathToKey( "Sfirst\\SSecond" ).should.be.String().which.is.equal( "first/Second" );
 		} );
 
 		it( "joins split segments marked with prefix 'p' back into one", function() {
-			FileAdapter.pathToKey( "p1/p23/p45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
-			FileAdapter.pathToKey( "P1/P23/P45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
-			FileAdapter.pathToKey( "p1\\p23\\p45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
-			FileAdapter.pathToKey( "P1\\P23\\P45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
+			OdemAdapterFile.pathToKey( "p1/p23/p45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
+			OdemAdapterFile.pathToKey( "P1/P23/P45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
+			OdemAdapterFile.pathToKey( "p1\\p23\\p45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
+			OdemAdapterFile.pathToKey( "P1\\P23\\P45678-1234-1234-1234-1234567890ab" ).should.be.String().which.is.equal( "12345678-1234-1234-1234-1234567890ab" );
 		} );
 
 		it( "does not check if joining split segments marked with prefix 'p' back into one results in valid UUID", function() {
-			FileAdapter.pathToKey( "p1/p2/p4" ).should.be.String().which.is.equal( "124" );
-			FileAdapter.pathToKey( "P1/P2/P4" ).should.be.String().which.is.equal( "124" );
-			FileAdapter.pathToKey( "p1\\p2\\p4" ).should.be.String().which.is.equal( "124" );
-			FileAdapter.pathToKey( "P1\\P2\\P4" ).should.be.String().which.is.equal( "124" );
+			OdemAdapterFile.pathToKey( "p1/p2/p4" ).should.be.String().which.is.equal( "124" );
+			OdemAdapterFile.pathToKey( "P1/P2/P4" ).should.be.String().which.is.equal( "124" );
+			OdemAdapterFile.pathToKey( "p1\\p2\\p4" ).should.be.String().which.is.equal( "124" );
+			OdemAdapterFile.pathToKey( "P1\\P2\\P4" ).should.be.String().which.is.equal( "124" );
 		} );
 
 		it( "rejects to join split segments on missing some required segments", function() {
-			( () => FileAdapter.pathToKey( "p1" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "P1" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "p1" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "P1" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "p1" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "P1" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "p1" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "P1" ) ).should.throw();
 
-			( () => FileAdapter.pathToKey( "p1/p2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "P1/P2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "p1\\p2" ) ).should.throw();
-			( () => FileAdapter.pathToKey( "P1\\P2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "p1/p2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "P1/P2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "p1\\p2" ) ).should.throw();
+			( () => OdemAdapterFile.pathToKey( "P1\\P2" ) ).should.throw();
 
-			( () => FileAdapter.pathToKey( "p1/p2/p4" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "P1/P2/P4" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "p1\\p2\\p4" ) ).should.not.throw();
-			( () => FileAdapter.pathToKey( "P1\\P2\\P4" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "p1/p2/p4" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "P1/P2/P4" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "p1\\p2\\p4" ) ).should.not.throw();
+			( () => OdemAdapterFile.pathToKey( "P1\\P2\\P4" ) ).should.not.throw();
 		} );
 
 		it( "properly handles path names mixing segments marked with 's' and 'p'", function() {
-			FileAdapter.pathToKey( "smodel/sItem/p1/P23/p45678-1234-1234-1234-1234567890ab/Sdata" )
+			OdemAdapterFile.pathToKey( "smodel/sItem/p1/P23/p45678-1234-1234-1234-1234567890ab/Sdata" )
 				.should.be.String().which.is.equal( "model/Item/12345678-1234-1234-1234-1234567890ab/data" );
-			FileAdapter.pathToKey( "smodel\\sItem\\p1\\P23\\p45678-1234-1234-1234-1234567890ab\\Sdata" )
+			OdemAdapterFile.pathToKey( "smodel\\sItem\\p1\\P23\\p45678-1234-1234-1234-1234567890ab\\Sdata" )
 				.should.be.String().which.is.equal( "model/Item/12345678-1234-1234-1234-1234567890ab/data" );
 		} );
 	} );
@@ -549,7 +547,7 @@ describe( "FileAdapter", function() {
 			"/models/user/00000000-1111-2222-4444-888888888888",
 			"/models/user/00000000-1111-2222-4444-888888888888/propA",
 		].forEach( key => {
-			FileAdapter.pathToKey( FileAdapter.keyToPath( key ).replace( "\\", "/" ) ).should.be.equal( key );
+			OdemAdapterFile.pathToKey( OdemAdapterFile.keyToPath( key ).replace( "\\", "/" ) ).should.be.equal( key );
 		} );
 	} );
 
@@ -562,12 +560,12 @@ describe( "FileAdapter", function() {
 			"/models/user/00000000-1111-2222-4444-888888888888",
 			"/models/user/00000000-1111-2222-4444-888888888888/propA",
 		].forEach( key => {
-			FileAdapter.pathToKey( FileAdapter.keyToPath( key ).replace( "/", "\\" ) ).should.be.equal( key );
+			OdemAdapterFile.pathToKey( OdemAdapterFile.keyToPath( key ).replace( "/", "\\" ) ).should.be.equal( key );
 		} );
 	} );
 
 	it( "succeeds to write many records with very similar model-like path simultaneously", function() {
-		const adapter = new FileAdapter( { dataSource } );
+		const adapter = new OdemAdapterFile( { dataSource } );
 		const record = { someProperty: "its value" };
 
 		const promises = new Array( 200 )
@@ -581,7 +579,7 @@ describe( "FileAdapter", function() {
 		this.timeout( 20000 );
 
 		const NumItems = 50000;
-		const adapter = new FileAdapter( { dataSource } );
+		const adapter = new OdemAdapterFile( { dataSource } );
 
 		const text = `lorem ipsum dolor sit amet consectetur`;
 		const record = { someProperty: new Array( NumItems ).fill( text ) };

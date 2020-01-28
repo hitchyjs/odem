@@ -29,31 +29,35 @@
 
 const { Readable } = require( "stream" );
 
-const { suite, test } = require( "mocha" );
+const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
-const IteratorStream = require( "../../../lib/utility/iterator-stream" );
+const { loadAllServices } = require( "../helper" );
 
 
-suite( "IteratorStream", function() {
-	test( "is exposed", function() {
-		Should.exist( IteratorStream );
+describe( "IteratorStream", function() {
+	let OdemUtilityIteratorStream;
+
+	before( () => loadAllServices().then( s => { ( { OdemUtilityIteratorStream } = s ); } ) );
+
+	it( "is exposed", function() {
+		Should.exist( OdemUtilityIteratorStream );
 	} );
 
-	test( "requires iterator on construction", function() {
-		( () => new IteratorStream() ).should.throw();
+	it( "requires iterator on construction", function() {
+		( () => new OdemUtilityIteratorStream() ).should.throw();
 
-		( () => new IteratorStream( ""[Symbol.iterator]() ) ).should.not.throw();
-		( () => new IteratorStream( new Map()[Symbol.iterator]() ) ).should.not.throw();
+		( () => new OdemUtilityIteratorStream( ""[Symbol.iterator]() ) ).should.not.throw();
+		( () => new OdemUtilityIteratorStream( new Map()[Symbol.iterator]() ) ).should.not.throw();
 	} );
 
-	test( "inherits from `Readable`", function() {
-		new IteratorStream( ""[Symbol.iterator]() ).should.be.instanceOf( Readable );
+	it( "inherits from `Readable`", function() {
+		new OdemUtilityIteratorStream( ""[Symbol.iterator]() ).should.be.instanceOf( Readable );
 	} );
 
-	test( "provides iterated entries one by one", function() {
+	it( "provides iterated entries one by one", function() {
 		return new Promise( resolve => {
-			const stream = new IteratorStream( "Hello World!"[Symbol.iterator]() );
+			const stream = new OdemUtilityIteratorStream( "Hello World!"[Symbol.iterator]() );
 
 			const exposed = [];
 
@@ -69,9 +73,9 @@ suite( "IteratorStream", function() {
 		} );
 	} );
 
-	test( "accepts custom feeder for processing iterated values before pushing into stream", function() {
+	it( "accepts custom feeder for processing iterated values before pushing into stream", function() {
 		return new Promise( resolve => {
-			const stream = new IteratorStream( new Map( [
+			const stream = new OdemUtilityIteratorStream( new Map( [
 				[ "name", "John" ],
 				[ "surname", "Doe" ],
 				[ "age", 42 ],

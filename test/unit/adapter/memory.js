@@ -30,27 +30,31 @@
 const { join } = require( "path" );
 const { Readable } = require( "stream" );
 
-const { suite, test } = require( "mocha" );
+const { describe, it, before, beforeEach } = require( "mocha" );
 const Should = require( "should" );
 
-const { MemoryAdapter, Adapter } = require( "../../.." );
+const { loadAllServices } = require( "../helper" );
 
 
-suite( "MemoryAdapter", function() {
-	test( "is exposed in property `MemoryAdapter`", function() {
-		Should( MemoryAdapter ).be.ok();
+describe( "MemoryAdapter", function() {
+	let OdemAdapter, OdemAdapterMemory;
+
+	before( () => loadAllServices().then( s => { ( { OdemAdapter, OdemAdapterMemory } = s ); } ) );
+
+	it( "is exposed in property `MemoryAdapter`", function() {
+		Should( OdemAdapterMemory ).be.ok();
 	} );
 
-	test( "can be used to create instance", function() {
-		( () => new MemoryAdapter() ).should.not.throw();
+	it( "can be used to create instance", function() {
+		( () => new OdemAdapterMemory() ).should.not.throw();
 	} );
 
-	test( "is derived from basic Adapter", function() {
-		new MemoryAdapter().should.be.instanceOf( Adapter );
+	it( "is derived from basic Adapter", function() {
+		new OdemAdapterMemory().should.be.instanceOf( OdemAdapter );
 	} );
 
-	test( "exposes instance methods of Adapter API", function() {
-		const instance = new MemoryAdapter();
+	it( "exposes instance methods of Adapter API", function() {
+		const instance = new OdemAdapterMemory();
 
 		instance.should.have.property( "create" ).which.is.a.Function().of.length( 2 );
 		instance.should.have.property( "has" ).which.is.a.Function().of.length( 1 );
@@ -62,13 +66,13 @@ suite( "MemoryAdapter", function() {
 		instance.should.have.property( "commit" ).which.is.a.Function().of.length( 0 );
 	} );
 
-	test( "exposes class/static methods of Adapter API", function() {
-		MemoryAdapter.should.have.property( "keyToPath" ).which.is.a.Function().of.length( 1 );
-		MemoryAdapter.should.have.property( "pathToKey" ).which.is.a.Function().of.length( 1 );
+	it( "exposes class/static methods of Adapter API", function() {
+		OdemAdapterMemory.should.have.property( "keyToPath" ).which.is.a.Function().of.length( 1 );
+		OdemAdapterMemory.should.have.property( "pathToKey" ).which.is.a.Function().of.length( 1 );
 	} );
 
-	test( "returns promise on invoking create() which is resolved with key of created record", function() {
-		const instance = new MemoryAdapter();
+	it( "returns promise on invoking create() which is resolved with key of created record", function() {
+		const instance = new OdemAdapterMemory();
 
 		const myData = { someProperty: "its value" };
 
@@ -80,8 +84,8 @@ suite( "MemoryAdapter", function() {
 			} );
 	} );
 
-	test( "returns promise on invoking read() which is rejected on missing record and resolved with data on existing record", function() {
-		const instance = new MemoryAdapter();
+	it( "returns promise on invoking read() which is rejected on missing record and resolved with data on existing record", function() {
+		const instance = new OdemAdapterMemory();
 
 		const myData = { someProperty: "its value" };
 
@@ -90,8 +94,8 @@ suite( "MemoryAdapter", function() {
 			.then( () => instance.read( "model/some-id" ).should.be.Promise().which.is.resolvedWith( myData ) );
 	} );
 
-	test( "promises provided fallback value on trying to read() missing record", function() {
-		const instance = new MemoryAdapter();
+	it( "promises provided fallback value on trying to read() missing record", function() {
+		const instance = new OdemAdapterMemory();
 
 		const myFallbackData = { someProperty: "its value" };
 
@@ -99,8 +103,8 @@ suite( "MemoryAdapter", function() {
 			.then( () => instance.read( "model/some-id", { ifMissing: myFallbackData } ).should.be.Promise().which.is.resolvedWith( myFallbackData ) );
 	} );
 
-	test( "returns promise on invoking write() which is resolved with written data", function() {
-		const instance = new MemoryAdapter();
+	it( "returns promise on invoking write() which is resolved with written data", function() {
+		const instance = new OdemAdapterMemory();
 
 		const myData = { someProperty: "its value" };
 
@@ -110,8 +114,8 @@ suite( "MemoryAdapter", function() {
 			} );
 	} );
 
-	test( "returns promise on invoking has() which is resolved with information on having selected record or not", function() {
-		const instance = new MemoryAdapter();
+	it( "returns promise on invoking has() which is resolved with information on having selected record or not", function() {
+		const instance = new OdemAdapterMemory();
 
 		return instance.has( "model/some-id" ).should.be.Promise().which.is.resolved()
 			.then( exists => {
@@ -124,67 +128,67 @@ suite( "MemoryAdapter", function() {
 			} );
 	} );
 
-	test( "returns promise on invoking remove() which is resolved with key of record no matter if record exists or not", function() {
-		const instance = new MemoryAdapter();
+	it( "returns promise on invoking remove() which is resolved with key of record no matter if record exists or not", function() {
+		const instance = new OdemAdapterMemory();
 
 		return instance.remove( "model/some-id" ).should.be.Promise().which.is.resolvedWith( "model/some-id" )
 			.then( instance.write( "model/some-id", { someProperty: "its value" } ) )
 			.then( instance.remove( "model/some-id" ).should.be.Promise().which.is.resolvedWith( "model/some-id" ) );
 	} );
 
-	test( "returns promise on invoking begin() which is rejected due to lack of support for transactions", function() {
-		const instance = new MemoryAdapter();
+	it( "returns promise on invoking begin() which is rejected due to lack of support for transactions", function() {
+		const instance = new OdemAdapterMemory();
 
 		return instance.begin().should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking rollBack() which is rejected due to lack of support for transactions", function() {
-		const instance = new MemoryAdapter();
+	it( "returns promise on invoking rollBack() which is rejected due to lack of support for transactions", function() {
+		const instance = new OdemAdapterMemory();
 
 		return instance.rollBack().should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking commit() which is rejected due to lack of support for transactions", function() {
-		const instance = new MemoryAdapter();
+	it( "returns promise on invoking commit() which is rejected due to lack of support for transactions", function() {
+		const instance = new OdemAdapterMemory();
 
 		return instance.commit().should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns keys w/o UUID as given on request for mapping it into some path name", function() {
+	it( "returns keys w/o UUID as given on request for mapping it into some path name", function() {
 		[
 			"",
 			"a",
 			"some/test",
-		].forEach( key => MemoryAdapter.keyToPath( key ).replace( /\\/g, "/" ).should.be.String().which.is.equal( key ) );
+		].forEach( key => OdemAdapterMemory.keyToPath( key ).replace( /\\/g, "/" ).should.be.String().which.is.equal( key ) );
 	} );
 
-	test( "returns keys w/ UUID as given on request for mapping it into some path name", function() {
+	it( "returns keys w/ UUID as given on request for mapping it into some path name", function() {
 		[
 			"01234567-89ab-cdef-fedc-ba9876543210",
 			"item/00000000-1111-2222-4444-888888888888",
-		].forEach( key => MemoryAdapter.keyToPath( key ).replace( /\\/g, "/" ).should.be.String().which.is.equal( key ) );
+		].forEach( key => OdemAdapterMemory.keyToPath( key ).replace( /\\/g, "/" ).should.be.String().which.is.equal( key ) );
 	} );
 
-	test( "returns path names not related to some UUID as given on request for mapping it into some key", function() {
+	it( "returns path names not related to some UUID as given on request for mapping it into some key", function() {
 		[
 			"",
 			"a",
 			join( "some", "test" ),
-		].forEach( key => MemoryAdapter.pathToKey( key ).should.be.String().which.is.equal( key ) );
+		].forEach( key => OdemAdapterMemory.pathToKey( key ).should.be.String().which.is.equal( key ) );
 	} );
 
-	test( "returns path names related to some UUID as given on request for mapping it into some key", function() {
+	it( "returns path names related to some UUID as given on request for mapping it into some key", function() {
 		[
 			join( "0", "12", "34567-89ab-cdef-fedc-ba9876543210" ),
 			join( "item", "0", "00", "00000-1111-2222-4444-888888888888" ),
-		].forEach( key => MemoryAdapter.pathToKey( key ).should.be.String().which.is.equal( key ) );
+		].forEach( key => OdemAdapterMemory.pathToKey( key ).should.be.String().which.is.equal( key ) );
 	} );
 
-	suite( "provides `keyStream()` which", function() {
+	describe( "provides `keyStream()` which", function() {
 		let adapter;
 
-		setup( function() {
-			adapter = new MemoryAdapter( { dataSource: "../data" } );
+		beforeEach( function() {
+			adapter = new OdemAdapterMemory( { dataSource: "../data" } );
 
 			return adapter.write( "some/key/without/uuid-1", { id: "first" } )
 				.then( () => adapter.write( "some/key/without/uuid-2", { id: "second" } ) )
@@ -193,11 +197,11 @@ suite( "MemoryAdapter", function() {
 				.then( () => adapter.write( "some/key/with/uuid/00000000-0000-0000-0000-000000000000", { id: "fifth" } ) );
 		} );
 
-		test( "is a function", function() {
+		it( "is a function", function() {
 			adapter.should.have.property( "keyStream" ).which.is.a.Function();
 		} );
 
-		test( "returns a readable stream", function() {
+		it( "returns a readable stream", function() {
 			return new Promise( resolve => {
 				const stream = adapter.keyStream();
 
@@ -207,7 +211,7 @@ suite( "MemoryAdapter", function() {
 			} );
 		} );
 
-		test( "generates keys of all records in selected datasource by default", function() {
+		it( "generates keys of all records in selected datasource by default", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream();
@@ -232,7 +236,7 @@ suite( "MemoryAdapter", function() {
 			} );
 		} );
 
-		test( "generates keys of all records in selected datasource matching some selected prefix", function() {
+		it( "generates keys of all records in selected datasource matching some selected prefix", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -256,7 +260,7 @@ suite( "MemoryAdapter", function() {
 			} );
 		} );
 
-		test( "generates no key if prefix doesn't select any folder or single record in backend", function() {
+		it( "generates no key if prefix doesn't select any folder or single record in backend", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -272,7 +276,7 @@ suite( "MemoryAdapter", function() {
 			} );
 		} );
 
-		test( "generates no key if prefix partially matching key of some folder in backend, only", function() {
+		it( "generates no key if prefix partially matching key of some folder in backend, only", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -288,7 +292,7 @@ suite( "MemoryAdapter", function() {
 			} );
 		} );
 
-		test( "generates some matching record's key used as prefix, only", function() {
+		it( "generates some matching record's key used as prefix, only", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -305,7 +309,7 @@ suite( "MemoryAdapter", function() {
 			} );
 		} );
 
-		test( "generates keys of all records in selected datasource up to some requested maximum depth", function() {
+		it( "generates keys of all records in selected datasource up to some requested maximum depth", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -329,7 +333,7 @@ suite( "MemoryAdapter", function() {
 			} );
 		} );
 
-		test( "generates keys of all records in selected datasource with requested maximum depth considered relative to given prefix", function() {
+		it( "generates keys of all records in selected datasource with requested maximum depth considered relative to given prefix", function() {
 			return new Promise( resolve => {
 				const streamed = [];
 				const stream = adapter.keyStream( {
@@ -354,7 +358,7 @@ suite( "MemoryAdapter", function() {
 			} );
 		} );
 
-		test( "obeys key depth instead of backend path depth which is higher due to splitting contained UUIDs into several segments", function() {
+		it( "obeys key depth instead of backend path depth which is higher due to splitting contained UUIDs into several segments", function() {
 			return adapter.write( "some/12345678-1234-1234-1234-1234567890ab", {} )
 				.then( () => adapter.write( "some/00000000-0000-0000-0000-000000000000", {} ) )
 				.then( () => adapter.write( "some/non-UUID", {} ) )

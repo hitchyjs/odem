@@ -29,23 +29,26 @@
 
 const { join } = require( "path" );
 
-const { suite, test } = require( "mocha" );
+const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
-const { Adapter } = require( "../../../" );
+const { loadAllServices } = require( "../helper" );
 
+describe( "Abstract Adapter", function() {
+	let OdemAdapter;
 
-suite( "Abstract Adapter", function() {
-	test( "is exposed in property `Adapter`", function() {
-		Should( Adapter ).be.ok();
+	before( () => loadAllServices().then( s => { ( { OdemAdapter } = s ); } ) );
+
+	it( "is exposed in property `Adapter`", function() {
+		Should( OdemAdapter ).be.ok();
 	} );
 
-	test( "can be used to create instance", function() {
-		( () => new Adapter() ).should.not.throw();
+	it( "can be used to create instance", function() {
+		( () => new OdemAdapter() ).should.not.throw();
 	} );
 
-	test( "exposes instance methods of Adapter API", function() {
-		const instance = new Adapter();
+	it( "exposes instance methods of Adapter API", function() {
+		const instance = new OdemAdapter();
 
 		instance.should.have.property( "create" ).which.is.a.Function().of.length( 2 );
 		instance.should.have.property( "has" ).which.is.a.Function().of.length( 1 );
@@ -58,86 +61,86 @@ suite( "Abstract Adapter", function() {
 		instance.should.have.property( "commit" ).which.is.a.Function().of.length( 0 );
 	} );
 
-	test( "exposes class/static methods of Adapter API", function() {
-		Adapter.should.have.property( "keyToPath" ).which.is.a.Function().of.length( 1 );
-		Adapter.should.have.property( "pathToKey" ).which.is.a.Function().of.length( 1 );
+	it( "exposes class/static methods of Adapter API", function() {
+		OdemAdapter.should.have.property( "keyToPath" ).which.is.a.Function().of.length( 1 );
+		OdemAdapter.should.have.property( "pathToKey" ).which.is.a.Function().of.length( 1 );
 	} );
 
-	test( "returns promise on invoking create() which is rejected for being abstract base class", function() {
-		const instance = new Adapter();
+	it( "returns promise on invoking create() which is rejected for being abstract base class", function() {
+		const instance = new OdemAdapter();
 
 		return instance.create( "model/%u", {} ).should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking has() which is rejected for being abstract base class", function() {
-		const instance = new Adapter();
+	it( "returns promise on invoking has() which is rejected for being abstract base class", function() {
+		const instance = new OdemAdapter();
 
 		return instance.has( "model/some-id" ).should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking read() which is rejected for being abstract base class", function() {
-		const instance = new Adapter();
+	it( "returns promise on invoking read() which is rejected for being abstract base class", function() {
+		const instance = new OdemAdapter();
 
 		return instance.read( "model/some-id" ).should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking write() which is rejected for being abstract base class", function() {
-		const instance = new Adapter();
+	it( "returns promise on invoking write() which is rejected for being abstract base class", function() {
+		const instance = new OdemAdapter();
 
 		return instance.write( "model/some-id", {} ).should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking remove() which is rejected for being abstract base class", function() {
-		const instance = new Adapter();
+	it( "returns promise on invoking remove() which is rejected for being abstract base class", function() {
+		const instance = new OdemAdapter();
 
 		return instance.remove( "model/some-id" ).should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking begin() which is rejected for being abstract base class", function() {
-		const instance = new Adapter();
+	it( "returns promise on invoking begin() which is rejected for being abstract base class", function() {
+		const instance = new OdemAdapter();
 
 		return instance.begin().should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking rollBack() which is rejected for being abstract base class", function() {
-		const instance = new Adapter();
+	it( "returns promise on invoking rollBack() which is rejected for being abstract base class", function() {
+		const instance = new OdemAdapter();
 
 		return instance.rollBack().should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns promise on invoking commit() which is rejected for being abstract base class", function() {
-		const instance = new Adapter();
+	it( "returns promise on invoking commit() which is rejected for being abstract base class", function() {
+		const instance = new OdemAdapter();
 
 		return instance.commit().should.be.Promise().which.is.rejected();
 	} );
 
-	test( "returns keys w/o UUID as given on request for mapping it into some path name", function() {
+	it( "returns keys w/o UUID as given on request for mapping it into some path name", function() {
 		[
 			"",
 			"a",
 			"some/test",
-		].forEach( key => Adapter.keyToPath( key ).replace( /\\/g, "/" ).should.be.String().which.is.equal( key ) );
+		].forEach( key => OdemAdapter.keyToPath( key ).replace( /\\/g, "/" ).should.be.String().which.is.equal( key ) );
 	} );
 
-	test( "returns keys w/ UUID as given on request for mapping it into some path name", function() {
+	it( "returns keys w/ UUID as given on request for mapping it into some path name", function() {
 		[
 			"01234567-89ab-cdef-fedc-ba9876543210",
 			"item/00000000-1111-2222-4444-888888888888",
-		].forEach( key => Adapter.keyToPath( key ).replace( /\\/g, "/" ).should.be.String().which.is.equal( key ) );
+		].forEach( key => OdemAdapter.keyToPath( key ).replace( /\\/g, "/" ).should.be.String().which.is.equal( key ) );
 	} );
 
-	test( "returns path names not related to some UUID as given on request for mapping it into some key", function() {
+	it( "returns path names not related to some UUID as given on request for mapping it into some key", function() {
 		[
 			"",
 			"a",
 			join( "some", "test" ),
-		].forEach( key => Adapter.pathToKey( key ).should.be.String().which.is.equal( key ) );
+		].forEach( key => OdemAdapter.pathToKey( key ).should.be.String().which.is.equal( key ) );
 	} );
 
-	test( "returns path names related to some UUID as given on request for mapping it into some key", function() {
+	it( "returns path names related to some UUID as given on request for mapping it into some key", function() {
 		[
 			join( "0", "12", "34567-89ab-cdef-fedc-ba9876543210" ),
 			join( "item", "0", "00", "00000-1111-2222-4444-888888888888" ),
-		].forEach( key => Adapter.pathToKey( key ).should.be.String().which.is.equal( key ) );
+		].forEach( key => OdemAdapter.pathToKey( key ).should.be.String().which.is.equal( key ) );
 	} );
 } );

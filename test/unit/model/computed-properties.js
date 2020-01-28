@@ -30,15 +30,19 @@
 const { describe, it } = require( "mocha" );
 require( "should" );
 
-const { Model } = require( "../../../" );
+const { loadAllServices } = require( "../helper" );
 
 
 describe( "A computed property", () => {
+	let OdemModel;
+
+	before( () => loadAllServices().then( s => { ( { OdemModel } = s ); } ) );
+
 	describe( "without index and while depending on an actual property", () => {
 		let MyModel;
 
 		beforeEach( () => {
-			MyModel = Model.define( "MyModel", {
+			MyModel = OdemModel.define( "MyModel", {
 				props: {
 					state: {},
 				},
@@ -62,7 +66,7 @@ describe( "A computed property", () => {
 		beforeEach( () => MyModel.adapter.purge() );
 
 		it( "can be defined", () => {
-			MyModel.prototype.should.be.instanceOf( Model );
+			MyModel.prototype.should.be.instanceOf( OdemModel );
 		} );
 
 		it( "can be read", () => {
@@ -154,7 +158,7 @@ describe( "A computed property", () => {
 		let MyModel;
 
 		beforeEach( () => {
-			MyModel = Model.define( "MyModel", {
+			MyModel = OdemModel.define( "MyModel", {
 				props: {
 					state: {},
 				},
@@ -181,7 +185,7 @@ describe( "A computed property", () => {
 		beforeEach( () => MyModel.adapter.purge() );
 
 		it( "can be defined", () => {
-			MyModel.prototype.should.be.instanceOf( Model );
+			MyModel.prototype.should.be.instanceOf( OdemModel );
 		} );
 
 		it( "can be read", () => {

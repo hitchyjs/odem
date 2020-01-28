@@ -26,34 +26,36 @@
  * @author: cepharum
  */
 
-const { describe, it } = require( "mocha" );
+const { describe, it, before } = require( "mocha" );
 require( "should" );
 
-const { Model, MemoryAdapter } = require( "../../" );
-const { processDiscoveredModelDefinitions } = require( "../../lib/hitchy-integration" );
+const { loadAllServices } = require( "./helper" );
 
 
 describe( "Integration with hitchy", () => {
-	describe( "relies on exposed function processDiscoveredModelDefinitions() which", () => {
+	let OdemConverter, OdemAdapterMemory, OdemModel;
+
+	before( () => loadAllServices().then( s => { ( { OdemConverter, OdemAdapterMemory, OdemModel } = s ); } ) );
+
+	describe( "relies on exposed function OdemConverter.processModelDefinitions() which", () => {
 		it( "is a function", () => {
-			processDiscoveredModelDefinitions.should.be.Function();
+			OdemConverter.processModelDefinitions.should.be.Function();
 		} );
 
 		it( "takes three arguments", () => {
-			processDiscoveredModelDefinitions.should.have.length( 3 );
+			OdemConverter.processModelDefinitions.should.have.length( 2 );
 		} );
 
 		it( "requires three arguments", () => {
-			( () => processDiscoveredModelDefinitions() ).should.throw();
-			( () => processDiscoveredModelDefinitions( {} ) ).should.throw();
-			( () => processDiscoveredModelDefinitions( {}, {} ) ).should.throw();
-			( () => processDiscoveredModelDefinitions( {}, {}, new MemoryAdapter() ) ).should.not.throw();
+			( () => OdemConverter.processModelDefinitions() ).should.throw();
+			( () => OdemConverter.processModelDefinitions( {} ) ).should.throw();
+			( () => OdemConverter.processModelDefinitions( {}, new OdemAdapterMemory() ) ).should.not.throw();
 		} );
 
 		it( "returns provided set of models", () => {
 			const models = {};
 
-			processDiscoveredModelDefinitions( {}, models, new MemoryAdapter() ).should.be.equal( models );
+			OdemConverter.processModelDefinitions( models, new OdemAdapterMemory() ).should.be.equal( models );
 		} );
 
 		it( "replaces existing models in provided set of model definitions with either model's implementation", () => {
@@ -61,24 +63,24 @@ describe( "Integration with hitchy", () => {
 				SomeModel: { props: { a: {} } },
 			};
 
-			const defined = processDiscoveredModelDefinitions( {}, Object.assign( {}, models ), new MemoryAdapter() );
+			const defined = OdemConverter.processModelDefinitions( Object.assign( {}, models ), new OdemAdapterMemory() );
 
-			defined.should.be.Object().which.has.property( "SomeModel" ).which.has.property( "prototype" ).which.is.instanceof( Model );
+			defined.should.be.Object().which.has.property( "SomeModel" ).which.has.property( "prototype" ).which.is.instanceof( OdemModel );
 		} );
 	} );
 
 	describe( "processes set of model definitions that", () => {
 		it( "is empty", () => {
-			( () => processDiscoveredModelDefinitions( {}, {}, new MemoryAdapter() ) ).should.not.throw();
+			( () => OdemConverter.processModelDefinitions( {}, new OdemAdapterMemory() ) ).should.not.throw();
 		} );
 
 		it( "defines single model `sole` with single string property named `sole`", () => {
-			const models = processDiscoveredModelDefinitions( {}, {
+			const models = OdemConverter.processModelDefinitions( {
 				sole: { props: { sole: {} } },
-			}, new MemoryAdapter() );
+			}, new OdemAdapterMemory() );
 
 			models.should.have.property( "sole" );
-			models.sole.should.have.property( "prototype" ).which.is.instanceof( Model );
+			models.sole.should.have.property( "prototype" ).which.is.instanceof( OdemModel );
 
 			const sole = new models.sole(); // eslint-disable-line new-cap
 
