@@ -26,6 +26,9 @@
  * @author: cepharum
  */
 
+const Path = require( "path" );
+
+const { Find } = require( "file-essentials" );
 
 /**
  * Retrieves list of values covering all basic kinds of data supported in
@@ -75,5 +78,51 @@ module.exports = Object.seal( {
 			"gt",
 			"gte",
 		];
-	}
+	},
+	loadAllServices( mockedAPI = {}, mockedOptions = {} ) {
+		if ( !mockedAPI.runtime ) {
+			mockedAPI.runtime = {};
+		}
+
+		if ( !mockedAPI.runtime.services ) {
+			mockedAPI.runtime.services = {};
+		}
+
+		const relFolder = "../../api/services";
+		const baseFolder = Path.resolve( __dirname, relFolder );
+
+		return Find( baseFolder, {
+			depthFirst: false,
+			converter: ( name, qname, stats ) => ( stats.isFile() && name.endsWith( ".js" ) ? name : null ),
+		} )
+			.then( files => {
+				const ptn = new RegExp( "[^\\" + Path.sep + "]+", "g" );
+
+				files.sort( ( l, r ) => {
+					const ls = l.replace( ptn, "" ).length;
+					const rs = r.replace( ptn, "" ).length;
+
+					return ls < rs ? -1 : ls > rs ? 1 : l.localeCompare( r );
+				} );
+
+				files.forEach( file => {
+					const name = file
+						.replace( /\.js$/, "" )
+						.replace( new RegExp( "\\" + Path.sep + "(?:[0-9]{1,2}-)?", "g" ), "-" )
+						.toLowerCase()
+						.replace( /(?:^|-)([a-z])/g, ( _, leading ) => leading.toUpperCase() );
+
+					try {
+						const module = require( Path.join( relFolder, file ) );
+
+						mockedAPI.runtime.services[name] = typeof module === "function" && module.useCMP !== false ? module.call( mockedAPI, mockedOptions ) : module;
+					} catch ( error ) {
+						console.error( "loading service component %s failed: %s", name, error.stack );
+						throw error;
+					}
+				} );
+
+				return mockedAPI.runtime.services;
+			} );
+	},
 } );
