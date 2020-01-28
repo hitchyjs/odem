@@ -27,10 +27,36 @@
  */
 
 module.exports = function() {
-	return {
+	const OdemDefaults = {};
+
+	Object.defineProperties( OdemDefaults, {
 		/**
 		 * Selects backend to use on storing model data persistently.
+		 *
+		 * @note This instance must be fetched from a getter due to sorting
+		 *       order of discovering service components.
+		 *
+		 * @name OdemDefaults.defaultAdapter
+		 * @property {Services.OdemAdapter}
+		 * @readonly
 		 */
-		defaultAdapter: new this.runtime.services.OdemAdapterMemory(),
-	};
+		defaultAdapter: {
+			get: () => {
+				const adapter = new this.runtime.services.OdemAdapterMemory();
+
+				Object.defineProperties( OdemDefaults, {
+					defaultAdapter: {
+						value: adapter,
+						enumerable: true,
+					},
+				} );
+
+				return adapter;
+			},
+			enumerable: true,
+			configurable: true,
+		},
+	} );
+
+	return OdemDefaults;
 };
