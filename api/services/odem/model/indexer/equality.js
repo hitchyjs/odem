@@ -29,7 +29,7 @@
 const RBTree = require( "functional-red-black-tree" );
 
 module.exports = function() {
-	const api = this; // eslint-disable-line consistent-this
+	const api = this;
 	const { services: Services } = api.runtime;
 
 	/**

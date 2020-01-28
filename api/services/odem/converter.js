@@ -27,7 +27,7 @@
  */
 
 module.exports = function() {
-	const api = this; // eslint-disable-line consistent-this
+	const api = this;
 
 	/**
 	 * Discovers simplified definitions of models and compiles them into usable
