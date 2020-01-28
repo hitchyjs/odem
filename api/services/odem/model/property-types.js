@@ -77,7 +77,7 @@ module.exports = function() {
 					const numAliases = aliases.length;
 
 					for ( let j = 0; j < numAliases; j++ ) {
-						const alias = aliases[j];
+						const alias = this.mapNameToKey( aliases[j] );
 
 						if ( !map.hasOwnProperty( alias ) ) {
 							map[alias] = map[key];
@@ -106,7 +106,7 @@ module.exports = function() {
 				throw new TypeError( "invalid name of property type" );
 			}
 
-			return Services.OdemUtilityString.kebabToCamel( name.trim().toLocaleLowerCase() ).toLocaleUpperCase();
+			return Services.OdemUtilityString.kebabToCamel( name.trim().toLocaleLowerCase() );
 		}
 
 		/**
