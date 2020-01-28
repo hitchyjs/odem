@@ -1,0 +1,6 @@
+{
+	"rules": {
+		"max-nested-callbacks": "off",
+		"no-empty-function": "off"
+	}
+}
