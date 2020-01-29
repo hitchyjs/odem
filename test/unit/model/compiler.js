@@ -27,15 +27,15 @@
  */
 
 
-const { describe, it, beforeEach } = require( "mocha" );
+const { describe, it, before, beforeEach } = require( "mocha" );
 const Should = require( "should" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 describe( "Model compiler module", () => {
 	let OdemModel, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory;
 
-	before( () => loadAllServices().then( s => { ( { OdemModel, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory } = s ); } ) );
 
 	it( "exposes internally used functions for unit-testing", () => {
 		OdemModelCompiler.should.have.property( "normalizeSchema" ).which.is.a.Function();
@@ -141,7 +141,7 @@ describe( "Model compiler module", () => {
 			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null ) ).should.not.throw();
 			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, undefined ) ).should.not.throw();
 
-			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, null ) ).should.throw( TypeError );
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, null ) ).should.not.throw( TypeError );
 			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, false ) ).should.throw( TypeError );
 			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, true ) ).should.throw( TypeError );
 			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, null, 5 ) ).should.throw( TypeError );

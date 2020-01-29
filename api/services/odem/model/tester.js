@@ -61,7 +61,7 @@ module.exports = function() {
 
 			const operation = operations[0];
 
-			const testerClass = require( "./" )[operation];
+			const testerClass = Services.OdemModelTesterMap[operation];
 			if ( !testerClass ) {
 				throw new TypeError( `unknown test operation: ${operation}` );
 			}

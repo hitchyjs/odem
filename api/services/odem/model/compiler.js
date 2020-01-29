@@ -121,7 +121,7 @@ module.exports = function() {
 		 * @returns {class<Services.OdemModel>} compiled model class
 		 * @alias ModelCompiler
 		 */
-		static compileModel( modelName, modelSchema = {}, baseClass = null, adapter = Services.OdemDefaults.defaultAdapter ) {
+		static compileModel( modelName, modelSchema = {}, baseClass = null, adapter = null ) {
 			if ( typeof modelName !== "string" || !Services.OdemUtilityString.ptnKeyword.test( modelName ) ) {
 				throw new TypeError( "invalid model name" );
 			}
@@ -134,7 +134,9 @@ module.exports = function() {
 				throw new TypeError( "provided base class must be inheriting from AbstractModel" );
 			}
 
-			if ( !( adapter instanceof Services.OdemAdapter ) ) {
+			const _adapter = adapter == null ? api.config.database.defaultAdapter : adapter;
+
+			if ( !( _adapter instanceof Services.OdemAdapter ) ) {
 				throw new TypeError( "missing or invalid adapter" );
 			}
 
@@ -248,7 +250,7 @@ module.exports = function() {
 				 * @property {Services.OdemAdapter}
 				 * @readonly
 				 */
-				adapter: { value: adapter },
+				adapter: { value: _adapter },
 
 				/**
 				 * @name Services.OdemModel.name

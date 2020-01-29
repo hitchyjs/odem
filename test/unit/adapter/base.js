@@ -32,12 +32,12 @@ const { join } = require( "path" );
 const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 describe( "Abstract Adapter", function() {
 	let OdemAdapter;
 
-	before( () => loadAllServices().then( s => { ( { OdemAdapter } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemAdapter } = s ); } ) );
 
 	it( "is exposed in property `Adapter`", function() {
 		Should( OdemAdapter ).be.ok();

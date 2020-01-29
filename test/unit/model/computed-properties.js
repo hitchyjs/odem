@@ -27,16 +27,16 @@
  */
 
 
-const { describe, it } = require( "mocha" );
+const { describe, it, before, beforeEach } = require( "mocha" );
 require( "should" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 
 describe( "A computed property", () => {
 	let OdemModel;
 
-	before( () => loadAllServices().then( s => { ( { OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
 
 	describe( "without index and while depending on an actual property", () => {
 		let MyModel;

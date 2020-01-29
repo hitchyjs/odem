@@ -26,25 +26,29 @@
  * @author: cepharum
  */
 
-const { describe, it, before } = require( "mocha" );
+const { describe, it, before, beforeEach } = require( "mocha" );
 const Should = require( "should" );
 
-const UUID = require( "../../../lib/utility/uuid" );
-const EqualityIndex = require( "../../../lib/model/indexer/equality" );
+const { fakeApi } = require( "../helper" );
 
-describe( "EqualityIndex", () => {
+
+describe( "OdemModelIndexerEquality", () => {
+	let OdemUtilityUuid, OdemModelIndexerEquality;
+
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemUtilityUuid, OdemModelIndexerEquality } = s ); } ) );
+
 	const uuids = new Array( 6 ).fill( null );
 
-	before( () => Promise.all( uuids.map( ( _, i ) => UUID.create().then( _uuid => {
+	before( () => Promise.all( uuids.map( ( _, i ) => OdemUtilityUuid.create().then( _uuid => {
 		uuids[i] = _uuid;
 	} ) ) ) );
 
 	it( "can be instantiated", () => {
-		( () => new EqualityIndex( { revision: 0 } ) ).should.not.throw();
+		( () => new OdemModelIndexerEquality( { revision: 0 } ) ).should.not.throw();
 	} );
 
 	it( "exposes instance methods", () => {
-		const instance = new EqualityIndex( { revision: 0 } );
+		const instance = new OdemModelIndexerEquality( { revision: 0 } );
 
 		instance.should.have.property( "find" ).which.is.a.Function().of.length( 1 );
 		instance.should.have.property( "findBetween" ).which.is.a.Function().of.length( 0 );
@@ -57,7 +61,11 @@ describe( "EqualityIndex", () => {
 	} );
 
 	describe( "exposes method find() which", () => {
-		const instance = new EqualityIndex( { revision: 0 } );
+		let instance;
+
+		before( () => {
+			instance = new OdemModelIndexerEquality( { revision: 0 } );
+		} );
 
 		before( () => {
 			instance.add( uuids[3], 2 );
@@ -90,7 +98,11 @@ describe( "EqualityIndex", () => {
 	} );
 
 	describe( "exposes method add() which", () => {
-		const instance = new EqualityIndex( { revision: 0 } );
+		let instance;
+
+		before( () => {
+			instance = new OdemModelIndexerEquality( { revision: 0 } );
+		} );
 
 		it( "adds given UUID to list attached to tree node matching given property value", () => {
 			instance.tree.should.have.length( 0 );
@@ -119,7 +131,11 @@ describe( "EqualityIndex", () => {
 	} );
 
 	describe( "exposes method findBetween() which", () => {
-		const instance = new EqualityIndex( { revision: 0 } );
+		let instance;
+
+		before( () => {
+			instance = new OdemModelIndexerEquality( { revision: 0 } );
+		} );
 
 		before( () => {
 			instance.add( uuids[0], 1 );
@@ -204,7 +220,11 @@ describe( "EqualityIndex", () => {
 	} );
 
 	describe( "exposes method remove() which", () => {
-		const instance = new EqualityIndex( { revision: 0 } );
+		let instance;
+
+		before( () => {
+			instance = new OdemModelIndexerEquality( { revision: 0 } );
+		} );
 
 		before( () => {
 			instance.add( uuids[1], 1 );
@@ -232,7 +252,11 @@ describe( "EqualityIndex", () => {
 	} );
 
 	describe( "exposes method removeValue() which", () => {
-		const instance = new EqualityIndex( { revision: 0 } );
+		let instance;
+
+		before( () => {
+			instance = new OdemModelIndexerEquality( { revision: 0 } );
+		} );
 
 		before( () => {
 			instance.add( uuids[1], 1 );
@@ -267,7 +291,7 @@ describe( "EqualityIndex", () => {
 		let instanceWithRevision;
 
 		before( () => {
-			instanceWithRevision = new EqualityIndex( { revision: 10 } );
+			instanceWithRevision = new OdemModelIndexerEquality( { revision: 10 } );
 		} );
 
 		it( "does not throw if checked revision is met by index", () => {
@@ -305,8 +329,12 @@ describe( "EqualityIndex", () => {
 	} );
 
 	describe( "exposes method clear() which", () => {
-		const instance = new EqualityIndex( { revision: 0 } );
-		const instanceWithAdvancedRevision = new EqualityIndex( { revision: 10 } );
+		let instance, instanceWithAdvancedRevision;
+
+		before( () => {
+			instance = new OdemModelIndexerEquality( { revision: 0 } );
+			instanceWithAdvancedRevision = new OdemModelIndexerEquality( { revision: 10 } );
+		} );
 
 		before( () => {
 			instance.add( uuids[1], 1 );
@@ -366,7 +394,7 @@ describe( "EqualityIndex", () => {
 		let instance;
 
 		before( () => {
-			instance = new EqualityIndex( { revision: 0 } );
+			instance = new OdemModelIndexerEquality( { revision: 0 } );
 
 			instance.add( uuids[1], 1 );
 			instance.add( uuids[2], 2 );
@@ -400,7 +428,7 @@ describe( "EqualityIndex", () => {
 		let instance;
 
 		beforeEach( () => {
-			instance = new EqualityIndex( {
+			instance = new OdemModelIndexerEquality( {
 				revision: 0,
 				compare: ( l, r ) => ( l === r ? 0 : l < r ? -1 : 1 ),
 			} );

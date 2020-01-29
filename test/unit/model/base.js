@@ -29,7 +29,7 @@
 const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 
 describe( "Abstract Model", () => {
@@ -37,7 +37,7 @@ describe( "Abstract Model", () => {
 	let memory;
 	let CustomModel;
 
-	before( () => loadAllServices().then( s => { ( { OdemModel, OdemAdapter, OdemAdapterMemory } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemAdapter, OdemAdapterMemory } = s ); } ) );
 
 	before( () => {
 		/**

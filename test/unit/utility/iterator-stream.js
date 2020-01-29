@@ -32,13 +32,13 @@ const { Readable } = require( "stream" );
 const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 
 describe( "IteratorStream", function() {
 	let OdemUtilityIteratorStream;
 
-	before( () => loadAllServices().then( s => { ( { OdemUtilityIteratorStream } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemUtilityIteratorStream } = s ); } ) );
 
 	it( "is exposed", function() {
 		Should.exist( OdemUtilityIteratorStream );

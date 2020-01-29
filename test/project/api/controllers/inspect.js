@@ -34,9 +34,9 @@ module.exports = {
 	},
 
 	modelClass( req, res ) {
-		const { Model } = this.api.runtime.services;
+		const { OdemModel } = this.api.runtime.services;
 
-		res.json( Boolean( Model && Model.define && Model.list && Model.find ) );
+		res.json( Boolean( OdemModel && OdemModel.define && OdemModel.list && OdemModel.find ) );
 	},
 
 	modelImplicitInstance( req, res ) {

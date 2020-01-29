@@ -31,13 +31,13 @@ const Crypto = require( "crypto" );
 const { describe, it, before } = require( "mocha" );
 require( "should" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 
 describe( "Using Model", () => {
 	let OdemModel;
 
-	before( () => loadAllServices().then( s => { ( { OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
 
 	describe( "supports extracting properties into regular object which", () => {
 		let MyModel;

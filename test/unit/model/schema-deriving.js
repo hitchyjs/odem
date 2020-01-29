@@ -30,14 +30,17 @@
 const { describe, it, before } = require( "mocha" );
 require( "should" );
 
-const { Model } = require( "../../../" );
+const { fakeApi } = require( "../helper" );
 
 
 describe( "Deriving a model", () => {
 	let Root, Intermittent, Sub;
+	let OdemModel;
+
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
 
 	before( "defining models", () => {
-		Root = Model.define( "root", {
+		Root = OdemModel.define( "root", {
 			props: {
 				rootName: {},
 				name: {},
@@ -52,7 +55,7 @@ describe( "Deriving a model", () => {
 			},
 		} );
 
-		Intermittent = Model.define( "intermittent", {
+		Intermittent = OdemModel.define( "intermittent", {
 			props: {
 				intermittentName: {},
 				name: { type: "number" },
@@ -67,7 +70,7 @@ describe( "Deriving a model", () => {
 			},
 		}, Root );
 
-		Sub = Model.define( "sub", {
+		Sub = OdemModel.define( "sub", {
 			props: {
 				subName: {},
 				name: { type: "integer" },
@@ -84,9 +87,9 @@ describe( "Deriving a model", () => {
 	} );
 
 	it( "results in all defined models derive from Model", () => {
-		Root.prototype.should.be.instanceOf( Model );
-		Intermittent.prototype.should.be.instanceOf( Model );
-		Sub.prototype.should.be.instanceOf( Model );
+		Root.prototype.should.be.instanceOf( OdemModel );
+		Intermittent.prototype.should.be.instanceOf( OdemModel );
+		Sub.prototype.should.be.instanceOf( OdemModel );
 	} );
 
 	it( "results in derived models derive from Root", () => {
@@ -102,9 +105,9 @@ describe( "Deriving a model", () => {
 	} );
 
 	it( "results in instance of either model being instance of Model", () => {
-		( new Root ).should.be.instanceOf( Model );
-		( new Intermittent ).should.be.instanceOf( Model );
-		( new Sub ).should.be.instanceOf( Model );
+		( new Root ).should.be.instanceOf( OdemModel );
+		( new Intermittent ).should.be.instanceOf( OdemModel );
+		( new Sub ).should.be.instanceOf( OdemModel );
 	} );
 
 	it( "results in instance of either model being instance of Root", () => {
@@ -132,7 +135,7 @@ describe( "Deriving a model", () => {
 	} );
 
 	it( "results in either model's class exposing reference on class it derives from", () => {
-		Root.derivesFrom.should.be.equal( Model );
+		Root.derivesFrom.should.be.equal( OdemModel );
 		Intermittent.derivesFrom.should.be.equal( Root );
 		Sub.derivesFrom.should.be.equal( Intermittent );
 	} );

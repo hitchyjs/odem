@@ -27,160 +27,157 @@
  */
 
 
-const { suite, test } = require( "mocha" );
+const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
 const Helper = require( "../../helper" );
 
-const AllTypes = require( "../../../../lib/model/type" );
-const Base = require( "../../../../lib/model/type/base" );
-const Type = require( "../../../../lib/model/type/integer" );
+describe( "Model property type `integer`", function() {
+	let OdemModelPropertyTypes, OdemModelType, OdemModelTypeInteger;
 
+	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelPropertyTypes, OdemModelType, OdemModelTypeInteger } = s ); } ) );
 
-suite( "Model property type `integer`", function() {
-	test( "is available", function() {
-		Should.exist( Type );
+	it( "is available", function() {
+		Should.exist( OdemModelTypeInteger );
 	} );
 
-	test( "is derived from ModelType base class", function() {
-		Type.prototype.should.be.instanceOf( Base );
+	it( "is derived from ModelType base class", function() {
+		OdemModelTypeInteger.prototype.should.be.instanceOf( OdemModelType );
 	} );
 
-	test( "is exposing its name as string", function() {
-		Type.should.have.property( "typeName" ).which.is.equal( "integer" );
+	it( "is exposing its name as string", function() {
+		OdemModelTypeInteger.should.have.property( "typeName" ).which.is.equal( "integer" );
 	} );
 
-	test( "is exposing list of aliases to type name", function() {
-		Type.should.have.property( "aliases" ).which.is.an.Array();
-		Type.aliases.forEach( alias => alias.should.be.String().and.not.empty() );
+	it( "is exposing list of aliases to type name", function() {
+		OdemModelTypeInteger.should.have.property( "aliases" ).which.is.an.Array();
+		OdemModelTypeInteger.aliases.forEach( alias => alias.should.be.String().and.not.empty() );
 	} );
 
-	test( "is commonly exposed by its name", function() {
-		AllTypes.selectByName( "integer" ).should.be.equal( Type );
+	it( "is commonly exposed by its name", function() {
+		OdemModelPropertyTypes.selectByName( "integer" ).should.be.equal( OdemModelTypeInteger );
 	} );
 
-	test( "is commonly exposed by all its aliases", function() {
-		AllTypes.selectByName( "int" ).should.be.equal( Type );
+	it( "is commonly exposed by all its aliases", function() {
+		OdemModelPropertyTypes.selectByName( "int" ).should.be.equal( OdemModelTypeInteger );
 	} );
 
-	test( "is commonly exposed by its name and all its aliases case-insensitively", function() {
-		AllTypes.selectByName( "INTEGER" ).should.be.equal( Type );
-		AllTypes.selectByName( "INT" ).should.be.equal( Type );
+	it( "is commonly exposed by its name and all its aliases case-insensitively", function() {
+		OdemModelPropertyTypes.selectByName( "INTEGER" ).should.be.equal( OdemModelTypeInteger );
+		OdemModelPropertyTypes.selectByName( "INT" ).should.be.equal( OdemModelTypeInteger );
 	} );
 
-	test( "advertises values of type to be sortable", function() {
-		Type.sortable.should.be.true();
+	it( "advertises values of type to be sortable", function() {
+		OdemModelTypeInteger.sortable.should.be.true();
 	} );
 
-	suite( "is exposing method `checkDefinition()` which", function() {
-		const { checkDefinition } = Type;
-
-		test( "is a function to be invoked w/ one argument", function() {
-			checkDefinition.should.be.a.Function().which.has.length( 1 );
+	describe( "is exposing method `checkDefinition()` which", function() {
+		it( "is a function to be invoked w/ one argument", function() {
+			OdemModelTypeInteger.checkDefinition.should.be.a.Function().which.has.length( 1 );
 		} );
 
-		test( "doesn't throw exception", function() {
-			( () => checkDefinition() ).should.not.throw();
-			( () => checkDefinition( undefined ) ).should.not.throw();
-			( () => checkDefinition( null ) ).should.not.throw();
-			( () => checkDefinition( false ) ).should.not.throw();
-			( () => checkDefinition( true ) ).should.not.throw();
-			( () => checkDefinition( 0 ) ).should.not.throw();
-			( () => checkDefinition( -1 ) ).should.not.throw();
-			( () => checkDefinition( 4.5 ) ).should.not.throw();
-			( () => checkDefinition( "" ) ).should.not.throw();
-			( () => checkDefinition( "required: true" ) ).should.not.throw();
-			( () => checkDefinition( [] ) ).should.not.throw();
-			( () => checkDefinition( ["required: true"] ) ).should.not.throw();
+		it( "doesn't throw exception", function() {
+			( () => OdemModelTypeInteger.checkDefinition() ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( undefined ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( null ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( false ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( true ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( 0 ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( -1 ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( 4.5 ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( "" ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( "required: true" ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( ["required: true"] ) ).should.not.throw();
 
-			( () => checkDefinition( {} ) ).should.not.throw();
-			( () => checkDefinition( { required: true } ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.checkDefinition( { required: true } ) ).should.not.throw();
 		} );
 
-		test( "returns array of encountered errors", function() {
-			checkDefinition().should.be.Array();
-			checkDefinition( undefined ).should.be.Array();
-			checkDefinition( null ).should.be.Array();
-			checkDefinition( false ).should.be.Array();
-			checkDefinition( true ).should.be.Array();
-			checkDefinition( 0 ).should.be.Array();
-			checkDefinition( -1 ).should.be.Array();
-			checkDefinition( 4.5 ).should.be.Array();
-			checkDefinition( "" ).should.be.Array();
-			checkDefinition( "required: true" ).should.be.Array();
-			checkDefinition( [] ).should.be.Array();
-			checkDefinition( ["required: true"] ).should.be.Array();
-			checkDefinition( {} ).should.be.Array();
-			checkDefinition( { required: true } ).should.be.Array();
+		it( "returns array of encountered errors", function() {
+			OdemModelTypeInteger.checkDefinition().should.be.Array();
+			OdemModelTypeInteger.checkDefinition( undefined ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( null ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( false ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( true ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( 0 ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( -1 ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( 4.5 ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( "" ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( "required: true" ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( [] ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( ["required: true"] ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( {} ).should.be.Array();
+			OdemModelTypeInteger.checkDefinition( { required: true } ).should.be.Array();
 		} );
 
-		test( "lists error unless providing definition object in first argument", function() {
-			checkDefinition().should.not.be.empty();
-			checkDefinition( undefined ).should.not.be.empty();
-			checkDefinition( null ).should.not.be.empty();
-			checkDefinition( false ).should.not.be.empty();
-			checkDefinition( true ).should.not.be.empty();
-			checkDefinition( 0 ).should.not.be.empty();
-			checkDefinition( -1 ).should.not.be.empty();
-			checkDefinition( 4.5 ).should.not.be.empty();
-			checkDefinition( "" ).should.not.be.empty();
-			checkDefinition( "required: true" ).should.not.be.empty();
-			checkDefinition( [] ).should.not.be.empty();
-			checkDefinition( ["required: true"] ).should.not.be.empty();
+		it( "lists error unless providing definition object in first argument", function() {
+			OdemModelTypeInteger.checkDefinition().should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( undefined ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( null ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( false ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( true ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( 0 ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( -1 ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( 4.5 ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( "" ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( "required: true" ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( [] ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( ["required: true"] ).should.not.be.empty();
 
-			checkDefinition( {} ).should.be.empty();
-			checkDefinition( { required: true } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( {} ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { required: true } ).should.be.empty();
 		} );
 
-		test( "lists instances of Error on encountering errors in provided definition", function() {
-			checkDefinition()[0].should.be.instanceOf( Error );
-			checkDefinition( undefined )[0].should.be.instanceOf( Error );
-			checkDefinition( null )[0].should.be.instanceOf( Error );
-			checkDefinition( false )[0].should.be.instanceOf( Error );
-			checkDefinition( true )[0].should.be.instanceOf( Error );
-			checkDefinition( 0 )[0].should.be.instanceOf( Error );
-			checkDefinition( -1 )[0].should.be.instanceOf( Error );
-			checkDefinition( 4.5 )[0].should.be.instanceOf( Error );
-			checkDefinition( "" )[0].should.be.instanceOf( Error );
-			checkDefinition( "required: true" )[0].should.be.instanceOf( Error );
-			checkDefinition( [] )[0].should.be.instanceOf( Error );
-			checkDefinition( ["required: true"] )[0].should.be.instanceOf( Error );
+		it( "lists instances of Error on encountering errors in provided definition", function() {
+			OdemModelTypeInteger.checkDefinition()[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( undefined )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( null )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( false )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( true )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( 0 )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( -1 )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( 4.5 )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( "" )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( "required: true" )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( [] )[0].should.be.instanceOf( Error );
+			OdemModelTypeInteger.checkDefinition( ["required: true"] )[0].should.be.instanceOf( Error );
 		} );
 
-		test( "validates optionally given limits on minimum or maximum value", function() {
-			checkDefinition( { min: undefined } ).should.be.empty();
-			checkDefinition( { min: null } ).should.be.empty();
+		it( "validates optionally given limits on minimum or maximum value", function() {
+			OdemModelTypeInteger.checkDefinition( { min: undefined } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: null } ).should.be.empty();
 
-			checkDefinition( { min: false } ).should.not.be.empty();
-			checkDefinition( { min: true } ).should.not.be.empty();
-			checkDefinition( { min: "" } ).should.not.be.empty();
-			checkDefinition( { min: "invalid" } ).should.not.be.empty();
-			checkDefinition( { min: {} } ).should.not.be.empty();
-			checkDefinition( { min: { value: 4 } } ).should.not.be.empty();
-			checkDefinition( { min: [] } ).should.not.be.empty();
-			checkDefinition( { min: [4] } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: false } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: true } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: "" } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: "invalid" } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: {} } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: { value: 4 } } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: [] } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: [4] } ).should.not.be.empty();
 
-			checkDefinition( { min: -1 } ).should.be.empty();
-			checkDefinition( { min: 0 } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: -1 } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { min: 0 } ).should.be.empty();
 
-			checkDefinition( { max: undefined } ).should.be.empty();
-			checkDefinition( { max: null } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: undefined } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: null } ).should.be.empty();
 
-			checkDefinition( { max: false } ).should.not.be.empty();
-			checkDefinition( { max: true } ).should.not.be.empty();
-			checkDefinition( { max: "" } ).should.not.be.empty();
-			checkDefinition( { max: "invalid" } ).should.not.be.empty();
-			checkDefinition( { max: {} } ).should.not.be.empty();
-			checkDefinition( { max: { value: 4 } } ).should.not.be.empty();
-			checkDefinition( { max: [] } ).should.not.be.empty();
-			checkDefinition( { max: [4] } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: false } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: true } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: "" } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: "invalid" } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: {} } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: { value: 4 } } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: [] } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: [4] } ).should.not.be.empty();
 
-			checkDefinition( { max: -1 } ).should.be.empty();
-			checkDefinition( { max: 0 } ).should.be.empty();
-			checkDefinition( { max: 1 } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: -1 } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: 0 } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { max: 1 } ).should.be.empty();
 		} );
 
-		test( "adjusts provided definition on fixing limits on value in wrong order", function() {
+		it( "adjusts provided definition on fixing limits on value in wrong order", function() {
 			const source = {
 				min: 5,
 				max: 0,
@@ -191,7 +188,7 @@ suite( "Model property type `integer`", function() {
 			definition.max.should.be.equal( source.max );
 			definition.min.should.be.equal( source.min );
 
-			checkDefinition( definition ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( definition ).should.be.empty();
 
 			definition.max.should.not.be.equal( source.max );
 			definition.min.should.not.be.equal( source.min );
@@ -199,86 +196,84 @@ suite( "Model property type `integer`", function() {
 			definition.max.should.be.equal( source.min );
 		} );
 
-		test( "validates optionally given step value", function() {
-			checkDefinition( { step: undefined } ).should.be.empty();
-			checkDefinition( { step: null } ).should.be.empty();
+		it( "validates optionally given step value", function() {
+			OdemModelTypeInteger.checkDefinition( { step: undefined } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: null } ).should.be.empty();
 
-			checkDefinition( { step: false } ).should.not.be.empty();
-			checkDefinition( { step: true } ).should.not.be.empty();
-			checkDefinition( { step: "" } ).should.not.be.empty();
-			checkDefinition( { step: "invalid" } ).should.not.be.empty();
-			checkDefinition( { step: {} } ).should.not.be.empty();
-			checkDefinition( { step: { value: 4 } } ).should.not.be.empty();
-			checkDefinition( { step: [] } ).should.not.be.empty();
-			checkDefinition( { step: [4] } ).should.not.be.empty();
-			checkDefinition( { step: 0 } ).should.not.be.empty();
-			checkDefinition( { step: -1 } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: false } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: true } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: "" } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: "invalid" } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: {} } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: { value: 4 } } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: [] } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: [4] } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: 0 } ).should.not.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: -1 } ).should.not.be.empty();
 
-			checkDefinition( { step: 1 } ).should.be.empty();
-			checkDefinition( { step: 1.5 } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: 1 } ).should.be.empty();
+			OdemModelTypeInteger.checkDefinition( { step: 1.5 } ).should.be.empty();
 		} );
 	} );
 
-	suite( "is exposing method `coerce()` which", function() {
-		const { coerce } = Type;
-
-		test( "is a function to be invoked w/ at least three arguments", function() {
-			coerce.should.be.a.Function().which.has.length( 3 );
+	describe( "is exposing method `coerce()` which", function() {
+		it( "is a function to be invoked w/ at least three arguments", function() {
+			OdemModelTypeInteger.coerce.should.be.a.Function().which.has.length( 3 );
 		} );
 
-		test( "doesn't throw when invoked with two arguments, only", function() {
-			( () => coerce( undefined, {} ) ).should.not.throw();
-			( () => coerce( null, {} ) ).should.not.throw();
-			( () => coerce( false, {} ) ).should.not.throw();
-			( () => coerce( true, {} ) ).should.not.throw();
-			( () => coerce( 0, {} ) ).should.not.throw();
-			( () => coerce( -1, {} ) ).should.not.throw();
-			( () => coerce( 4.5, {} ) ).should.not.throw();
-			( () => coerce( "", {} ) ).should.not.throw();
-			( () => coerce( "required: true", {} ) ).should.not.throw();
-			( () => coerce( [], {} ) ).should.not.throw();
-			( () => coerce( ["required: true"], {} ) ).should.not.throw();
+		it( "doesn't throw when invoked with two arguments, only", function() {
+			( () => OdemModelTypeInteger.coerce( undefined, {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( null, {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( false, {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( true, {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( 0, {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( -1, {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( 4.5, {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( "", {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( "required: true", {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( [], {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( ["required: true"], {} ) ).should.not.throw();
 
-			( () => coerce( {}, {} ) ).should.not.throw();
-			( () => coerce( { required: true }, {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( {}, {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.coerce( { required: true }, {} ) ).should.not.throw();
 		} );
 
-		test( "returns `null` on providing `undefined`", function() {
-			Should( coerce( undefined, {} ) ).be.null();
+		it( "returns `null` on providing `undefined`", function() {
+			Should( OdemModelTypeInteger.coerce( undefined, {} ) ).be.null();
 		} );
 
-		test( "returns `null` on providing `null`", function() {
-			Should( coerce( null, {} ) ).be.null();
+		it( "returns `null` on providing `null`", function() {
+			Should( OdemModelTypeInteger.coerce( null, {} ) ).be.null();
 		} );
 
-		test( "returns `NaN` on providing `false`", function() {
-			coerce( false, {} ).should.be.NaN();
+		it( "returns `NaN` on providing `false`", function() {
+			OdemModelTypeInteger.coerce( false, {} ).should.be.NaN();
 		} );
 
-		test( "returns `NaN` on providing `true`", function() {
-			coerce( true, {} ).should.be.NaN();
+		it( "returns `NaN` on providing `true`", function() {
+			OdemModelTypeInteger.coerce( true, {} ).should.be.NaN();
 		} );
 
-		test( "returns null on providing empty string", function() {
-			Should( coerce( "", {} ) ).be.null();
+		it( "returns null on providing empty string", function() {
+			Should( OdemModelTypeInteger.coerce( "", {} ) ).be.null();
 		} );
 
-		test( "returns null on providing string consisting of whitespaces, only", function() {
-			Should( coerce( " \r\t\n\f ", {} ) ).be.null();
+		it( "returns null on providing string consisting of whitespaces, only", function() {
+			Should( OdemModelTypeInteger.coerce( " \r\t\n\f ", {} ) ).be.null();
 		} );
 
-		test( "returns `NaN` on providing non-numeric string", function() {
+		it( "returns `NaN` on providing non-numeric string", function() {
 			[
 				"foo",
 				"bar",
 				"\x00\x1b\x01\x00",
 			]
 				.forEach( s => {
-					coerce( s, {} ).should.be.NaN();
+					OdemModelTypeInteger.coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
-		test( "returns `NaN` on providing partially numeric string", function() {
+		it( "returns `NaN` on providing partially numeric string", function() {
 			[
 				"4,5",
 				"5 people",
@@ -286,11 +281,11 @@ suite( "Model property type `integer`", function() {
 				" 4 .\n5 ",
 			]
 				.forEach( s => {
-					coerce( s, {} ).should.be.NaN();
+					OdemModelTypeInteger.coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
-		test( "returns represented value on providing string containing integer optionally padded w/ whitespace", function() {
+		it( "returns represented value on providing string containing integer optionally padded w/ whitespace", function() {
 			[
 				"42",
 				" 42\n",
@@ -303,13 +298,13 @@ suite( "Model property type `integer`", function() {
 				"\t+42\r",
 			]
 				.forEach( s => {
-					const n = coerce( s, {} );
+					const n = OdemModelTypeInteger.coerce( s, {} );
 					n.should.be.Number().which.is.not.NaN();
 					Math.abs( n ).should.be.equal( 42 );
 				} );
 		} );
 
-		test( "returns rounded value repesenting in provided numeric string optionally padded w/ whitespace", function() {
+		it( "returns rounded value repesenting in provided numeric string optionally padded w/ whitespace", function() {
 			[
 				"42.6",
 				"4.26e1",
@@ -340,13 +335,13 @@ suite( "Model property type `integer`", function() {
 				"\t+4.26E1\r",
 			]
 				.forEach( s => {
-					const n = coerce( s, {} );
+					const n = OdemModelTypeInteger.coerce( s, {} );
 					n.should.be.Number().which.is.not.NaN();
 					Math.abs( n ).should.be.equal( 43 );
 				} );
 		} );
 
-		test( "returns `NaN` on providing arrays", function() {
+		it( "returns `NaN` on providing arrays", function() {
 			[
 				[],
 				["    "],
@@ -357,11 +352,11 @@ suite( "Model property type `integer`", function() {
 				[1e7],
 			]
 				.forEach( s => {
-					coerce( s, {} ).should.be.NaN();
+					OdemModelTypeInteger.coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
-		test( "returns `NaN` on providing objects", function() {
+		it( "returns `NaN` on providing objects", function() {
 			[
 				{},
 				{ value: "    " },
@@ -375,11 +370,11 @@ suite( "Model property type `integer`", function() {
 				{ toString: () => 1 },
 			]
 				.forEach( s => {
-					coerce( s, {} ).should.be.NaN();
+					OdemModelTypeInteger.coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
-		test( "returns `NaN` on providing functions", function() {
+		it( "returns `NaN` on providing functions", function() {
 			[
 				() => {}, // eslint-disable-line no-empty-function
 				function() {}, // eslint-disable-line no-empty-function
@@ -387,401 +382,397 @@ suite( "Model property type `integer`", function() {
 				function() { return 1; },
 			]
 				.forEach( s => {
-					coerce( s, {} ).should.be.NaN();
+					OdemModelTypeInteger.coerce( s, {} ).should.be.NaN();
 				} );
 		} );
 
-		test( "returns any provided integer as-is", function() {
+		it( "returns any provided integer as-is", function() {
 			this.timeout( 5000 );
 
 			for ( let e = 1; e <= 16; e++ ) {
 				for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
-					coerce( i, {} ).should.be.Number().which.is.equal( i );
+					OdemModelTypeInteger.coerce( i, {} ).should.be.Number().which.is.equal( i );
 				}
 			}
 		} );
 
-		test( "returns any provided number rounded", function() {
+		it( "returns any provided number rounded", function() {
 			this.timeout( 5000 );
 
 			for ( let e = 1; e <= 8; e++ ) {
 				for ( let de = -8; de < 16; de++ ) {
 					for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
 						const v = i / Math.pow( 10, de );
-						coerce( v, {} ).should.be.Number().which.is.equal( Math.round( v ) );
+						OdemModelTypeInteger.coerce( v, {} ).should.be.Number().which.is.equal( Math.round( v ) );
 					}
 				}
 			}
 		} );
 
-		test( "accepts definition in second argument", function() {
-			( () => coerce( "4", { required: true } ) ).should.not.throw();
+		it( "accepts definition in second argument", function() {
+			( () => OdemModelTypeInteger.coerce( "4", { required: true } ) ).should.not.throw();
 		} );
 
-		test( "doesn't care for definition requiring value", function() {
-			Should( coerce( undefined, { required: true } ) ).be.null();
-			Should( coerce( null, { required: true } ) ).be.null();
+		it( "doesn't care for definition requiring value", function() {
+			Should( OdemModelTypeInteger.coerce( undefined, { required: true } ) ).be.null();
+			Should( OdemModelTypeInteger.coerce( null, { required: true } ) ).be.null();
 		} );
 
-		test( "rounds value to nearest multitude of optionally defined step value", function() {
-			coerce( 4, {} ).should.be.equal( 4 );
-			coerce( 4, { step: 1 } ).should.be.equal( 4 );
-			coerce( 4, { step: 2 } ).should.be.equal( 4 );
+		it( "rounds value to nearest multitude of optionally defined step value", function() {
+			OdemModelTypeInteger.coerce( 4, {} ).should.be.equal( 4 );
+			OdemModelTypeInteger.coerce( 4, { step: 1 } ).should.be.equal( 4 );
+			OdemModelTypeInteger.coerce( 4, { step: 2 } ).should.be.equal( 4 );
 
-			coerce( 4, { step: 3 } ).should.be.equal( 3 );
-			coerce( 5, { step: 3 } ).should.be.equal( 6 );
+			OdemModelTypeInteger.coerce( 4, { step: 3 } ).should.be.equal( 3 );
+			OdemModelTypeInteger.coerce( 5, { step: 3 } ).should.be.equal( 6 );
 		} );
 
-		test( "obeys step value starting from optionally defined minimum value", function() {
-			coerce( 4, { step: 3 } ).should.be.equal( 3 );
-			coerce( 4, { step: 3, min: 1 } ).should.be.equal( 4 );
-			coerce( 4, { step: 3, min: 2 } ).should.be.equal( 5 );
-			coerce( 4, { step: 3, min: -1 } ).should.be.equal( 5 );
+		it( "obeys step value starting from optionally defined minimum value", function() {
+			OdemModelTypeInteger.coerce( 4, { step: 3 } ).should.be.equal( 3 );
+			OdemModelTypeInteger.coerce( 4, { step: 3, min: 1 } ).should.be.equal( 4 );
+			OdemModelTypeInteger.coerce( 4, { step: 3, min: 2 } ).should.be.equal( 5 );
+			OdemModelTypeInteger.coerce( 4, { step: 3, min: -1 } ).should.be.equal( 5 );
 		} );
 
-		test( "obeys non-integer step values while assuring integer result", function() {
-			coerce( 4, { step: 0.5 } ).should.be.equal( 4 );
-			coerce( 5, { step: 0.5 } ).should.be.equal( 5 );
+		it( "obeys non-integer step values while assuring integer result", function() {
+			OdemModelTypeInteger.coerce( 4, { step: 0.5 } ).should.be.equal( 4 );
+			OdemModelTypeInteger.coerce( 5, { step: 0.5 } ).should.be.equal( 5 );
 
-			coerce( 4, { step: 1.5 } ).should.be.equal( 5 ); // obeying step results in 4.5, but gets rounded to keep integer result
+			OdemModelTypeInteger.coerce( 4, { step: 1.5 } ).should.be.equal( 5 ); // obeying step results in 4.5, but gets rounded to keep integer result
 		} );
 
-		test( "obeys step value after converting provided non-integer value to integer", function() {
+		it( "obeys step value after converting provided non-integer value to integer", function() {
 			// in following test 4.3 gets rounded to 4 first, then bound to step value 0.5
 			// (instead of binding to step value 0.5 first, resulting in 4.5 finally rounded to 5)
-			coerce( 4.3, { step: 0.5 } ).should.be.equal( 4 );
+			OdemModelTypeInteger.coerce( 4.3, { step: 0.5 } ).should.be.equal( 4 );
 		} );
 	} );
 
-	suite( "is exposing method `isValid()` which", function() {
-		const { isValid } = Type;
-
-		test( "is a function to be invoked w/ four argument", function() {
-			isValid.should.be.a.Function().which.has.length( 4 );
+	describe( "is exposing method `isValid()` which", function() {
+		it( "is a function to be invoked w/ four argument", function() {
+			OdemModelTypeInteger.isValid.should.be.a.Function().which.has.length( 4 );
 		} );
 
-		test( "requires provision of array for collecting errors in fourth argument", function() {
+		it( "requires provision of array for collecting errors in fourth argument", function() {
 			// (providing valid data in first three arguments describing invalid case)
 
-			( () => isValid( "name", null, { required: true } ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, undefined ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, null ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, false ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, true ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, 0 ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, -1 ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, 4.5 ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, "" ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, "required: true" ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, {} ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, { required: true } ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true } ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, undefined ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, null ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, false ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, true ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, 0 ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, -1 ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, 4.5 ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, "" ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, "required: true" ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, {} ) ).should.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, { required: true } ) ).should.throw();
 
-			( () => isValid( "name", null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( "name", null, { required: true }, ["required: true"] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( "name", null, { required: true }, ["required: true"] ) ).should.not.throw();
 		} );
 
-		test( "doesn't throw exception on providing invalid first argument", function() {
-			( () => isValid( undefined, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( null, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( false, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( true, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( 0, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( -1, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( 4.5, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( null, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( "required: true", null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( [], null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( ["required: true"], null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( {}, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( { required: true }, null, { required: true }, [] ) ).should.not.throw();
+		it( "doesn't throw exception on providing invalid first argument", function() {
+			( () => OdemModelTypeInteger.isValid( undefined, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( null, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( false, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( true, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( 0, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( -1, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( 4.5, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( null, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( "required: true", null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( [], null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( ["required: true"], null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( {}, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.isValid( { required: true }, null, { required: true }, [] ) ).should.not.throw();
 		} );
 
-		test( "does not return anything", function() {
-			Should( isValid( "name", undefined, {}, [] ) ).be.undefined();
-			Should( isValid( "name", null, {}, [] ) ).be.undefined();
-			Should( isValid( "name", false, {}, [] ) ).be.undefined();
-			Should( isValid( "name", true, {}, [] ) ).be.undefined();
-			Should( isValid( "name", 0, {}, [] ) ).be.undefined();
-			Should( isValid( "name", -1, {}, [] ) ).be.undefined();
-			Should( isValid( "name", 4.5, {}, [] ) ).be.undefined();
-			Should( isValid( "name", "", {}, [] ) ).be.undefined();
-			Should( isValid( "name", "value", {}, [] ) ).be.undefined();
-			Should( isValid( "name", [], {}, [] ) ).be.undefined();
-			Should( isValid( "name", ["value"], {}, [] ) ).be.undefined();
-			Should( isValid( "name", {}, {}, [] ) ).be.undefined();
-			Should( isValid( "name", { value: "value" }, {}, [] ) ).be.undefined();
+		it( "does not return anything", function() {
+			Should( OdemModelTypeInteger.isValid( "name", undefined, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", false, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", true, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 0, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -1, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 4.5, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", "", {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", "value", {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", [], {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", ["value"], {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", {}, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", { value: "value" }, {}, [] ) ).be.undefined();
 		} );
 
-		test( "appends validation issues to array provided in fourth argument", function() {
+		it( "appends validation issues to array provided in fourth argument", function() {
 			const collector = [ "something existing", null ];
 
-			Should( isValid( "name", "", {}, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", "", {}, collector ) ).be.undefined();
 
 			collector.should.have.length( 2 );
 			collector[0].should.be.String().which.is.equal( "something existing" );
 			Should( collector[1] ).be.null();
 
-			Should( isValid( "name", null, { required: true }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { required: true }, collector ) ).be.undefined();
 
 			collector.should.have.length( 3 );
 			collector[0].should.be.String().which.is.equal( "something existing" );
 			Should( collector[1] ).be.null();
 		} );
 
-		test( "appends instances of `Error` on validation issues to array provided in fourth argument", function() {
+		it( "appends instances of `Error` on validation issues to array provided in fourth argument", function() {
 			const collector = [ "something existing", null ];
 
-			Should( isValid( "name", null, { required: true }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { required: true }, collector ) ).be.undefined();
 
 			collector.should.have.length( 3 );
 			collector[2].should.be.instanceOf( Error );
 		} );
 
-		test( "considers `null` as valid unless `required` is set in definition", function() {
+		it( "considers `null` as valid unless `required` is set in definition", function() {
 			const collector = [];
 
-			Should( isValid( "name", null, {}, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, {}, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { required: false }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { required: false }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { required: "" }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { required: "" }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { required: true }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { required: true }, collector ) ).be.undefined();
 			collector.should.not.be.empty();
 		} );
 
-		test( "ignores demand for minimum value on validating `null`", function() {
+		it( "ignores demand for minimum value on validating `null`", function() {
 			const collector = [];
 
-			Should( isValid( "name", null, { min: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { min: 1 }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { min: 100 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { min: 100 }, collector ) ).be.undefined();
 			collector.should.be.empty();
 		} );
 
-		test( "obeys demand for minimum value on validating integer", function() {
+		it( "obeys demand for minimum value on validating integer", function() {
 			const collector = [];
 
-			Should( isValid( "name", 0, { min: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 0, { min: 1 }, collector ) ).be.undefined();
 			collector.should.have.length( 1 );
 
-			Should( isValid( "name", 0, { min: 100 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 0, { min: 100 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", 1, { min: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 1, { min: 1 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", 4, { min: 3 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 4, { min: 3 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", -3, { min: -4 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -3, { min: -4 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", -4, { min: -3 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -4, { min: -3 }, collector ) ).be.undefined();
 			collector.should.have.length( 3 );
 
-			Should( isValid( "name", -3, { min: "-4" }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -3, { min: "-4" }, collector ) ).be.undefined();
 			collector.should.have.length( 3 );
 
-			Should( isValid( "name", -4, { min: "-3" }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -4, { min: "-3" }, collector ) ).be.undefined();
 			collector.should.have.length( 4 );
 		} );
 
-		test( "obeys demand for minimum value on validating `NaN`", function() {
+		it( "obeys demand for minimum value on validating `NaN`", function() {
 			const collector = [];
 
-			Should( isValid( "name", NaN, { min: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { min: 1 }, collector ) ).be.undefined();
 			collector.should.have.length( 1 );
 
-			Should( isValid( "name", NaN, { min: 100 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { min: 100 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", NaN, { min: 3 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { min: 3 }, collector ) ).be.undefined();
 			collector.should.have.length( 3 );
 
-			Should( isValid( "name", NaN, { min: -4 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { min: -4 }, collector ) ).be.undefined();
 			collector.should.have.length( 4 );
 
-			Should( isValid( "name", NaN, { min: "-3" }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { min: "-3" }, collector ) ).be.undefined();
 			collector.should.have.length( 5 );
 		} );
 
-		test( "ignores demand for maximum value on validating `null`", function() {
+		it( "ignores demand for maximum value on validating `null`", function() {
 			const collector = [];
 
-			Should( isValid( "name", null, { max: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { max: 1 }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { max: 100 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { max: 100 }, collector ) ).be.undefined();
 			collector.should.be.empty();
 		} );
 
-		test( "obeys demand for maximum value on validating integer", function() {
+		it( "obeys demand for maximum value on validating integer", function() {
 			const collector = [];
 
-			Should( isValid( "name", 2, { max: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 2, { max: 1 }, collector ) ).be.undefined();
 			collector.should.have.length( 1 );
 
-			Should( isValid( "name", 101, { max: 100 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 101, { max: 100 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", 1, { max: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 1, { max: 1 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", 1, { max: 3 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 1, { max: 3 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", -4, { max: -3 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -4, { max: -3 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", -3, { max: -4 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -3, { max: -4 }, collector ) ).be.undefined();
 			collector.should.have.length( 3 );
 
-			Should( isValid( "name", -4, { max: "-3" }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -4, { max: "-3" }, collector ) ).be.undefined();
 			collector.should.have.length( 3 );
 
-			Should( isValid( "name", -3, { max: "-4" }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -3, { max: "-4" }, collector ) ).be.undefined();
 			collector.should.have.length( 4 );
 		} );
 
-		test( "obeys demand for maximum value on validating `NaN`", function() {
+		it( "obeys demand for maximum value on validating `NaN`", function() {
 			const collector = [];
 
-			Should( isValid( "name", NaN, { max: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { max: 1 }, collector ) ).be.undefined();
 			collector.should.have.length( 1 );
 
-			Should( isValid( "name", NaN, { max: 100 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { max: 100 }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", NaN, { max: 3 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { max: 3 }, collector ) ).be.undefined();
 			collector.should.have.length( 3 );
 
-			Should( isValid( "name", NaN, { max: -4 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { max: -4 }, collector ) ).be.undefined();
 			collector.should.have.length( 4 );
 
-			Should( isValid( "name", NaN, { max: "-3" }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, { max: "-3" }, collector ) ).be.undefined();
 			collector.should.have.length( 5 );
 		} );
 
-		test( "ignores combined demands for minimum and maximum value on validating `null`", function() {
+		it( "ignores combined demands for minimum and maximum value on validating `null`", function() {
 			const collector = [];
 
-			Should( isValid( "name", null, { min: 0, max: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { min: 0, max: 1 }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { min: 1, max: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { min: 1, max: 1 }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { min: 1, max: 2 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { min: 1, max: 2 }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { min: -2, max: -1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { min: -2, max: -1 }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { min: -2, max: 1 }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { min: -2, max: 1 }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { min: "-2", max: "1" }, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", null, { min: "-2", max: "1" }, collector ) ).be.undefined();
 			collector.should.be.empty();
 		} );
 
-		test( "obeys combined demands for minimum and maximum value on validating integer", function() {
+		it( "obeys combined demands for minimum and maximum value on validating integer", function() {
 			const definition = { min: -2, max: 3 };
 			const collector = [];
 
-			Should( isValid( "name", -100, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -100, definition, collector ) ).be.undefined();
 			collector.should.have.size( 1 );
 
-			Should( isValid( "name", -3, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -3, definition, collector ) ).be.undefined();
 			collector.should.have.size( 2 );
 
-			Should( isValid( "name", -2, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -2, definition, collector ) ).be.undefined();
 			collector.should.have.size( 2 );
 
-			Should( isValid( "name", 0, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 0, definition, collector ) ).be.undefined();
 			collector.should.have.size( 2 );
 
-			Should( isValid( "name", 3, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 3, definition, collector ) ).be.undefined();
 			collector.should.have.size( 2 );
 
-			Should( isValid( "name", 4, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 4, definition, collector ) ).be.undefined();
 			collector.should.have.size( 3 );
 
-			Should( isValid( "name", 100, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 100, definition, collector ) ).be.undefined();
 			collector.should.have.size( 4 );
 		} );
 
-		test( "obeys combined demands for minimum and maximum value on validating `NaN`", function() {
+		it( "obeys combined demands for minimum and maximum value on validating `NaN`", function() {
 			const definition = { min: -2, max: 3 };
 			const collector = [];
 
-			Should( isValid( "name", NaN, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, definition, collector ) ).be.undefined();
 			collector.should.not.be.empty();
 		} );
 
-		test( "obeys `NaN` failing on either limit in a combined demand for minimum and maximum value", function() {
+		it( "obeys `NaN` failing on either limit in a combined demand for minimum and maximum value", function() {
 			const definition = { min: -2, max: 3 };
 			const collector = [];
 
-			Should( isValid( "name", -3, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", -3, definition, collector ) ).be.undefined();
 			collector.should.have.length( 1 );
 
-			Should( isValid( "name", 4, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", 4, definition, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", NaN, definition, collector ) ).be.undefined();
+			Should( OdemModelTypeInteger.isValid( "name", NaN, definition, collector ) ).be.undefined();
 			collector.should.have.length( 4 ); // got two more errors in collector for NaN failing on either limit
 		} );
 	} );
 
-	suite( "is exposing method `serialize()` which", function() {
-		const { serialize } = Type;
-
-		test( "is a function to be invoked w/ one argument", function() {
-			serialize.should.be.a.Function().which.has.length( 2 );
+	describe( "is exposing method `serialize()` which", function() {
+		it( "is a function to be invoked w/ one argument", function() {
+			OdemModelTypeInteger.serialize.should.be.a.Function().which.has.length( 2 );
 		} );
 
-		test( "never throws exception", function() {
-			( () => serialize() ).should.not.throw();
-			( () => serialize( undefined ) ).should.not.throw();
-			( () => serialize( null ) ).should.not.throw();
-			( () => serialize( false ) ).should.not.throw();
-			( () => serialize( true ) ).should.not.throw();
-			( () => serialize( 0 ) ).should.not.throw();
-			( () => serialize( -1 ) ).should.not.throw();
-			( () => serialize( 4.5 ) ).should.not.throw();
-			( () => serialize( "" ) ).should.not.throw();
-			( () => serialize( "required: true" ) ).should.not.throw();
-			( () => serialize( {} ) ).should.not.throw();
-			( () => serialize( { required: true } ) ).should.not.throw();
-			( () => serialize( [] ) ).should.not.throw();
-			( () => serialize( ["required: true"] ) ).should.not.throw();
+		it( "never throws exception", function() {
+			( () => OdemModelTypeInteger.serialize() ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( undefined ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( null ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( false ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( true ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( 0 ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( -1 ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( 4.5 ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( "" ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( "required: true" ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( { required: true } ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.serialize( ["required: true"] ) ).should.not.throw();
 		} );
 
-		test( "returns `null` on providing `null`", function() {
-			Should( serialize( null ) ).be.null();
+		it( "returns `null` on providing `null`", function() {
+			Should( OdemModelTypeInteger.serialize( null ) ).be.null();
 		} );
 
-		test( "returns `null` on providing `undefined`", function() {
-			Should( serialize( undefined ) ).be.null();
+		it( "returns `null` on providing `undefined`", function() {
+			Should( OdemModelTypeInteger.serialize( undefined ) ).be.null();
 		} );
 
-		test( "returns any provided integer as given", function() {
+		it( "returns any provided integer as given", function() {
 			[
 				0,
 				2,
 				-2e7,
 			]
 				.forEach( value => {
-					serialize( value ).should.be.equal( value );
+					OdemModelTypeInteger.serialize( value ).should.be.equal( value );
 				} );
 		} );
 
-		test( "relies on prior coercion to convert non-integers to integers, thus returning any other value as is, too", function() {
+		it( "relies on prior coercion to convert non-integers to integers, thus returning any other value as is, too", function() {
 			[
 				[ false, NaN ],
 				[ true, NaN ],
@@ -799,39 +790,37 @@ suite( "Model property type `integer`", function() {
 			]
 				.forEach( ( [ raw, serialized ] ) => {
 					if ( isNaN( serialized ) ) {
-						serialize( raw ).should.be.NaN();
+						OdemModelTypeInteger.serialize( raw ).should.be.NaN();
 					} else {
-						serialize( raw ).should.be.equal( serialized );
+						OdemModelTypeInteger.serialize( raw ).should.be.equal( serialized );
 					}
 				} );
 		} );
 	} );
 
-	suite( "is exposing method `deserialize()` which", function() {
-		const { deserialize } = Type;
-
-		test( "is a function to be invoked w/ one argument", function() {
-			deserialize.should.be.a.Function().which.has.length( 1 );
+	describe( "is exposing method `deserialize()` which", function() {
+		it( "is a function to be invoked w/ one argument", function() {
+			OdemModelTypeInteger.deserialize.should.be.a.Function().which.has.length( 1 );
 		} );
 
-		test( "never throws exception", function() {
-			( () => deserialize() ).should.not.throw();
-			( () => deserialize( undefined ) ).should.not.throw();
-			( () => deserialize( null ) ).should.not.throw();
-			( () => deserialize( false ) ).should.not.throw();
-			( () => deserialize( true ) ).should.not.throw();
-			( () => deserialize( 0 ) ).should.not.throw();
-			( () => deserialize( -1 ) ).should.not.throw();
-			( () => deserialize( 4.5 ) ).should.not.throw();
-			( () => deserialize( "" ) ).should.not.throw();
-			( () => deserialize( "required: true" ) ).should.not.throw();
-			( () => deserialize( {} ) ).should.not.throw();
-			( () => deserialize( { required: true } ) ).should.not.throw();
-			( () => deserialize( [] ) ).should.not.throw();
-			( () => deserialize( ["required: true"] ) ).should.not.throw();
+		it( "never throws exception", function() {
+			( () => OdemModelTypeInteger.deserialize() ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( undefined ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( null ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( false ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( true ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( 0 ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( -1 ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( 4.5 ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( "" ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( "required: true" ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( {} ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( { required: true } ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( [] ) ).should.not.throw();
+			( () => OdemModelTypeInteger.deserialize( ["required: true"] ) ).should.not.throw();
 		} );
 
-		test( "returns any provided as-is", function() {
+		it( "returns any provided as-is", function() {
 			[
 				null,
 				undefined,
@@ -859,142 +848,140 @@ suite( "Model property type `integer`", function() {
 				() => 1,
 			]
 				.forEach( value => {
-					Should( deserialize( value ) ).be.equal( value );
+					Should( OdemModelTypeInteger.deserialize( value ) ).be.equal( value );
 				} );
 		} );
 	} );
 
-	suite( "is exposing method `compare()` which", function() {
-		const { compare } = Type;
-
-		test( "is a function to be invoked w/ three arguments", function() {
-			compare.should.be.a.Function().which.has.length( 3 );
+	describe( "is exposing method `compare()` which", function() {
+		it( "is a function to be invoked w/ three arguments", function() {
+			OdemModelTypeInteger.compare.should.be.a.Function().which.has.length( 3 );
 		} );
 
-		test( "never throws exception", function() {
-			( () => compare() ).should.not.throw();
+		it( "never throws exception", function() {
+			( () => OdemModelTypeInteger.compare() ).should.not.throw();
 
 			Helper.allTypesOfData().forEach( one => {
-				( () => compare( one ) ).should.not.throw();
+				( () => OdemModelTypeInteger.compare( one ) ).should.not.throw();
 
 				Helper.allTypesOfData().forEach( two => {
-					( () => compare( one, two ) ).should.not.throw();
+					( () => OdemModelTypeInteger.compare( one, two ) ).should.not.throw();
 
 					Helper.allComparisonOperations().forEach( three => {
-						( () => compare( one, two, three ) ).should.not.throw();
+						( () => OdemModelTypeInteger.compare( one, two, three ) ).should.not.throw();
 					} );
 				} );
 			} );
 		} );
 
-		test( "always returns boolean", function() {
+		it( "always returns boolean", function() {
 			Helper.allTypesOfData().forEach( one => {
 				Helper.allTypesOfData().forEach( two => {
 					Helper.allComparisonOperations().forEach( three => {
-						compare( one, two, three ).should.be.Boolean();
+						OdemModelTypeInteger.compare( one, two, three ).should.be.Boolean();
 					} );
 				} );
 			} );
 		} );
 
-		test( "considers `null` and `null` as equal", function() {
-			compare( null, null, "eq" ).should.be.true();
+		it( "considers `null` and `null` as equal", function() {
+			OdemModelTypeInteger.compare( null, null, "eq" ).should.be.true();
 
-			compare( null, null, "noteq" ).should.be.false();
+			OdemModelTypeInteger.compare( null, null, "noteq" ).should.be.false();
 		} );
 
-		test( "considers `null` and non-`null` as inequal", function() {
-			compare( null, 0, "eq" ).should.be.false();
-			compare( 0, null, "eq" ).should.be.false();
+		it( "considers `null` and non-`null` as inequal", function() {
+			OdemModelTypeInteger.compare( null, 0, "eq" ).should.be.false();
+			OdemModelTypeInteger.compare( 0, null, "eq" ).should.be.false();
 
-			compare( null, "", "noteq" ).should.be.true();
-			compare( "", null, "noteq" ).should.be.true();
+			OdemModelTypeInteger.compare( null, "", "noteq" ).should.be.true();
+			OdemModelTypeInteger.compare( "", null, "noteq" ).should.be.true();
 		} );
 
-		test( "returns `true` on negating `null`", function() {
-			compare( null, null, "not" ).should.be.true();
+		it( "returns `true` on negating `null`", function() {
+			OdemModelTypeInteger.compare( null, null, "not" ).should.be.true();
 		} );
 
-		test( "returns `true` on negating falsy coerced value", function() {
-			compare( 0, null, "not" ).should.be.true();
-			compare( -0, null, "not" ).should.be.true();
-			compare( NaN, null, "not" ).should.be.true();
+		it( "returns `true` on negating falsy coerced value", function() {
+			OdemModelTypeInteger.compare( 0, null, "not" ).should.be.true();
+			OdemModelTypeInteger.compare( -0, null, "not" ).should.be.true();
+			OdemModelTypeInteger.compare( NaN, null, "not" ).should.be.true();
 		} );
 
-		test( "returns `false` on negating truthy coerced value", function() {
-			compare( 1, null, "not" ).should.be.false();
-			compare( -1, null, "not" ).should.be.false();
-			compare( -200, null, "not" ).should.be.false();
-			compare( -1e4, null, "not" ).should.be.false();
-			compare( 12e16, null, "not" ).should.be.false();
+		it( "returns `false` on negating truthy coerced value", function() {
+			OdemModelTypeInteger.compare( 1, null, "not" ).should.be.false();
+			OdemModelTypeInteger.compare( -1, null, "not" ).should.be.false();
+			OdemModelTypeInteger.compare( -200, null, "not" ).should.be.false();
+			OdemModelTypeInteger.compare( -1e4, null, "not" ).should.be.false();
+			OdemModelTypeInteger.compare( 12e16, null, "not" ).should.be.false();
 		} );
 
-		test( "detects two coerced equal values", function() {
-			compare( 0, 0, "eq" ).should.be.true();
-			compare( 10, 10, "eq" ).should.be.true();
-			compare( -0, -0, "eq" ).should.be.true();
+		it( "detects two coerced equal values", function() {
+			OdemModelTypeInteger.compare( 0, 0, "eq" ).should.be.true();
+			OdemModelTypeInteger.compare( 10, 10, "eq" ).should.be.true();
+			OdemModelTypeInteger.compare( -0, -0, "eq" ).should.be.true();
 
-			compare( 0, 0, "noteq" ).should.be.false();
-			compare( 10, 10, "noteq" ).should.be.false();
-			compare( -0, -0, "noteq" ).should.be.false();
+			OdemModelTypeInteger.compare( 0, 0, "noteq" ).should.be.false();
+			OdemModelTypeInteger.compare( 10, 10, "noteq" ).should.be.false();
+			OdemModelTypeInteger.compare( -0, -0, "noteq" ).should.be.false();
 		} );
 
-		test( "detects two coerced inequal values", function() {
-			compare( 1, 0, "eq" ).should.be.false();
-			compare( 10, 100, "eq" ).should.be.false();
-			compare( 0, -200, "eq" ).should.be.false();
+		it( "detects two coerced inequal values", function() {
+			OdemModelTypeInteger.compare( 1, 0, "eq" ).should.be.false();
+			OdemModelTypeInteger.compare( 10, 100, "eq" ).should.be.false();
+			OdemModelTypeInteger.compare( 0, -200, "eq" ).should.be.false();
 
-			compare( 1, 0, "noteq" ).should.be.true();
-			compare( 10, 100, "noteq" ).should.be.true();
-			compare( 0, -200, "noteq" ).should.be.true();
+			OdemModelTypeInteger.compare( 1, 0, "noteq" ).should.be.true();
+			OdemModelTypeInteger.compare( 10, 100, "noteq" ).should.be.true();
+			OdemModelTypeInteger.compare( 0, -200, "noteq" ).should.be.true();
 		} );
 
-		test( "compares order of two coerced values", function() {
-			compare( 5, -3, "gt" ).should.be.true();
-			compare( 5, -3, "gte" ).should.be.true();
-			compare( 5, 5, "gt" ).should.be.false();
-			compare( 5, 5, "gte" ).should.be.true();
+		it( "compares order of two coerced values", function() {
+			OdemModelTypeInteger.compare( 5, -3, "gt" ).should.be.true();
+			OdemModelTypeInteger.compare( 5, -3, "gte" ).should.be.true();
+			OdemModelTypeInteger.compare( 5, 5, "gt" ).should.be.false();
+			OdemModelTypeInteger.compare( 5, 5, "gte" ).should.be.true();
 
-			compare( -3, 5, "lt" ).should.be.true();
-			compare( -3, 5, "lte" ).should.be.true();
-			compare( -3, -3, "lt" ).should.be.false();
-			compare( -3, -3, "lte" ).should.be.true();
+			OdemModelTypeInteger.compare( -3, 5, "lt" ).should.be.true();
+			OdemModelTypeInteger.compare( -3, 5, "lte" ).should.be.true();
+			OdemModelTypeInteger.compare( -3, -3, "lt" ).should.be.false();
+			OdemModelTypeInteger.compare( -3, -3, "lte" ).should.be.true();
 		} );
 
-		test( "returns `false` on comparing non-`null`-value w/ `null`-value", function() {
-			compare( -3, null, "gt" ).should.be.false();
-			compare( -3, null, "gte" ).should.be.false();
-			compare( -3, null, "lt" ).should.be.false();
-			compare( -3, null, "lte" ).should.be.false();
+		it( "returns `false` on comparing non-`null`-value w/ `null`-value", function() {
+			OdemModelTypeInteger.compare( -3, null, "gt" ).should.be.false();
+			OdemModelTypeInteger.compare( -3, null, "gte" ).should.be.false();
+			OdemModelTypeInteger.compare( -3, null, "lt" ).should.be.false();
+			OdemModelTypeInteger.compare( -3, null, "lte" ).should.be.false();
 		} );
 
-		test( "returns `false` on comparing `null`-value w/ non-`null`-value", function() {
-			compare( null, -3, "gt" ).should.be.false();
-			compare( null, -3, "gte" ).should.be.false();
-			compare( null, -3, "lt" ).should.be.false();
-			compare( null, -3, "lte" ).should.be.false();
+		it( "returns `false` on comparing `null`-value w/ non-`null`-value", function() {
+			OdemModelTypeInteger.compare( null, -3, "gt" ).should.be.false();
+			OdemModelTypeInteger.compare( null, -3, "gte" ).should.be.false();
+			OdemModelTypeInteger.compare( null, -3, "lt" ).should.be.false();
+			OdemModelTypeInteger.compare( null, -3, "lte" ).should.be.false();
 		} );
 
-		test( "returns `false` on comparing `null`-value w/ `null`-value w/o accepting equality", function() {
-			compare( null, null, "gt" ).should.be.false();
-			compare( null, null, "lt" ).should.be.false();
+		it( "returns `false` on comparing `null`-value w/ `null`-value w/o accepting equality", function() {
+			OdemModelTypeInteger.compare( null, null, "gt" ).should.be.false();
+			OdemModelTypeInteger.compare( null, null, "lt" ).should.be.false();
 		} );
 
-		test( "returns `true` on comparing `null`-value w/ `null`-value accepting equality", function() {
-			compare( null, null, "gte" ).should.be.true();
-			compare( null, null, "lte" ).should.be.true();
+		it( "returns `true` on comparing `null`-value w/ `null`-value accepting equality", function() {
+			OdemModelTypeInteger.compare( null, null, "gte" ).should.be.true();
+			OdemModelTypeInteger.compare( null, null, "lte" ).should.be.true();
 		} );
 
-		test( "supports unary operation testing for value being `null`", function() {
-			compare( null, null, "null" ).should.be.true();
+		it( "supports unary operation testing for value being `null`", function() {
+			OdemModelTypeInteger.compare( null, null, "null" ).should.be.true();
 
-			compare( 0, null, "null" ).should.be.false();
+			OdemModelTypeInteger.compare( 0, null, "null" ).should.be.false();
 		} );
 
-		test( "supports unary operation testing for value not being `null`", function() {
-			compare( null, null, "notnull" ).should.be.false();
+		it( "supports unary operation testing for value not being `null`", function() {
+			OdemModelTypeInteger.compare( null, null, "notnull" ).should.be.false();
 
-			compare( 0, null, "notnull" ).should.be.true();
+			OdemModelTypeInteger.compare( 0, null, "notnull" ).should.be.true();
 		} );
 	} );
 } );

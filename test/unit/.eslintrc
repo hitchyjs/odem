@@ -1,6 +1,8 @@
 {
 	"rules": {
 		"max-nested-callbacks": "off",
-		"no-empty-function": "off"
+		"no-empty-function": "off",
+		"require-jsdoc": "off",
+		"valid-jsdoc": "off"
 	}
 }

@@ -30,13 +30,13 @@
 const { describe, it, before } = require( "mocha" );
 require( "should" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 
 describe( "Utility for handling UUIDs", () => {
 	let OdemUtilityUuid;
 
-	before( () => loadAllServices().then( s => { ( { OdemUtilityUuid } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemUtilityUuid } = s ); } ) );
 
 	describe( "has static method UUID.normalize() that", () => {
 		it( "does not throw when used without arguments", () => {

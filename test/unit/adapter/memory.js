@@ -33,13 +33,13 @@ const { Readable } = require( "stream" );
 const { describe, it, before, beforeEach } = require( "mocha" );
 const Should = require( "should" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 
 describe( "MemoryAdapter", function() {
 	let OdemAdapter, OdemAdapterMemory;
 
-	before( () => loadAllServices().then( s => { ( { OdemAdapter, OdemAdapterMemory } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemAdapter, OdemAdapterMemory } = s ); } ) );
 
 	it( "is exposed in property `MemoryAdapter`", function() {
 		Should( OdemAdapterMemory ).be.ok();

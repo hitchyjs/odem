@@ -66,7 +66,7 @@ module.exports = function() {
 			const _onUnsaved = __onUnsaved == null ? this.constructor.onUnsaved : __onUnsaved;
 
 			let _uuid = null;
-			const __adapter = _adapter || this.constructor.adapter || Services.OdemDefaults.defaultAdapter;
+			const __adapter = _adapter || this.constructor.adapter || api.config.database.defaultAdapter;
 
 			Object.defineProperties( this, {
 				/**
@@ -1190,10 +1190,10 @@ module.exports = function() {
 		 * @param {string} modelName name of model
 		 * @param {object} schema definition of model's schema
 		 * @param {class} customBaseClass model class inheriting from OdemModel
-		 * @param {Adapter} adapter selects adapter to use on instances of resulting model by default
+		 * @param {OdemAdapter} adapter selects adapter to use on instances of resulting model by default
 		 * @returns {class} compiled model class
 		 */
-		static define( modelName, schema, customBaseClass = null, adapter = Services.OdemDefaults.defaultAdapter ) {
+		static define( modelName, schema, customBaseClass = null, adapter = null ) {
 			return Services.OdemModelCompiler.compileModel( modelName, schema, customBaseClass, adapter );
 		}
 	}

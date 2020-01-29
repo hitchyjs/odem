@@ -29,15 +29,15 @@
 const { describe, it, before } = require( "mocha" );
 require( "should" );
 
-const { Model } = require( "../../.." );
-
+const { fakeApi } = require( "../helper" );
 
 /**
  * Defines model used in multiple tests.
  *
- * @returns {class<Model>} defined model's class
+ * @param {class<OdemModel>} Model base class of all models to use
+ * @returns {class<OdemModel>} defined model's class
  */
-function defineModel() {
+function defineModel( Model ) {
 	return Model.define( "MyModel", {
 		props: {
 			aString: { default: "hello" },
@@ -66,10 +66,13 @@ function defineModel() {
 }
 
 describe( "Exporting values of a model's instance", () => {
+	let OdemModel;
 	let MyModel;
 
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
+
 	before( () => {
-		MyModel = defineModel();
+		MyModel = defineModel( OdemModel );
 	} );
 
 	it( "creates regular object containing UUID and all properties", () => {
@@ -157,10 +160,13 @@ describe( "Exporting values of a model's instance", () => {
 } );
 
 describe( "Importing values into a model's instance", () => {
+	let OdemModel;
 	let MyModel;
 
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
+
 	before( () => {
-		MyModel = defineModel();
+		MyModel = defineModel( OdemModel );
 	} );
 
 	it( "works on an existing instance", () => {
@@ -223,7 +229,7 @@ describe( "Importing values into a model's instance", () => {
 	} );
 
 	it( "adopts values of computed properties", () => {
-		const AnotherModel = Model.define( "AnotherModel", {
+		const AnotherModel = OdemModel.define( "AnotherModel", {
 			props: {
 				actual: {},
 			},
@@ -259,7 +265,7 @@ describe( "Importing values into a model's instance", () => {
 	} );
 
 	it( "adopts values of actual properties before values of computed properties", () => {
-		const AnotherModel = Model.define( "AnotherModel", {
+		const AnotherModel = OdemModel.define( "AnotherModel", {
 			props: {
 				actual: {},
 			},
@@ -297,7 +303,7 @@ describe( "Importing values into a model's instance", () => {
 	} );
 
 	it( "ignores computed properties on demand", () => {
-		const AnotherModel = Model.define( "AnotherModel", {
+		const AnotherModel = OdemModel.define( "AnotherModel", {
 			props: {
 				actual: {},
 			},

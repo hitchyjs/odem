@@ -27,16 +27,10 @@
  */
 
 
-const { suite, test } = require( "mocha" );
+const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
 const Helper = require( "../../helper" );
-
-const AllTypes = require( "../../../../lib/model/type" );
-const Base = require( "../../../../lib/model/type/base" );
-const Type = require( "../../../../lib/model/type/date" );
-
-const DateUtilities = require( "../../../../lib/utility/date" );
 
 
 const ValidNonNullData = [
@@ -69,167 +63,169 @@ const ValidInput = ValidNonNullInput.concat( [ null, undefined ] );
 
 
 
-suite( "Model property type `date`", function() {
-	test( "is available", function() {
-		Should.exist( Type );
+describe( "Model property type `date`", function() {
+	let OdemModelPropertyTypes, OdemModelType, OdemModelTypeDate, OdemUtilityDate;
+
+	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelPropertyTypes, OdemModelType, OdemModelTypeDate, OdemUtilityDate } = s ); } ) );
+
+	it( "is available", function() {
+		Should.exist( OdemModelTypeDate );
 	} );
 
-	test( "is derived from ModelType base class", function() {
-		Type.prototype.should.be.instanceOf( Base );
+	it( "is derived from ModelType base class", function() {
+		OdemModelTypeDate.prototype.should.be.instanceOf( OdemModelType );
 	} );
 
-	test( "is exposing its name as string", function() {
-		Type.should.have.property( "typeName" ).which.is.equal( "date" );
+	it( "is exposing its name as string", function() {
+		OdemModelTypeDate.should.have.property( "typeName" ).which.is.equal( "date" );
 	} );
 
-	test( "is exposing list of aliases to type name", function() {
-		Type.should.have.property( "aliases" ).which.is.an.Array();
-		Type.aliases.forEach( alias => alias.should.be.String().and.not.empty() );
+	it( "is exposing list of aliases to type name", function() {
+		OdemModelTypeDate.should.have.property( "aliases" ).which.is.an.Array();
+		OdemModelTypeDate.aliases.forEach( alias => alias.should.be.String().and.not.empty() );
 	} );
 
-	test( "is commonly exposed by its name", function() {
-		AllTypes.selectByName( "date" ).should.be.equal( Type );
+	it( "is commonly exposed by its name", function() {
+		OdemModelPropertyTypes.selectByName( "date" ).should.be.equal( OdemModelTypeDate );
 	} );
 
-	test( "is commonly exposed by all its aliases", function() {
-		AllTypes.selectByName( "datetime" ).should.be.equal( Type );
-		AllTypes.selectByName( "timestamp" ).should.be.equal( Type );
+	it( "is commonly exposed by all its aliases", function() {
+		OdemModelPropertyTypes.selectByName( "datetime" ).should.be.equal( OdemModelTypeDate );
+		OdemModelPropertyTypes.selectByName( "timestamp" ).should.be.equal( OdemModelTypeDate );
 	} );
 
-	test( "is commonly exposed by its name and all its aliases case-insensitively", function() {
-		AllTypes.selectByName( "DATE" ).should.be.equal( Type );
-		AllTypes.selectByName( "DATETIME" ).should.be.equal( Type );
-		AllTypes.selectByName( "TIMESTAMP" ).should.be.equal( Type );
+	it( "is commonly exposed by its name and all its aliases case-insensitively", function() {
+		OdemModelPropertyTypes.selectByName( "DATE" ).should.be.equal( OdemModelTypeDate );
+		OdemModelPropertyTypes.selectByName( "DATETIME" ).should.be.equal( OdemModelTypeDate );
+		OdemModelPropertyTypes.selectByName( "TIMESTAMP" ).should.be.equal( OdemModelTypeDate );
 	} );
 
-	test( "advertises values of type to be sortable", function() {
-		Type.sortable.should.be.true();
+	it( "advertises values of type to be sortable", function() {
+		OdemModelTypeDate.sortable.should.be.true();
 	} );
 
-	suite( "is exposing method `checkDefinition()` which", function() {
-		const { checkDefinition } = Type;
-
-		test( "is a function to be invoked w/ one argument", function() {
-			checkDefinition.should.be.a.Function().which.has.length( 1 );
+	describe( "is exposing method `checkDefinition()` which", function() {
+		it( "is a function to be invoked w/ one argument", function() {
+			OdemModelTypeDate.checkDefinition.should.be.a.Function().which.has.length( 1 );
 		} );
 
-		test( "doesn't throw exception", function() {
-			( () => checkDefinition() ).should.not.throw();
-			( () => checkDefinition( undefined ) ).should.not.throw();
-			( () => checkDefinition( null ) ).should.not.throw();
-			( () => checkDefinition( false ) ).should.not.throw();
-			( () => checkDefinition( true ) ).should.not.throw();
-			( () => checkDefinition( 0 ) ).should.not.throw();
-			( () => checkDefinition( -1 ) ).should.not.throw();
-			( () => checkDefinition( 4.5 ) ).should.not.throw();
-			( () => checkDefinition( "" ) ).should.not.throw();
-			( () => checkDefinition( "required: true" ) ).should.not.throw();
-			( () => checkDefinition( [] ) ).should.not.throw();
-			( () => checkDefinition( ["required: true"] ) ).should.not.throw();
+		it( "doesn't throw exception", function() {
+			( () => OdemModelTypeDate.checkDefinition() ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( undefined ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( null ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( false ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( true ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( 0 ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( -1 ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( 4.5 ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( "" ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( "required: true" ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( ["required: true"] ) ).should.not.throw();
 
-			( () => checkDefinition( {} ) ).should.not.throw();
-			( () => checkDefinition( { required: true } ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.checkDefinition( { required: true } ) ).should.not.throw();
 		} );
 
-		test( "returns array of encountered errors", function() {
-			checkDefinition().should.be.Array();
-			checkDefinition( undefined ).should.be.Array();
-			checkDefinition( null ).should.be.Array();
-			checkDefinition( false ).should.be.Array();
-			checkDefinition( true ).should.be.Array();
-			checkDefinition( 0 ).should.be.Array();
-			checkDefinition( -1 ).should.be.Array();
-			checkDefinition( 4.5 ).should.be.Array();
-			checkDefinition( "" ).should.be.Array();
-			checkDefinition( "required: true" ).should.be.Array();
-			checkDefinition( [] ).should.be.Array();
-			checkDefinition( ["required: true"] ).should.be.Array();
-			checkDefinition( {} ).should.be.Array();
-			checkDefinition( { required: true } ).should.be.Array();
+		it( "returns array of encountered errors", function() {
+			OdemModelTypeDate.checkDefinition().should.be.Array();
+			OdemModelTypeDate.checkDefinition( undefined ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( null ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( false ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( true ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( 0 ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( -1 ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( 4.5 ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( "" ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( "required: true" ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( [] ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( ["required: true"] ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( {} ).should.be.Array();
+			OdemModelTypeDate.checkDefinition( { required: true } ).should.be.Array();
 		} );
 
-		test( "lists error unless providing definition object in first argument", function() {
-			checkDefinition().should.not.be.empty();
-			checkDefinition( undefined ).should.not.be.empty();
-			checkDefinition( null ).should.not.be.empty();
-			checkDefinition( false ).should.not.be.empty();
-			checkDefinition( true ).should.not.be.empty();
-			checkDefinition( 0 ).should.not.be.empty();
-			checkDefinition( -1 ).should.not.be.empty();
-			checkDefinition( 4.5 ).should.not.be.empty();
-			checkDefinition( "" ).should.not.be.empty();
-			checkDefinition( "required: true" ).should.not.be.empty();
-			checkDefinition( [] ).should.not.be.empty();
-			checkDefinition( ["required: true"] ).should.not.be.empty();
+		it( "lists error unless providing definition object in first argument", function() {
+			OdemModelTypeDate.checkDefinition().should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( undefined ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( null ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( false ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( true ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( 0 ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( -1 ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( 4.5 ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( "" ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( "required: true" ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( [] ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( ["required: true"] ).should.not.be.empty();
 
-			checkDefinition( {} ).should.be.empty();
-			checkDefinition( { required: true } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( {} ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { required: true } ).should.be.empty();
 		} );
 
-		test( "lists instances of Error on encountering errors in provided definition", function() {
-			checkDefinition()[0].should.be.instanceOf( Error );
-			checkDefinition( undefined )[0].should.be.instanceOf( Error );
-			checkDefinition( null )[0].should.be.instanceOf( Error );
-			checkDefinition( false )[0].should.be.instanceOf( Error );
-			checkDefinition( true )[0].should.be.instanceOf( Error );
-			checkDefinition( 0 )[0].should.be.instanceOf( Error );
-			checkDefinition( -1 )[0].should.be.instanceOf( Error );
-			checkDefinition( 4.5 )[0].should.be.instanceOf( Error );
-			checkDefinition( "" )[0].should.be.instanceOf( Error );
-			checkDefinition( "required: true" )[0].should.be.instanceOf( Error );
-			checkDefinition( [] )[0].should.be.instanceOf( Error );
-			checkDefinition( ["required: true"] )[0].should.be.instanceOf( Error );
+		it( "lists instances of Error on encountering errors in provided definition", function() {
+			OdemModelTypeDate.checkDefinition()[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( undefined )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( null )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( false )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( true )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( 0 )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( -1 )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( 4.5 )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( "" )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( "required: true" )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( [] )[0].should.be.instanceOf( Error );
+			OdemModelTypeDate.checkDefinition( ["required: true"] )[0].should.be.instanceOf( Error );
 		} );
 
-		test( "accepts definition of minimum timestamp using integer", function() {
-			checkDefinition( { min: 0 } ).should.be.empty();
-			checkDefinition( { min: 1 } ).should.be.empty();
-			checkDefinition( { min: 1519549020000 } ).should.be.empty();
+		it( "accepts definition of minimum timestamp using integer", function() {
+			OdemModelTypeDate.checkDefinition( { min: 0 } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { min: 1 } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { min: 1519549020000 } ).should.be.empty();
 		} );
 
-		test( "accepts definition of minimum timestamp using numeric string", function() {
-			checkDefinition( { min: "0" } ).should.be.empty();
-			checkDefinition( { min: "100" } ).should.be.empty();
-			checkDefinition( { min: "1519549020000" } ).should.be.empty();
+		it( "accepts definition of minimum timestamp using numeric string", function() {
+			OdemModelTypeDate.checkDefinition( { min: "0" } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { min: "100" } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { min: "1519549020000" } ).should.be.empty();
 		} );
 
-		test( "accepts definition of minimum timestamp using ISO-8601 date string", function() {
-			checkDefinition( { min: "2017-02-25" } ).should.be.empty();
-			checkDefinition( { min: "2017-02-25T08:57:00Z" } ).should.be.empty();
-			checkDefinition( { min: "2017-02-25T08:57:00+01:00" } ).should.be.empty();
+		it( "accepts definition of minimum timestamp using ISO-8601 date string", function() {
+			OdemModelTypeDate.checkDefinition( { min: "2017-02-25" } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { min: "2017-02-25T08:57:00Z" } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { min: "2017-02-25T08:57:00+01:00" } ).should.be.empty();
 		} );
 
-		test( "accepts definition of minimum timestamp using RFC2822 date string", function() {
-			checkDefinition( { min: "Sun Feb 25 2018 08:57:00 GMT+0100" } ).should.be.empty();
+		it( "accepts definition of minimum timestamp using RFC2822 date string", function() {
+			OdemModelTypeDate.checkDefinition( { min: "Sun Feb 25 2018 08:57:00 GMT+0100" } ).should.be.empty();
 		} );
 
-		test( "rejects definition of minimum timestamp using empty string", function() {
-			checkDefinition( { min: "" } ).should.not.be.empty();
+		it( "rejects definition of minimum timestamp using empty string", function() {
+			OdemModelTypeDate.checkDefinition( { min: "" } ).should.not.be.empty();
 		} );
 
-		test( "rejects definition of minimum timestamp using string consisting of whitespaces, only", function() {
-			checkDefinition( { min: " \r\t\n\f " } ).should.not.be.empty();
+		it( "rejects definition of minimum timestamp using string consisting of whitespaces, only", function() {
+			OdemModelTypeDate.checkDefinition( { min: " \r\t\n\f " } ).should.not.be.empty();
 		} );
 
-		test( "rejects definition of minimum timestamp using arbitrary string", function() {
-			checkDefinition( { min: "25 2 2018" } ).should.not.be.empty();
-			checkDefinition( { min: "foo bar" } ).should.not.be.empty();
+		it( "rejects definition of minimum timestamp using arbitrary string", function() {
+			OdemModelTypeDate.checkDefinition( { min: "25 2 2018" } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { min: "foo bar" } ).should.not.be.empty();
 		} );
 
-		test( "rejects definition of minimum timestamp using boolean value", function() {
-			checkDefinition( { min: false } ).should.not.be.empty();
-			checkDefinition( { min: true } ).should.not.be.empty();
+		it( "rejects definition of minimum timestamp using boolean value", function() {
+			OdemModelTypeDate.checkDefinition( { min: false } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { min: true } ).should.not.be.empty();
 		} );
 
-		test( "ignores definition of minimum timestamp using `null`", function() {
-			checkDefinition( { min: null } ).should.be.empty();
+		it( "ignores definition of minimum timestamp using `null`", function() {
+			OdemModelTypeDate.checkDefinition( { min: null } ).should.be.empty();
 		} );
 
-		test( "ignores definition of minimum timestamp using `undefined`", function() {
-			checkDefinition( { min: undefined } ).should.be.empty();
+		it( "ignores definition of minimum timestamp using `undefined`", function() {
+			OdemModelTypeDate.checkDefinition( { min: undefined } ).should.be.empty();
 		} );
 
-		test( "rejects definition of minimum timestamp using non-Date object", function() {
+		it( "rejects definition of minimum timestamp using non-Date object", function() {
 			[
 				{},
 				{ toString: "2015-02-25" },
@@ -238,33 +234,33 @@ suite( "Model property type `date`", function() {
 				["2015-02-25"],
 			]
 				.forEach( value => {
-					checkDefinition( { min: value } ).should.not.be.empty();
+					OdemModelTypeDate.checkDefinition( { min: value } ).should.not.be.empty();
 				} );
 		} );
 
-		test( "accepts definition of minimum timestamp using Date object", function() {
+		it( "accepts definition of minimum timestamp using Date object", function() {
 			[
 				new Date(),
 				new Date( "2015-02-25" ),
 				new Date( 1519549020000 ),
 			]
 				.forEach( value => {
-					checkDefinition( { min: value } ).should.be.empty();
+					OdemModelTypeDate.checkDefinition( { min: value } ).should.be.empty();
 				} );
 		} );
 
-		test( "rejects definition of minimum timestamp using function", function() {
+		it( "rejects definition of minimum timestamp using function", function() {
 			[
 				() => {}, // eslint-disable-line no-empty-function
 				() => "2015-02-25",
 				function() { return "2015-02-25"; },
 			]
 				.forEach( value => {
-					checkDefinition( { min: value } ).should.not.be.empty();
+					OdemModelTypeDate.checkDefinition( { min: value } ).should.not.be.empty();
 				} );
 		} );
 
-		test( "always converts definition of minimum timestamp to instance of `Date`", function() {
+		it( "always converts definition of minimum timestamp to instance of `Date`", function() {
 			[
 				0,
 				1519549020000,
@@ -280,61 +276,61 @@ suite( "Model property type `date`", function() {
 
 					definition.min.should.not.be.Date();
 
-					checkDefinition( definition );
+					OdemModelTypeDate.checkDefinition( definition );
 
 					definition.min.should.be.Date();
 				} );
 		} );
 
-		test( "accepts definition of maximum timestamp using integer", function() {
-			checkDefinition( { max: 0 } ).should.be.empty();
-			checkDefinition( { max: 1 } ).should.be.empty();
-			checkDefinition( { max: 1519549020000 } ).should.be.empty();
+		it( "accepts definition of maximum timestamp using integer", function() {
+			OdemModelTypeDate.checkDefinition( { max: 0 } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { max: 1 } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { max: 1519549020000 } ).should.be.empty();
 		} );
 
-		test( "accepts definition of maximum timestamp using numeric string", function() {
-			checkDefinition( { max: "0" } ).should.be.empty();
-			checkDefinition( { max: "1" } ).should.be.empty();
-			checkDefinition( { max: "1519549020000" } ).should.be.empty();
+		it( "accepts definition of maximum timestamp using numeric string", function() {
+			OdemModelTypeDate.checkDefinition( { max: "0" } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { max: "1" } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { max: "1519549020000" } ).should.be.empty();
 		} );
 
-		test( "accepts definition of maximum timestamp using ISO-8601 date string", function() {
-			checkDefinition( { max: "2017-02-25" } ).should.be.empty();
-			checkDefinition( { max: "2017-02-25T08:57:00Z" } ).should.be.empty();
-			checkDefinition( { max: "2017-02-25T08:57:00+01:00" } ).should.be.empty();
+		it( "accepts definition of maximum timestamp using ISO-8601 date string", function() {
+			OdemModelTypeDate.checkDefinition( { max: "2017-02-25" } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { max: "2017-02-25T08:57:00Z" } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { max: "2017-02-25T08:57:00+01:00" } ).should.be.empty();
 		} );
 
-		test( "accepts definition of maximum timestamp using RFC2822 date string", function() {
-			checkDefinition( { max: "Sun Feb 25 2018 08:57:00 GMT+0100" } ).should.be.empty();
+		it( "accepts definition of maximum timestamp using RFC2822 date string", function() {
+			OdemModelTypeDate.checkDefinition( { max: "Sun Feb 25 2018 08:57:00 GMT+0100" } ).should.be.empty();
 		} );
 
-		test( "rejects definition of maximum timestamp using empty string", function() {
-			checkDefinition( { max: "" } ).should.not.be.empty();
+		it( "rejects definition of maximum timestamp using empty string", function() {
+			OdemModelTypeDate.checkDefinition( { max: "" } ).should.not.be.empty();
 		} );
 
-		test( "rejects definition of maximum timestamp using string consisting of whitespaces, only", function() {
-			checkDefinition( { max: " \r\t\n\f " } ).should.not.be.empty();
+		it( "rejects definition of maximum timestamp using string consisting of whitespaces, only", function() {
+			OdemModelTypeDate.checkDefinition( { max: " \r\t\n\f " } ).should.not.be.empty();
 		} );
 
-		test( "rejects definition of maximum timestamp using arbitrary string", function() {
-			checkDefinition( { max: "25 2 2018" } ).should.not.be.empty();
-			checkDefinition( { max: "foo bar" } ).should.not.be.empty();
+		it( "rejects definition of maximum timestamp using arbitrary string", function() {
+			OdemModelTypeDate.checkDefinition( { max: "25 2 2018" } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { max: "foo bar" } ).should.not.be.empty();
 		} );
 
-		test( "rejects definition of maximum timestamp using boolean value", function() {
-			checkDefinition( { max: false } ).should.not.be.empty();
-			checkDefinition( { max: true } ).should.not.be.empty();
+		it( "rejects definition of maximum timestamp using boolean value", function() {
+			OdemModelTypeDate.checkDefinition( { max: false } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { max: true } ).should.not.be.empty();
 		} );
 
-		test( "ignores definition of maximum timestamp using `null`", function() {
-			checkDefinition( { max: null } ).should.be.empty();
+		it( "ignores definition of maximum timestamp using `null`", function() {
+			OdemModelTypeDate.checkDefinition( { max: null } ).should.be.empty();
 		} );
 
-		test( "ignores definition of maximum timestamp using `undefined`", function() {
-			checkDefinition( { max: undefined } ).should.be.empty();
+		it( "ignores definition of maximum timestamp using `undefined`", function() {
+			OdemModelTypeDate.checkDefinition( { max: undefined } ).should.be.empty();
 		} );
 
-		test( "rejects definition of maximum timestamp using non-Date object", function() {
+		it( "rejects definition of maximum timestamp using non-Date object", function() {
 			[
 				{},
 				{ toString: "2015-02-25" },
@@ -343,33 +339,33 @@ suite( "Model property type `date`", function() {
 				["2015-02-25"],
 			]
 				.forEach( value => {
-					checkDefinition( { max: value } ).should.not.be.empty();
+					OdemModelTypeDate.checkDefinition( { max: value } ).should.not.be.empty();
 				} );
 		} );
 
-		test( "accepts definition of maximum timestamp using Date object", function() {
+		it( "accepts definition of maximum timestamp using Date object", function() {
 			[
 				new Date(),
 				new Date( "2015-02-25" ),
 				new Date( 1519549020000 ),
 			]
 				.forEach( value => {
-					checkDefinition( { max: value } ).should.be.empty();
+					OdemModelTypeDate.checkDefinition( { max: value } ).should.be.empty();
 				} );
 		} );
 
-		test( "rejects definition of maximum timestamp using function", function() {
+		it( "rejects definition of maximum timestamp using function", function() {
 			[
 				() => {}, // eslint-disable-line no-empty-function
 				() => "2015-02-25",
 				function() { return "2015-02-25"; },
 			]
 				.forEach( value => {
-					checkDefinition( { max: value } ).should.not.be.empty();
+					OdemModelTypeDate.checkDefinition( { max: value } ).should.not.be.empty();
 				} );
 		} );
 
-		test( "always converts definition of maximum timestamp to instance of `Date`", function() {
+		it( "always converts definition of maximum timestamp to instance of `Date`", function() {
 			[
 				0,
 				1519549020000,
@@ -385,13 +381,13 @@ suite( "Model property type `date`", function() {
 
 					definition.max.should.not.be.Date();
 
-					checkDefinition( definition );
+					OdemModelTypeDate.checkDefinition( definition );
 
 					definition.max.should.be.Date();
 				} );
 		} );
 
-		test( "fixes definition providing limits on timestamp in wrong order", function() {
+		it( "fixes definition providing limits on timestamp in wrong order", function() {
 			const definition = {
 				min: new Date( "2018-02-25T10:57:01Z" ),
 				max: new Date( "2018-02-25T08:57:01Z" ),
@@ -399,448 +395,442 @@ suite( "Model property type `date`", function() {
 
 			definition.max.getTime().should.not.be.above( definition.min.getTime() );
 
-			checkDefinition( definition );
+			OdemModelTypeDate.checkDefinition( definition );
 
 			definition.max.getTime().should.be.above( definition.min.getTime() );
 		} );
 
-		test( "validates optionally given step value", function() {
-			checkDefinition( { step: undefined } ).should.be.empty();
-			checkDefinition( { step: null } ).should.be.empty();
+		it( "validates optionally given step value", function() {
+			OdemModelTypeDate.checkDefinition( { step: undefined } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: null } ).should.be.empty();
 
-			checkDefinition( { step: false } ).should.not.be.empty();
-			checkDefinition( { step: true } ).should.not.be.empty();
-			checkDefinition( { step: "" } ).should.not.be.empty();
-			checkDefinition( { step: "invalid" } ).should.not.be.empty();
-			checkDefinition( { step: {} } ).should.not.be.empty();
-			checkDefinition( { step: { value: 4 } } ).should.not.be.empty();
-			checkDefinition( { step: [] } ).should.not.be.empty();
-			checkDefinition( { step: [4] } ).should.not.be.empty();
-			checkDefinition( { step: 0 } ).should.not.be.empty();
-			checkDefinition( { step: -1 } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: false } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: true } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: "" } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: "invalid" } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: {} } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: { value: 4 } } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: [] } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: [4] } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: 0 } ).should.not.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: -1 } ).should.not.be.empty();
 
-			checkDefinition( { step: 1 } ).should.be.empty();
-			checkDefinition( { step: 1.5 } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: 1 } ).should.be.empty();
+			OdemModelTypeDate.checkDefinition( { step: 1.5 } ).should.be.empty();
 		} );
 	} );
 
-	suite( "is exposing method `coerce()` which", function() {
-		const { coerce } = Type;
-
-		test( "is a function to be invoked w/ at least three arguments", function() {
-			coerce.should.be.a.Function().which.has.length( 3 );
+	describe( "is exposing method `coerce()` which", function() {
+		it( "is a function to be invoked w/ at least three arguments", function() {
+			OdemModelTypeDate.coerce.should.be.a.Function().which.has.length( 3 );
 		} );
 
-		test( "doesn't throw when invoked with two arguments, only", function() {
-			( () => coerce( undefined, {} ) ).should.not.throw();
-			( () => coerce( null, {} ) ).should.not.throw();
-			( () => coerce( false, {} ) ).should.not.throw();
-			( () => coerce( true, {} ) ).should.not.throw();
-			( () => coerce( 0, {} ) ).should.not.throw();
-			( () => coerce( -1, {} ) ).should.not.throw();
-			( () => coerce( 4.5, {} ) ).should.not.throw();
-			( () => coerce( "", {} ) ).should.not.throw();
-			( () => coerce( "required: true", {} ) ).should.not.throw();
-			( () => coerce( [], {} ) ).should.not.throw();
-			( () => coerce( ["required: true"], {} ) ).should.not.throw();
+		it( "doesn't throw when invoked with two arguments, only", function() {
+			( () => OdemModelTypeDate.coerce( undefined, {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( null, {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( false, {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( true, {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( 0, {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( -1, {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( 4.5, {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( "", {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( "required: true", {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( [], {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( ["required: true"], {} ) ).should.not.throw();
 
-			( () => coerce( {}, {} ) ).should.not.throw();
-			( () => coerce( { required: true }, {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( {}, {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.coerce( { required: true }, {} ) ).should.not.throw();
 		} );
 
-		test( "returns `null` on providing `undefined`", function() {
-			Should( coerce( undefined, {} ) ).be.null();
+		it( "returns `null` on providing `undefined`", function() {
+			Should( OdemModelTypeDate.coerce( undefined, {} ) ).be.null();
 		} );
 
-		test( "returns `null` on providing `null`", function() {
-			Should( coerce( null, {} ) ).be.null();
+		it( "returns `null` on providing `null`", function() {
+			Should( OdemModelTypeDate.coerce( null, {} ) ).be.null();
 		} );
 
-		test( "returns `null` on providing empty string", function() {
-			Should( coerce( "", {} ) ).be.null();
+		it( "returns `null` on providing empty string", function() {
+			Should( OdemModelTypeDate.coerce( "", {} ) ).be.null();
 		} );
 
-		test( "returns `null` on providing string consisting of whitespace, only", function() {
-			Should( coerce( " \r\t\n\f ", {} ) ).be.null();
+		it( "returns `null` on providing string consisting of whitespace, only", function() {
+			Should( OdemModelTypeDate.coerce( " \r\t\n\f ", {} ) ).be.null();
 		} );
 
-		test( "returns `NaN` on providing `false`", function() {
-			coerce( false, {} ).should.be.NaN();
+		it( "returns `NaN` on providing `false`", function() {
+			OdemModelTypeDate.coerce( false, {} ).should.be.NaN();
 		} );
 
-		test( "returns 'NaN' on providing `true`", function() {
-			coerce( true, {} ).should.be.NaN();
+		it( "returns 'NaN' on providing `true`", function() {
+			OdemModelTypeDate.coerce( true, {} ).should.be.NaN();
 		} );
 
-		test( "considers any provided integer to be milliseconds since Unix Epoch returning according instance of Date", function() {
+		it( "considers any provided integer to be milliseconds since Unix Epoch returning according instance of Date", function() {
 			this.timeout( 5000 );
 
 			for ( let e = 1; e <= 12; e++ ) {
 				for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
-					coerce( i, {} ).should.be.Date();
-					coerce( i, {} ).getTime().should.be.Number().which.is.equal( i );
+					OdemModelTypeDate.coerce( i, {} ).should.be.Date();
+					OdemModelTypeDate.coerce( i, {} ).getTime().should.be.Number().which.is.equal( i );
 				}
 			}
 		} );
 
-		test( "considers any provided number to be milliseconds since Unix Epoch ignoring any fractional digits", function() {
+		it( "considers any provided number to be milliseconds since Unix Epoch ignoring any fractional digits", function() {
 			this.timeout( 5000 );
 
 			for ( let e = 1; e <= 8; e++ ) {
 				for ( let de = -4; de < 12; de++ ) {
 					for ( let i = -Math.pow( 10, e ); i <= Math.pow( 10, e ); i += Math.pow( 10, Math.max( 0, e - 2 ) ) ) {
 						const v = i / Math.pow( 10, de );
-						coerce( v, {} ).should.be.Date();
-						coerce( v, {} ).getTime().should.be.Number().which.is.equal( Math.trunc( v ) );
+						OdemModelTypeDate.coerce( v, {} ).should.be.Date();
+						OdemModelTypeDate.coerce( v, {} ).getTime().should.be.Number().which.is.equal( Math.trunc( v ) );
 					}
 				}
 			}
 		} );
 
-		test( "returns `NaN` on providing non-Date object", function() {
-			coerce( {}, {} ).should.be.NaN();
-			coerce( { someName: "someValue" }, {} ).should.be.NaN();
-			coerce( { toString: () => "me as a string" }, {} ).should.be.NaN();
-			coerce( { toString: () => "2018-02-25" }, {} ).should.be.NaN();
-			coerce( { toString: () => "2018-02-25T08:57:00Z" }, {} ).should.be.NaN();
-			coerce( { toString: () => "14567892" }, {} ).should.be.NaN();
+		it( "returns `NaN` on providing non-Date object", function() {
+			OdemModelTypeDate.coerce( {}, {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( { someName: "someValue" }, {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( { toString: () => "me as a string" }, {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( { toString: () => "2018-02-25" }, {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( { toString: () => "2018-02-25T08:57:00Z" }, {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( { toString: () => "14567892" }, {} ).should.be.NaN();
 
-			coerce( [], {} ).should.be.NaN();
-			coerce( [1], {} ).should.be.NaN();
-			coerce( ["sole"], {} ).should.be.NaN();
-			coerce( [ true, false ], {} ).should.be.NaN();
-			coerce( ["2018-02-25"], {} ).should.be.NaN();
-			coerce( ["2018-02-25T08:57:00Z"], {} ).should.be.NaN();
-			coerce( ["14567892"], {} ).should.be.NaN();
-			coerce( [14567892], {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( [], {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( [1], {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( ["sole"], {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( [ true, false ], {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( ["2018-02-25"], {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( ["2018-02-25T08:57:00Z"], {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( ["14567892"], {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( [14567892], {} ).should.be.NaN();
 
-			coerce( new TypeError(), {} ).should.be.NaN();
-			coerce( new Promise( resolve => resolve() ), {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( new TypeError(), {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( new Promise( resolve => resolve() ), {} ).should.be.NaN();
 		} );
 
-		test( "returns provided Date object as-is", function() {
+		it( "returns provided Date object as-is", function() {
 			[
 				new Date( "2018-02-25" ),
 				new Date( "2018-02-25T08:57:00Z" ),
 				new Date( 14567892 ),
 			]
 				.forEach( value => {
-					coerce( value, {} ).should.be.equal( value );
+					OdemModelTypeDate.coerce( value, {} ).should.be.equal( value );
 				} );
 		} );
 
-		test( "returns `NaN` on providing function", function() {
-			coerce( () => {}, {} ).should.be.NaN(); // eslint-disable-line no-empty-function
-			coerce( () => 1 + 3, {} ).should.be.NaN();
-			coerce( function() {}, {} ).should.be.NaN(); // eslint-disable-line no-empty-function
-			coerce( () => "2018-02-25", {} ).should.be.NaN();
-			coerce( () => "2018-02-25T08:57:00Z", {} ).should.be.NaN();
-			coerce( () => "14567892", {} ).should.be.NaN();
-			coerce( () => 14567892, {} ).should.be.NaN();
+		it( "returns `NaN` on providing function", function() {
+			OdemModelTypeDate.coerce( () => {}, {} ).should.be.NaN(); // eslint-disable-line no-empty-function
+			OdemModelTypeDate.coerce( () => 1 + 3, {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( function() {}, {} ).should.be.NaN(); // eslint-disable-line no-empty-function
+			OdemModelTypeDate.coerce( () => "2018-02-25", {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( () => "2018-02-25T08:57:00Z", {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( () => "14567892", {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( () => 14567892, {} ).should.be.NaN();
 
-			coerce( Date.parse, {} ).should.be.NaN();
+			OdemModelTypeDate.coerce( Date.parse, {} ).should.be.NaN();
 		} );
 
-		test( "accepts definition in second argument", function() {
-			( () => coerce( "string", { required: true } ) ).should.not.throw();
+		it( "accepts definition in second argument", function() {
+			( () => OdemModelTypeDate.coerce( "string", { required: true } ) ).should.not.throw();
 		} );
 
-		test( "doesn't care for definition requiring value", function() {
-			Should( coerce( undefined, { required: true } ) ).be.null();
-			Should( coerce( null, { required: true } ) ).be.null();
+		it( "doesn't care for definition requiring value", function() {
+			Should( OdemModelTypeDate.coerce( undefined, { required: true } ) ).be.null();
+			Should( OdemModelTypeDate.coerce( null, { required: true } ) ).be.null();
 		} );
 
-		test( "keeps information on time of day by default", function() {
-			coerce( "2018-02-25T08:57:01Z", {} ).getUTCHours().should.be.equal( 8 );
-			coerce( "2018-02-25T08:57:01Z", {} ).getUTCMinutes().should.be.equal( 57 );
-			coerce( "2018-02-25T08:57:01Z", {} ).getUTCSeconds().should.be.equal( 1 );
+		it( "keeps information on time of day by default", function() {
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", {} ).getUTCHours().should.be.equal( 8 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", {} ).getUTCMinutes().should.be.equal( 57 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", {} ).getUTCSeconds().should.be.equal( 1 );
 		} );
 
-		test( "drops information on time of day on demand", function() {
-			coerce( "2018-02-25T08:57:01Z", { time: true } ).getUTCHours().should.be.equal( 8 );
-			coerce( "2018-02-25T08:57:01Z", { time: true } ).getUTCMinutes().should.be.equal( 57 );
-			coerce( "2018-02-25T08:57:01Z", { time: true } ).getUTCSeconds().should.be.equal( 1 );
+		it( "drops information on time of day on demand", function() {
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { time: true } ).getUTCHours().should.be.equal( 8 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { time: true } ).getUTCMinutes().should.be.equal( 57 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { time: true } ).getUTCSeconds().should.be.equal( 1 );
 
-			coerce( "2018-02-25T08:57:01Z", { time: false } ).getUTCHours().should.be.equal( 0 );
-			coerce( "2018-02-25T08:57:01Z", { time: false } ).getUTCMinutes().should.be.equal( 0 );
-			coerce( "2018-02-25T08:57:01Z", { time: false } ).getUTCSeconds().should.be.equal( 0 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { time: false } ).getUTCHours().should.be.equal( 0 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { time: false } ).getUTCMinutes().should.be.equal( 0 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { time: false } ).getUTCSeconds().should.be.equal( 0 );
 		} );
 
-		test( "rounds value to nearest multitude of optionally defined step value", function() {
-			coerce( "2018-02-25T08:57:01Z", {} ).getUTCSeconds().should.be.equal( 1 );
-			coerce( "2018-02-25T08:57:01Z", { step: 1 } ).getUTCSeconds().should.be.equal( 1 );
-			coerce( "2018-02-25T08:57:01Z", { step: 1000 } ).getUTCSeconds().should.be.equal( 1 );
+		it( "rounds value to nearest multitude of optionally defined step value", function() {
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", {} ).getUTCSeconds().should.be.equal( 1 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 1 } ).getUTCSeconds().should.be.equal( 1 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 1000 } ).getUTCSeconds().should.be.equal( 1 );
 
-			coerce( "2018-02-25T08:57:01Z", { step: 10 * 1000 } ).getUTCSeconds().should.be.equal( 0 );
-			coerce( "2018-02-25T08:57:05Z", { step: 10 * 1000 } ).getUTCSeconds().should.be.equal( 10 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 10 * 1000 } ).getUTCSeconds().should.be.equal( 0 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:05Z", { step: 10 * 1000 } ).getUTCSeconds().should.be.equal( 10 );
 
-			coerce( "2018-02-25T08:57:01Z", { step: 5 * 60 * 1000 } ).getUTCSeconds().should.be.equal( 0 );
-			coerce( "2018-02-25T08:57:01Z", { step: 5 * 60 * 1000 } ).getUTCMinutes().should.be.equal( 55 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 5 * 60 * 1000 } ).getUTCSeconds().should.be.equal( 0 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 5 * 60 * 1000 } ).getUTCMinutes().should.be.equal( 55 );
 
-			coerce( "2018-02-25T08:57:01Z", { step: 12 * 60 * 60 * 1000 } ).getUTCMinutes().should.be.equal( 0 );
-			coerce( "2018-02-25T08:57:01Z", { step: 12 * 60 * 60 * 1000 } ).getUTCHours().should.be.equal( 12 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 12 * 60 * 60 * 1000 } ).getUTCMinutes().should.be.equal( 0 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 12 * 60 * 60 * 1000 } ).getUTCHours().should.be.equal( 12 );
 
-			coerce( "2018-02-25T08:57:01Z", { step: 24 * 60 * 60 * 1000 } ).getUTCMinutes().should.be.equal( 0 );
-			coerce( "2018-02-25T08:57:01Z", { step: 24 * 60 * 60 * 1000 } ).getUTCHours().should.be.equal( 0 );
-			coerce( "2018-02-25T08:57:01Z", { step: 24 * 60 * 60 * 1000 } ).getUTCDate().should.be.equal( 25 );
-			coerce( "2018-02-25T12:00:00Z", { step: 24 * 60 * 60 * 1000 } ).getUTCDate().should.be.equal( 26 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 24 * 60 * 60 * 1000 } ).getUTCMinutes().should.be.equal( 0 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 24 * 60 * 60 * 1000 } ).getUTCHours().should.be.equal( 0 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:01Z", { step: 24 * 60 * 60 * 1000 } ).getUTCDate().should.be.equal( 25 );
+			OdemModelTypeDate.coerce( "2018-02-25T12:00:00Z", { step: 24 * 60 * 60 * 1000 } ).getUTCDate().should.be.equal( 26 );
 		} );
 
-		test( "obeys step value starting from optionally defined minimum value", function() {
-			coerce( "2018-02-25T08:57:05Z", { step: 10 * 1000 } ).getUTCSeconds().should.be.equal( 10 );
-			coerce( "2018-02-25T08:57:05Z", { step: 10 * 1000, min: new Date( "2018-02-25T08:57:05Z" ) } ).getUTCSeconds().should.be.equal( 5 );
-			coerce( "1970-01-01T00:00:05Z", { step: 10 * 1000, min: new Date( "1969-12-31T23:59:59" ) } ).getUTCSeconds().should.be.equal( 9 );
-			coerce( "1970-01-01T00:00:02Z", { step: 10 * 1000, min: new Date( "1969-12-31T23:59:59" ) } ).getUTCSeconds().should.be.equal( 59 );
+		it( "obeys step value starting from optionally defined minimum value", function() {
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:05Z", { step: 10 * 1000 } ).getUTCSeconds().should.be.equal( 10 );
+			OdemModelTypeDate.coerce( "2018-02-25T08:57:05Z", { step: 10 * 1000, min: new Date( "2018-02-25T08:57:05Z" ) } ).getUTCSeconds().should.be.equal( 5 );
+			OdemModelTypeDate.coerce( "1970-01-01T00:00:05Z", { step: 10 * 1000, min: new Date( "1969-12-31T23:59:59" ) } ).getUTCSeconds().should.be.equal( 9 );
+			OdemModelTypeDate.coerce( "1970-01-01T00:00:02Z", { step: 10 * 1000, min: new Date( "1969-12-31T23:59:59" ) } ).getUTCSeconds().should.be.equal( 59 );
 		} );
 	} );
 
-	suite( "is exposing method `isValid()` which", function() {
-		const { isValid } = Type;
-
-		test( "is a function to be invoked w/ four argument", function() {
-			isValid.should.be.a.Function().which.has.length( 4 );
+	describe( "is exposing method `isValid()` which", function() {
+		it( "is a function to be invoked w/ four argument", function() {
+			OdemModelTypeDate.isValid.should.be.a.Function().which.has.length( 4 );
 		} );
 
-		test( "requires provision of array for collecting errors in fourth argument", function() {
+		it( "requires provision of array for collecting errors in fourth argument", function() {
 			// (providing valid data in first three arguments describing invalid case)
 
-			( () => isValid( "name", null, { required: true } ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, undefined ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, null ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, false ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, true ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, 0 ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, -1 ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, 4.5 ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, "" ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, "required: true" ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, {} ) ).should.throw();
-			( () => isValid( "name", null, { required: true }, { required: true } ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true } ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, undefined ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, null ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, false ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, true ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, 0 ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, -1 ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, 4.5 ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, "" ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, "required: true" ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, {} ) ).should.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, { required: true } ) ).should.throw();
 
-			( () => isValid( "name", null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( "name", null, { required: true }, ["required: true"] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( "name", null, { required: true }, ["required: true"] ) ).should.not.throw();
 		} );
 
-		test( "doesn't throw exception on providing invalid first argument", function() {
-			( () => isValid( undefined, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( null, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( false, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( true, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( 0, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( -1, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( 4.5, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( "", null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( "required: true", null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( [], null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( ["required: true"], null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( {}, null, { required: true }, [] ) ).should.not.throw();
-			( () => isValid( { required: true }, null, { required: true }, [] ) ).should.not.throw();
+		it( "doesn't throw exception on providing invalid first argument", function() {
+			( () => OdemModelTypeDate.isValid( undefined, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( null, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( false, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( true, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( 0, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( -1, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( 4.5, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( "", null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( "required: true", null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( [], null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( ["required: true"], null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( {}, null, { required: true }, [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.isValid( { required: true }, null, { required: true }, [] ) ).should.not.throw();
 		} );
 
-		test( "does not return anything", function() {
-			Should( isValid( "name", undefined, {}, [] ) ).be.undefined();
-			Should( isValid( "name", null, {}, [] ) ).be.undefined();
-			Should( isValid( "name", false, {}, [] ) ).be.undefined();
-			Should( isValid( "name", true, {}, [] ) ).be.undefined();
-			Should( isValid( "name", 0, {}, [] ) ).be.undefined();
-			Should( isValid( "name", -1, {}, [] ) ).be.undefined();
-			Should( isValid( "name", 4.5, {}, [] ) ).be.undefined();
-			Should( isValid( "name", "", {}, [] ) ).be.undefined();
-			Should( isValid( "name", "value", {}, [] ) ).be.undefined();
-			Should( isValid( "name", [], {}, [] ) ).be.undefined();
-			Should( isValid( "name", ["value"], {}, [] ) ).be.undefined();
-			Should( isValid( "name", {}, {}, [] ) ).be.undefined();
-			Should( isValid( "name", { value: "value" }, {}, [] ) ).be.undefined();
+		it( "does not return anything", function() {
+			Should( OdemModelTypeDate.isValid( "name", undefined, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", false, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", true, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", 0, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", -1, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", 4.5, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", "", {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", "value", {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", [], {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", ["value"], {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", {}, {}, [] ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", { value: "value" }, {}, [] ) ).be.undefined();
 		} );
 
-		test( "appends validation issues to array provided in fourth argument", function() {
+		it( "appends validation issues to array provided in fourth argument", function() {
 			const collector = [ "something existing", null ];
 
-			Should( isValid( "name", null, {}, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, {}, collector ) ).be.undefined();
 
 			collector.should.have.length( 2 );
 			collector[0].should.be.String().which.is.equal( "something existing" );
 			Should( collector[1] ).be.null();
 
-			Should( isValid( "name", null, { required: true }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { required: true }, collector ) ).be.undefined();
 
 			collector.should.have.length( 3 );
 			collector[0].should.be.String().which.is.equal( "something existing" );
 			Should( collector[1] ).be.null();
 		} );
 
-		test( "appends instances of `Error` on validation issues to array provided in fourth argument", function() {
+		it( "appends instances of `Error` on validation issues to array provided in fourth argument", function() {
 			const collector = [ "something existing", null ];
 
-			Should( isValid( "name", null, { required: true }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { required: true }, collector ) ).be.undefined();
 
 			collector.should.have.length( 3 );
 			collector[2].should.be.instanceOf( Error );
 		} );
 
-		test( "considers `null` as valid unless `required` is set in definition", function() {
+		it( "considers `null` as valid unless `required` is set in definition", function() {
 			const collector = [];
 
-			Should( isValid( "name", null, {}, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, {}, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { required: false }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { required: false }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { required: "" }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { required: "" }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { required: true }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { required: true }, collector ) ).be.undefined();
 			collector.should.not.be.empty();
 		} );
 
-		test( "ignores demand for minimum time on validating `null`", function() {
+		it( "ignores demand for minimum time on validating `null`", function() {
 			const collector = [];
 
-			Should( isValid( "name", null, { min: new Date( "2018-02-25" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { min: new Date( "2018-02-25" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { min: new Date( "2018-02-25" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { min: new Date( "2018-02-25" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 		} );
 
-		test( "obeys demand for minimum length on validating string", function() {
+		it( "obeys demand for minimum length on validating string", function() {
 			const collector = [];
 
-			Should( isValid( "name", new Date( "2018-02-24T08:57:01Z" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-24T08:57:01Z" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.have.length( 1 );
 
-			Should( isValid( "name", new Date( "2018-02-25" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", new Date( "2018-02-25T08:57:01Z" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T08:57:01Z" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 
-			Should( isValid( "name", new Date( "2018-02-25T08:57:01+01:00" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T08:57:01+01:00" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.have.length( 3 );
 
-			Should( isValid( "name", new Date( "2018-02-26T08:57:01Z" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-26T08:57:01Z" ), { min: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.have.length( 3 );
 		} );
 
-		test( "ignores demand for maximum length on validating `null`", function() {
+		it( "ignores demand for maximum length on validating `null`", function() {
 			const collector = [];
 
-			Should( isValid( "name", null, { max: new Date( "2018-02-25" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { max: new Date( "2018-02-25" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { max: new Date( "2018-02-25" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { max: new Date( "2018-02-25" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 		} );
 
-		test( "obeys demand for maximum length on validating string", function() {
+		it( "obeys demand for maximum length on validating string", function() {
 			const collector = [];
 
-			Should( isValid( "name", new Date( "2018-02-24T08:57:01Z" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-24T08:57:01Z" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", new Date( "2018-02-25" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", new Date( "2018-02-25T08:57:01Z" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T08:57:01Z" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", new Date( "2018-02-25T09:57:01+02:00" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T09:57:01+02:00" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", new Date( "2018-02-25T08:57:02Z" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T08:57:02Z" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.have.length( 1 );
 
-			Should( isValid( "name", new Date( "2018-02-25T09:57:01+01:00" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T09:57:01+01:00" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.have.length( 1 );
 
-			Should( isValid( "name", new Date( "2018-02-25T09:57:02+01:00" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T09:57:02+01:00" ), { max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.have.length( 2 );
 		} );
 
-		test( "ignores combined demands for minimum and maximum length on validating `null`", function() {
+		it( "ignores combined demands for minimum and maximum length on validating `null`", function() {
 			const collector = [];
 
-			Should( isValid( "name", null, { min: new Date( "2018-02-25T08:57:01Z" ), max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { min: new Date( "2018-02-25T08:57:01Z" ), max: new Date( "2018-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { min: new Date( "2018-02-25T08:57:01Z" ), max: new Date( "2018-02-25T08:57:02Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { min: new Date( "2018-02-25T08:57:01Z" ), max: new Date( "2018-02-25T08:57:02Z" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 
-			Should( isValid( "name", null, { min: new Date( "2018-02-25T08:57:01Z" ), max: new Date( "2019-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", null, { min: new Date( "2018-02-25T08:57:01Z" ), max: new Date( "2019-02-25T08:57:01Z" ) }, collector ) ).be.undefined();
 			collector.should.be.empty();
 		} );
 
-		test( "obeys combined demands for minimum and maximum length on validating string", function() {
+		it( "obeys combined demands for minimum and maximum length on validating string", function() {
 			const definition = { min: new Date( "2018-02-25T08:57:01Z" ), max: new Date( "2018-02-25T09:57:00Z" ) };
 			const collector = [];
 
-			Should( isValid( "name", new Date( "2018-02-25T08:57:00Z" ), definition, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T08:57:00Z" ), definition, collector ) ).be.undefined();
 			collector.should.have.size( 1 );
 
-			Should( isValid( "name", new Date( "2018-02-25T08:57:01+01:00" ), definition, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T08:57:01+01:00" ), definition, collector ) ).be.undefined();
 			collector.should.have.size( 2 );
 
-			Should( isValid( "name", new Date( "2018-02-25T08:57:01Z" ), definition, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T08:57:01Z" ), definition, collector ) ).be.undefined();
 			collector.should.have.size( 2 );
 
-			Should( isValid( "name", new Date( "2018-02-25T09:27:01Z" ), definition, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T09:27:01Z" ), definition, collector ) ).be.undefined();
 			collector.should.have.size( 2 );
 
-			Should( isValid( "name", new Date( "2018-02-25T09:57:00Z" ), definition, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T09:57:00Z" ), definition, collector ) ).be.undefined();
 			collector.should.have.size( 2 );
 
-			Should( isValid( "name", new Date( "2018-02-25T09:57:01Z" ), definition, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-25T09:57:01Z" ), definition, collector ) ).be.undefined();
 			collector.should.have.size( 3 );
 
-			Should( isValid( "name", new Date( "2018-02-26T08:57:01Z" ), definition, collector ) ).be.undefined();
+			Should( OdemModelTypeDate.isValid( "name", new Date( "2018-02-26T08:57:01Z" ), definition, collector ) ).be.undefined();
 			collector.should.have.size( 4 );
 		} );
 	} );
 
-	suite( "is exposing method `serialize()` which", function() {
-		const { serialize } = Type;
-
-		test( "is a function to be invoked w/ one argument", function() {
-			serialize.should.be.a.Function().which.has.length( 2 );
+	describe( "is exposing method `serialize()` which", function() {
+		it( "is a function to be invoked w/ one argument", function() {
+			OdemModelTypeDate.serialize.should.be.a.Function().which.has.length( 2 );
 		} );
 
-		test( "never throws exception", function() {
-			( () => serialize() ).should.not.throw();
-			( () => serialize( undefined ) ).should.not.throw();
-			( () => serialize( null ) ).should.not.throw();
-			( () => serialize( false ) ).should.not.throw();
-			( () => serialize( true ) ).should.not.throw();
-			( () => serialize( 0 ) ).should.not.throw();
-			( () => serialize( -1 ) ).should.not.throw();
-			( () => serialize( 4.5 ) ).should.not.throw();
-			( () => serialize( "" ) ).should.not.throw();
-			( () => serialize( "required: true" ) ).should.not.throw();
-			( () => serialize( {} ) ).should.not.throw();
-			( () => serialize( { required: true } ) ).should.not.throw();
-			( () => serialize( [] ) ).should.not.throw();
-			( () => serialize( ["required: true"] ) ).should.not.throw();
+		it( "never throws exception", function() {
+			( () => OdemModelTypeDate.serialize() ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( undefined ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( null ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( false ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( true ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( 0 ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( -1 ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( 4.5 ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( "" ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( "required: true" ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( { required: true } ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.serialize( ["required: true"] ) ).should.not.throw();
 		} );
 
-		test( "returns `null` on providing `null`", function() {
-			Should( serialize( null ) ).be.null();
+		it( "returns `null` on providing `null`", function() {
+			Should( OdemModelTypeDate.serialize( null ) ).be.null();
 		} );
 
-		test( "returns `null` on providing `undefined`", function() {
-			Should( serialize( undefined ) ).be.null();
+		it( "returns `null` on providing `undefined`", function() {
+			Should( OdemModelTypeDate.serialize( undefined ) ).be.null();
 		} );
 
-		test( "returns any provided timestamp as string formatted in compliance with ISO-8601", function() {
+		it( "returns any provided timestamp as string formatted in compliance with ISO-8601", function() {
 			[
 				new Date( "2018-02-25" ),
 				new Date( "2018-02-25T08:57:01Z" ),
 			]
 				.forEach( string => {
-					serialize( string ).should.be.String().and.match( DateUtilities.ptnISO8601 );
+					OdemModelTypeDate.serialize( string ).should.be.String().and.match( OdemUtilityDate.ptnISO8601 );
 				} );
 		} );
 
-		test( "returns `null` on providing any other value", function() {
+		it( "returns `null` on providing any other value", function() {
 			[
 				false,
 				true,
@@ -857,192 +847,188 @@ suite( "Model property type `date`", function() {
 				"\x00\x01\x02\x1b\x00",
 			]
 				.forEach( value => {
-					Should( serialize( value ) ).be.null();
+					Should( OdemModelTypeDate.serialize( value ) ).be.null();
 				} );
 		} );
 	} );
 
-	suite( "is exposing method `deserialize()` which", function() {
-		const { deserialize } = Type;
-
-		test( "is a function to be invoked w/ one argument", function() {
-			deserialize.should.be.a.Function().which.has.length( 1 );
+	describe( "is exposing method `deserialize()` which", function() {
+		it( "is a function to be invoked w/ one argument", function() {
+			OdemModelTypeDate.deserialize.should.be.a.Function().which.has.length( 1 );
 		} );
 
-		test( "never throws exception", function() {
-			( () => deserialize() ).should.not.throw();
-			( () => deserialize( undefined ) ).should.not.throw();
-			( () => deserialize( null ) ).should.not.throw();
-			( () => deserialize( false ) ).should.not.throw();
-			( () => deserialize( true ) ).should.not.throw();
-			( () => deserialize( 0 ) ).should.not.throw();
-			( () => deserialize( -1 ) ).should.not.throw();
-			( () => deserialize( 4.5 ) ).should.not.throw();
-			( () => deserialize( "" ) ).should.not.throw();
-			( () => deserialize( "required: true" ) ).should.not.throw();
-			( () => deserialize( {} ) ).should.not.throw();
-			( () => deserialize( { required: true } ) ).should.not.throw();
-			( () => deserialize( [] ) ).should.not.throw();
-			( () => deserialize( ["required: true"] ) ).should.not.throw();
+		it( "never throws exception", function() {
+			( () => OdemModelTypeDate.deserialize() ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( undefined ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( null ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( false ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( true ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( 0 ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( -1 ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( 4.5 ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( "" ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( "required: true" ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( {} ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( { required: true } ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( [] ) ).should.not.throw();
+			( () => OdemModelTypeDate.deserialize( ["required: true"] ) ).should.not.throw();
 		} );
 
-		test( "returns any provided value as-is", function() {
+		it( "returns any provided value as-is", function() {
 			ValidInput
 				.forEach( value => {
-					Should( deserialize( value ) ).be.equal( value );
+					Should( OdemModelTypeDate.deserialize( value ) ).be.equal( value );
 				} );
 		} );
 	} );
 
-	suite( "is exposing method `compare()` which", function() {
-		const { compare } = Type;
-
-		test( "is a function to be invoked w/ three arguments", function() {
-			compare.should.be.a.Function().which.has.length( 3 );
+	describe( "is exposing method `compare()` which", function() {
+		it( "is a function to be invoked w/ three arguments", function() {
+			OdemModelTypeDate.compare.should.be.a.Function().which.has.length( 3 );
 		} );
 
-		test( "never throws exception", function() {
-			( () => compare() ).should.not.throw();
+		it( "never throws exception", function() {
+			( () => OdemModelTypeDate.compare() ).should.not.throw();
 
 			ValidData.forEach( one => {
-				( () => compare( one ) ).should.not.throw();
+				( () => OdemModelTypeDate.compare( one ) ).should.not.throw();
 
 				ValidData.forEach( two => {
-					( () => compare( one, two ) ).should.not.throw();
+					( () => OdemModelTypeDate.compare( one, two ) ).should.not.throw();
 
 					Helper.allComparisonOperations().forEach( three => {
-						( () => compare( one, two, three ) ).should.not.throw();
+						( () => OdemModelTypeDate.compare( one, two, three ) ).should.not.throw();
 					} );
 				} );
 			} );
 		} );
 
-		test( "always returns boolean", function() {
+		it( "always returns boolean", function() {
 			ValidData.forEach( one => {
 				ValidData.forEach( two => {
 					Helper.allComparisonOperations().forEach( three => {
-						compare( one, two, three ).should.be.Boolean();
+						OdemModelTypeDate.compare( one, two, three ).should.be.Boolean();
 					} );
 				} );
 			} );
 		} );
 
-		test( "considers `null` and `null` as equal", function() {
-			compare( null, null, "eq" ).should.be.true();
+		it( "considers `null` and `null` as equal", function() {
+			OdemModelTypeDate.compare( null, null, "eq" ).should.be.true();
 
-			compare( null, null, "noteq" ).should.be.false();
+			OdemModelTypeDate.compare( null, null, "noteq" ).should.be.false();
 		} );
 
-		test( "considers `null` and non-`null` as inequal", function() {
+		it( "considers `null` and non-`null` as inequal", function() {
 			ValidNonNullData.forEach( data => {
-				compare( null, data, "eq" ).should.be.false();
-				compare( data, null, "eq" ).should.be.false();
+				OdemModelTypeDate.compare( null, data, "eq" ).should.be.false();
+				OdemModelTypeDate.compare( data, null, "eq" ).should.be.false();
 
-				compare( null, data, "noteq" ).should.be.true();
-				compare( data, null, "noteq" ).should.be.true();
+				OdemModelTypeDate.compare( null, data, "noteq" ).should.be.true();
+				OdemModelTypeDate.compare( data, null, "noteq" ).should.be.true();
 			} );
 		} );
 
-		test( "returns `true` on negating `null`", function() {
-			compare( null, null, "not" ).should.be.true();
+		it( "returns `true` on negating `null`", function() {
+			OdemModelTypeDate.compare( null, null, "not" ).should.be.true();
 		} );
 
-		test( "returns `false` on negating truthy coerced value", function() {
+		it( "returns `false` on negating truthy coerced value", function() {
 			ValidNonNullData.forEach( value => {
-				compare( value, null, "not" ).should.be.false();
+				OdemModelTypeDate.compare( value, null, "not" ).should.be.false();
 			} );
 		} );
 
-		test( "detects two coerced equal values", function() {
+		it( "detects two coerced equal values", function() {
 			ValidNonNullData.forEach( ( one, outer ) => {
 				ValidNonNullData.forEach( ( two, inner ) => {
 					if ( outer === inner ) {
-						compare( one, two, "eq" ).should.be.true( `failed on comparing #${outer} eq #${inner}` );
+						OdemModelTypeDate.compare( one, two, "eq" ).should.be.true( `failed on comparing #${outer} eq #${inner}` );
 					} else {
-						compare( one, two, "eq" ).should.be.false( `failed on comparing #${outer} eq #${inner}` );
+						OdemModelTypeDate.compare( one, two, "eq" ).should.be.false( `failed on comparing #${outer} eq #${inner}` );
 					}
 				} );
 			} );
 		} );
 
-		test( "detects two coerced inequal values", function() {
+		it( "detects two coerced inequal values", function() {
 			ValidNonNullData.forEach( ( one, outer ) => {
 				ValidNonNullData.forEach( ( two, inner ) => {
 					if ( outer === inner ) {
-						compare( one, two, "neq" ).should.be.false( `failed on comparing #${outer} neq #${inner}` );
-						compare( one, two, "noteq" ).should.be.false( `failed on comparing #${outer} noteq #${inner}` );
+						OdemModelTypeDate.compare( one, two, "neq" ).should.be.false( `failed on comparing #${outer} neq #${inner}` );
+						OdemModelTypeDate.compare( one, two, "noteq" ).should.be.false( `failed on comparing #${outer} noteq #${inner}` );
 					} else {
-						compare( one, two, "neq" ).should.be.true( `failed on comparing #${outer} neq #${inner}` );
-						compare( one, two, "noteq" ).should.be.true( `failed on comparing #${outer} noteq #${inner}` );
+						OdemModelTypeDate.compare( one, two, "neq" ).should.be.true( `failed on comparing #${outer} neq #${inner}` );
+						OdemModelTypeDate.compare( one, two, "noteq" ).should.be.true( `failed on comparing #${outer} noteq #${inner}` );
 					}
 				} );
 			} );
 		} );
 
-		test( "compares order of two coerced values", function() {
+		it( "compares order of two coerced values", function() {
 			ValidNonNullData.forEach( ( one, outer ) => {
 				ValidNonNullData.forEach( ( two, inner ) => {
 					if ( outer > inner ) {
-						compare( one, two, "gt" ).should.be.true( `failed on comparing #${outer} gt #${inner}` );
-						compare( one, two, "gte" ).should.be.true( `failed on comparing #${outer} gte #${inner}` );
-						compare( one, two, "lt" ).should.be.false( `failed on comparing #${outer} lt #${inner}` );
-						compare( one, two, "lte" ).should.be.false( `failed on comparing #${outer} lte #${inner}` );
+						OdemModelTypeDate.compare( one, two, "gt" ).should.be.true( `failed on comparing #${outer} gt #${inner}` );
+						OdemModelTypeDate.compare( one, two, "gte" ).should.be.true( `failed on comparing #${outer} gte #${inner}` );
+						OdemModelTypeDate.compare( one, two, "lt" ).should.be.false( `failed on comparing #${outer} lt #${inner}` );
+						OdemModelTypeDate.compare( one, two, "lte" ).should.be.false( `failed on comparing #${outer} lte #${inner}` );
 					} else if ( outer < inner ) {
-						compare( one, two, "gt" ).should.be.false( `failed on comparing #${outer} gt #${inner}` );
-						compare( one, two, "gte" ).should.be.false( `failed on comparing #${outer} gte #${inner}` );
-						compare( one, two, "lt" ).should.be.true( `failed on comparing #${outer} lt #${inner}` );
-						compare( one, two, "lte" ).should.be.true( `failed on comparing #${outer} lte #${inner}` );
+						OdemModelTypeDate.compare( one, two, "gt" ).should.be.false( `failed on comparing #${outer} gt #${inner}` );
+						OdemModelTypeDate.compare( one, two, "gte" ).should.be.false( `failed on comparing #${outer} gte #${inner}` );
+						OdemModelTypeDate.compare( one, two, "lt" ).should.be.true( `failed on comparing #${outer} lt #${inner}` );
+						OdemModelTypeDate.compare( one, two, "lte" ).should.be.true( `failed on comparing #${outer} lte #${inner}` );
 					} else {
-						compare( one, two, "gt" ).should.be.false( `failed on comparing #${outer} gt #${inner}` );
-						compare( one, two, "gte" ).should.be.true( `failed on comparing #${outer} gte #${inner}` );
-						compare( one, two, "lt" ).should.be.false( `failed on comparing #${outer} lt #${inner}` );
-						compare( one, two, "lte" ).should.be.true( `failed on comparing #${outer} lte #${inner}` );
+						OdemModelTypeDate.compare( one, two, "gt" ).should.be.false( `failed on comparing #${outer} gt #${inner}` );
+						OdemModelTypeDate.compare( one, two, "gte" ).should.be.true( `failed on comparing #${outer} gte #${inner}` );
+						OdemModelTypeDate.compare( one, two, "lt" ).should.be.false( `failed on comparing #${outer} lt #${inner}` );
+						OdemModelTypeDate.compare( one, two, "lte" ).should.be.true( `failed on comparing #${outer} lte #${inner}` );
 					}
 				} );
 			} );
 		} );
 
-		test( "returns `false` on comparing non-`null`-value w/ `null`-value", function() {
+		it( "returns `false` on comparing non-`null`-value w/ `null`-value", function() {
 			ValidNonNullData.forEach( data => {
-				compare( data, null, "gt" ).should.be.false();
-				compare( data, null, "gte" ).should.be.false();
-				compare( data, null, "lt" ).should.be.false();
-				compare( data, null, "lte" ).should.be.false();
+				OdemModelTypeDate.compare( data, null, "gt" ).should.be.false();
+				OdemModelTypeDate.compare( data, null, "gte" ).should.be.false();
+				OdemModelTypeDate.compare( data, null, "lt" ).should.be.false();
+				OdemModelTypeDate.compare( data, null, "lte" ).should.be.false();
 			} );
 		} );
 
-		test( "returns `false` on comparing `null`-value w/ non-`null`-value", function() {
+		it( "returns `false` on comparing `null`-value w/ non-`null`-value", function() {
 			ValidNonNullData.forEach( data => {
-				compare( null, data, "gt" ).should.be.false();
-				compare( null, data, "gte" ).should.be.false();
-				compare( null, data, "lt" ).should.be.false();
-				compare( null, data, "lte" ).should.be.false();
+				OdemModelTypeDate.compare( null, data, "gt" ).should.be.false();
+				OdemModelTypeDate.compare( null, data, "gte" ).should.be.false();
+				OdemModelTypeDate.compare( null, data, "lt" ).should.be.false();
+				OdemModelTypeDate.compare( null, data, "lte" ).should.be.false();
 			} );
 		} );
 
-		test( "returns `false` on comparing `null`-value w/ `null`-value w/o accepting equality", function() {
-			compare( null, null, "gt" ).should.be.false();
-			compare( null, null, "lt" ).should.be.false();
+		it( "returns `false` on comparing `null`-value w/ `null`-value w/o accepting equality", function() {
+			OdemModelTypeDate.compare( null, null, "gt" ).should.be.false();
+			OdemModelTypeDate.compare( null, null, "lt" ).should.be.false();
 		} );
 
-		test( "returns `true` on comparing `null`-value w/ `null`-value accepting equality", function() {
-			compare( null, null, "gte" ).should.be.true();
-			compare( null, null, "lte" ).should.be.true();
+		it( "returns `true` on comparing `null`-value w/ `null`-value accepting equality", function() {
+			OdemModelTypeDate.compare( null, null, "gte" ).should.be.true();
+			OdemModelTypeDate.compare( null, null, "lte" ).should.be.true();
 		} );
 
-		test( "supports unary operation testing for value being `null`", function() {
-			compare( null, null, "null" ).should.be.true();
+		it( "supports unary operation testing for value being `null`", function() {
+			OdemModelTypeDate.compare( null, null, "null" ).should.be.true();
 
 			ValidNonNullData.forEach( data => {
-				compare( data, null, "null" ).should.be.false();
+				OdemModelTypeDate.compare( data, null, "null" ).should.be.false();
 			} );
 		} );
 
-		test( "supports unary operation testing for value not being `null`", function() {
-			compare( null, null, "notnull" ).should.be.false();
+		it( "supports unary operation testing for value not being `null`", function() {
+			OdemModelTypeDate.compare( null, null, "notnull" ).should.be.false();
 
 			ValidNonNullData.forEach( data => {
-				compare( data, null, "notnull" ).should.be.true();
+				OdemModelTypeDate.compare( data, null, "notnull" ).should.be.true();
 			} );
 		} );
 	} );

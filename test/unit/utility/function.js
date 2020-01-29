@@ -30,13 +30,13 @@
 const { describe, it, before } = require( "mocha" );
 const Should = require( "should" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 
 describe( "Utility API for processing functions", function() {
 	let OdemUtilityFunction;
 
-	before( () => loadAllServices().then( s => { ( { OdemUtilityFunction } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemUtilityFunction } = s ); } ) );
 
 	it( "is available", function() {
 		Should.exist( OdemUtilityFunction );

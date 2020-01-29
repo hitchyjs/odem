@@ -29,13 +29,13 @@
 const { describe, it, before } = require( "mocha" );
 require( "should" );
 
-const { loadAllServices } = require( "./helper" );
+const { fakeApi } = require( "./helper" );
 
 
 describe( "Integration with hitchy", () => {
 	let OdemConverter, OdemAdapterMemory, OdemModel;
 
-	before( () => loadAllServices().then( s => { ( { OdemConverter, OdemAdapterMemory, OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemConverter, OdemAdapterMemory, OdemModel } = s ); } ) );
 
 	describe( "relies on exposed function OdemConverter.processModelDefinitions() which", () => {
 		it( "is a function", () => {

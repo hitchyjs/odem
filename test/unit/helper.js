@@ -28,6 +28,7 @@
 
 const Path = require( "path" );
 
+const { each: PromiseEach } = require( "promise-essentials" );
 const { Find } = require( "file-essentials" );
 
 /**
@@ -79,50 +80,95 @@ module.exports = Object.seal( {
 			"gte",
 		];
 	},
-	loadAllServices( mockedAPI = {}, mockedOptions = {} ) {
-		if ( !mockedAPI.runtime ) {
-			mockedAPI.runtime = {};
-		}
-
-		if ( !mockedAPI.runtime.services ) {
-			mockedAPI.runtime.services = {};
-		}
-
-		const relFolder = "../../api/services";
+	fakeApi( mockedAPI = {}, mockedOptions = {} ) {
+		const relFolder = "../..";
 		const baseFolder = Path.resolve( __dirname, relFolder );
 
-		return Find( baseFolder, {
-			depthFirst: false,
-			converter: ( name, qname, stats ) => ( stats.isFile() && name.endsWith( ".js" ) ? name : null ),
-		} )
-			.then( files => {
-				const ptn = new RegExp( "[^\\" + Path.sep + "]+", "g" );
+		for ( const name of [ "runtime", "config" ] ) {
+			if ( !mockedAPI[name] ) {
+				mockedAPI[name] = {};
+			}
+		}
 
-				files.sort( ( l, r ) => {
-					const ls = l.replace( ptn, "" ).length;
-					const rs = r.replace( ptn, "" ).length;
+		return _loadComponents().then( () => _loadConfig() ).then( () => mockedAPI );
 
-					return ls < rs ? -1 : ls > rs ? 1 : l.localeCompare( r );
-				} );
+		function _loadComponents() {
+			return PromiseEach( [
+				[ "model", "models" ],
+				[ "service", "services" ],
+				[ "policy", "policies" ],
+				[ "controller", "controllers" ],
+			], ( [ singular, plural ] ) => {
+				if ( !mockedAPI.runtime[plural] ) {
+					mockedAPI.runtime[plural] = {};
+				}
 
-				files.forEach( file => {
-					const name = file
-						.replace( /\.js$/, "" )
-						.replace( new RegExp( "\\" + Path.sep + "(?:[0-9]{1,2}-)?", "g" ), "-" )
-						.toLowerCase()
-						.replace( /(?:^|-)([a-z])/g, ( _, leading ) => leading.toUpperCase() );
+				if ( !mockedAPI.runtime[singular] ) {
+					mockedAPI.runtime[singular] = mockedAPI.runtime[plural];
+				}
 
-					try {
-						const module = require( Path.join( relFolder, file ) );
+				return _load( Path.resolve( baseFolder, "api", singular ) )
+					.then( () => _load( Path.resolve( baseFolder, "api", plural ) ) );
 
-						mockedAPI.runtime.services[name] = typeof module === "function" && module.useCMP !== false ? module.call( mockedAPI, mockedOptions ) : module;
-					} catch ( error ) {
-						console.error( "loading service component %s failed: %s", name, error.stack );
-						throw error;
-					}
-				} );
+				function _load( localFolder ) {
+					return Find( localFolder, {
+						depthFirst: false,
+						converter: ( name, qname, stats ) => ( stats.isFile() && name.endsWith( ".js" ) ? name : null ),
+					} )
+						.then( files => {
+							const ptn = new RegExp( "[^\\" + Path.sep + "]+", "g" );
 
-				return mockedAPI.runtime.services;
+							files.sort( ( l, r ) => {
+								const ls = l.replace( ptn, "" ).length;
+								const rs = r.replace( ptn, "" ).length;
+
+								return ls < rs ? -1 : ls > rs ? 1 : l.localeCompare( r );
+							} );
+
+							files.forEach( file => {
+								const name = file
+									.replace( /\.js$/, "" )
+									.replace( new RegExp( "\\" + Path.sep + "(?:[0-9]{1,2}-)?", "g" ), "-" )
+									.toLowerCase()
+									.replace( /(?:^|-)([a-z])/g, ( _, leading ) => leading.toUpperCase() );
+
+								try {
+									const module = require( Path.join( localFolder, file ) );
+
+									mockedAPI.runtime[plural][name] = typeof module === "function" && module.useCMP !== false ? module.call( mockedAPI, mockedOptions ) : module;
+								} catch ( error ) {
+									console.error( "loading service component %s failed: %s", name, error.stack );
+									throw error;
+								}
+							} );
+						} );
+				}
 			} );
+		}
+
+		function _loadConfig() {
+			const localFolder = Path.resolve( baseFolder, "config" );
+
+			return Find( localFolder, {
+				depthFirst: false,
+				converter: ( name, qname, stats ) => ( stats.isFile() && !name.startsWith( "." ) && name.endsWith( ".js" ) ? qname : null ),
+			} )
+				.then( files => files.forEach( file => {
+					if ( file !== Path.resolve( localFolder, "local.js" ) ) {
+						let config;
+
+						try {
+							const module = require( file );
+
+							config = typeof module === "function" && module.useCMP !== false ? module.call( mockedAPI, mockedOptions ) : module;
+						} catch ( error ) {
+							console.error( "loading config from %s failed: %s", file, error.stack );
+							throw error;
+						}
+
+						Object.assign( mockedAPI.config, config );
+					}
+				} ) );
+		}
 	},
 } );

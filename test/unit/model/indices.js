@@ -31,15 +31,18 @@
 const Path = require( "path" );
 
 const { describe, it, before, after, beforeEach } = require( "mocha" );
-require( "should" );
 const PromiseUtils = require( "promise-essentials" );
+require( "should" );
 
-const { Model, FileAdapter } = require( "../../../" );
-
+const { fakeApi } = require( "../helper" );
 
 describe( "A model-related index", () => {
+	let OdemModel, OdemAdapterFile;
+
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemAdapterFile } = s ); } ) );
+
 	it( "can be omitted", () => {
-		const MyModel = Model.define( "MyModel", {
+		const MyModel = OdemModel.define( "MyModel", {
 			props: {
 				a: {},
 				b: {},
@@ -50,7 +53,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined on a single property of model", () => {
-		const MyModel = Model.define( "MyModel", {
+		const MyModel = OdemModel.define( "MyModel", {
 			props: {
 				a: { index: "eq" },
 				b: {},
@@ -61,7 +64,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "is described by its property's name and selected operation", () => {
-		const MyModel = Model.define( "MyModel", {
+		const MyModel = OdemModel.define( "MyModel", {
 			props: {
 				a: { index: "eq" },
 				b: {},
@@ -76,7 +79,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined using single-item array listing sole operation", () => {
-		const MyModel = Model.define( "MyModel", {
+		const MyModel = OdemModel.define( "MyModel", {
 			props: {
 				a: { index: ["eq"] },
 				b: {},
@@ -92,7 +95,7 @@ describe( "A model-related index", () => {
 
 	[ [], null, undefined, 0, "", false ].forEach( value => {
 		it( `is ignoring index definitions using ${value === "" ? "empty string" : Array.isArray( value ) ? "[]" : String( value )} for index type`, () => {
-			const MyModel = Model.define( "MyModel", {
+			const MyModel = OdemModel.define( "MyModel", {
 				props: {
 					a: { index: value },
 					b: {},
@@ -105,7 +108,7 @@ describe( "A model-related index", () => {
 
 	[ [true], 1, "arbitrary string" ].forEach( value => {
 		it( `is rejecting index definition using ${Array.isArray( value ) ? "[true]" : String( value )} for index type`, () => {
-			( () => Model.define( "MyModel", {
+			( () => OdemModel.define( "MyModel", {
 				props: {
 					a: { index: value },
 					b: {},
@@ -115,7 +118,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined multiple times on same property using different types", () => {
-		const MyModel = Model.define( "MyModel", {
+		const MyModel = OdemModel.define( "MyModel", {
 			props: {
 				a: { index: [ "eq", "gt" ] },
 				b: {},
@@ -138,7 +141,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "rejects definition of multiple indices per property using same type of index", () => {
-		( () => Model.define( "MyModel", {
+		( () => OdemModel.define( "MyModel", {
 			props: {
 				a: { index: [ "eq", "eq" ] },
 				b: {},
@@ -147,7 +150,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined multiple times on separate properties", () => {
-		const MyModel = Model.define( "MyModel", {
+		const MyModel = OdemModel.define( "MyModel", {
 			props: {
 				a: { index: "eq" },
 				b: { index: "gt" },
@@ -170,7 +173,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined multiple times on separate properties using same type for different properties", () => {
-		const MyModel = Model.define( "MyModel", {
+		const MyModel = OdemModel.define( "MyModel", {
 			props: {
 				a: { index: "eq" },
 				b: { index: "eq" },
@@ -197,7 +200,7 @@ describe( "A model-related index", () => {
 		let uuids;
 
 		beforeEach( () => {
-			MyModel = Model.define( "MyModel", {
+			MyModel = OdemModel.define( "MyModel", {
 				props: {
 					offset: { type: "integer" },
 					label: {},
@@ -315,8 +318,12 @@ describe( "A model-related index", () => {
 
 		const NumRecords = 1000;
 
-		const fileAdapter = new FileAdapter( {
-			dataSource: Path.resolve( __dirname, "../../../data" ),
+		let fileAdapter;
+
+		before( () => {
+			fileAdapter = new OdemAdapterFile( {
+				dataSource: Path.resolve( __dirname, "../../../data" ),
+			} );
 		} );
 
 		const Adapters = [
@@ -351,7 +358,7 @@ describe( "A model-related index", () => {
 							let MyModel;
 
 							before( () => {
-								MyModel = Model.define( "MyModel", {
+								MyModel = OdemModel.define( "MyModel", {
 									props: {
 										index: { type: valueType, index: "eq" },
 										noIndex: { type: valueType },
@@ -440,7 +447,7 @@ describe( "A model-related index", () => {
 								let NewModel;
 
 								it( "is restored from existing data backend", () => {
-									NewModel = Model.define( "MyModel", {
+									NewModel = OdemModel.define( "MyModel", {
 										props: {
 											index: { type: valueType, index: "eq" },
 											noIndex: { type: valueType },

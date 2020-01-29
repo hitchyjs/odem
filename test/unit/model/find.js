@@ -26,14 +26,11 @@
  * @author: cepharum
  */
 
-/* eslint-disable max-nested-callbacks */
-
-const { Model } = require( "../../.." );
-
 const PromiseUtil = require( "promise-essentials" );
 const { describe, it, before, beforeEach, afterEach } = require( "mocha" );
 require( "should" );
 
+const { fakeApi } = require( "../helper" );
 
 
 const NumRecords = 100;
@@ -195,11 +192,13 @@ describe( "Inspecting collection of a model's items", function() {
 	uuids.sort( ( l, r ) => l.compare( r ) );
 
 
+	let OdemModel;
 	let MyModel;
 
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
 
 	before( "create model", () => {
-		MyModel = Model.define( "MyModel", {
+		MyModel = OdemModel.define( "MyModel", {
 			props: {
 				index: { type: "integer" },
 				slowInteger: { type: "integer" },

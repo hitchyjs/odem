@@ -1,9 +1,9 @@
 /**
- * (c) 2018 cepharum GmbH, Berlin, http://cepharum.de
+ * (c) 2020 cepharum GmbH, Berlin, http://cepharum.de
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 cepharum GmbH
+ * Copyright (c) 2020 cepharum GmbH
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,22 +27,21 @@
  */
 
 module.exports = function() {
+	const api = this;
+	const { services: Services } = api.runtime;
 	const OdemDefaults = {};
 
 	Object.defineProperties( OdemDefaults, {
 		/**
-		 * Selects backend to use on storing model data persistently.
+		 * Defines backend to use by default on storing model data persistently.
 		 *
-		 * @note This instance must be fetched from a getter due to sorting
-		 *       order of discovering service components.
-		 *
-		 * @name OdemDefaults.defaultAdapter
+		 * @name api.config.database.defaultAdapter
 		 * @property {Services.OdemAdapter}
 		 * @readonly
 		 */
 		defaultAdapter: {
 			get: () => {
-				const adapter = new this.runtime.services.OdemAdapterMemory();
+				const adapter = new Services.OdemAdapterMemory();
 
 				Object.defineProperties( OdemDefaults, {
 					defaultAdapter: {
@@ -58,5 +57,5 @@ module.exports = function() {
 		},
 	} );
 
-	return OdemDefaults;
+	return { database: OdemDefaults };
 };

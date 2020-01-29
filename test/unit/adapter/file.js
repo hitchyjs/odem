@@ -33,14 +33,14 @@ const { describe, it, before, after, beforeEach, afterEach } = require( "mocha" 
 const Should = require( "should" );
 const { MkDir, RmDir } = require( "file-essentials" );
 
-const { loadAllServices } = require( "../helper" );
+const { fakeApi } = require( "../helper" );
 
 const dataSource = Path.resolve( __dirname, "../../../data" );
 
 describe( "FileAdapter", function() {
 	let OdemAdapterFile, OdemAdapter, OdemUtilityUuid;
 
-	before( () => MkDir( dataSource ).then( () => loadAllServices() ).then( s => { ( { OdemAdapter, OdemAdapterFile, OdemUtilityUuid } = s ); } ) );
+	before( () => MkDir( dataSource ).then( () => fakeApi() ).then( ( { runtime: { services: s } } ) => { ( { OdemAdapter, OdemAdapterFile, OdemUtilityUuid } = s ); } ) );
 
 	afterEach( () => RmDir( dataSource, { subsOnly: true } ) );
 
