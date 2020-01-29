@@ -256,7 +256,7 @@ In this case the defined function implementing the computed property's behaviour
 
 Computed properties can be indexed and it's possible to use them for searching instances - with or without index. Discovering matches strongly depends on selected search operation, such as **eq** or **lte** testing for records with property's value equal or less than a given value.
 
-Any such operation depends on selected property's type of value in turn. For actualy properties you already know how to define a particular type of values. 
+Any such operation depends on selected property's type of value in turn. For actual properties you already know how to define a particular type of values. 
 
 :::tip
 A computed property doesn't need to be bound to a particular type of values unless using it for searching matches.
