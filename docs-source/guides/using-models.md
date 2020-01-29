@@ -7,9 +7,9 @@ next: ../api/model.md
 
 ## Server-Side Code
 
-When implementing code in your Hitchy-based project you might have defined models using `Model.define()`. Any model defined that way is returned from invoked `Model.define()` and can be used right away. However, when defining models via filesystem by placing model definition files in folder **api/model** of your Hitchy-based project those models are exposed via Hitchy's runtime API. This API is available in context of dispatched requests and therefore can be used in policy and route handlers.
+When implementing code in your Hitchy-based project you might have defined models using `Model.define()`. Any model defined that way is returned from invoked `Model.define()` and can be used right away. However, when defining models via filesystem by placing model definition files in folder **api/models** of your Hitchy-based project those models are exposed via Hitchy's runtime API. This API is available in context of dispatched requests and therefore can be used in policy and route handlers.
 
-Let's pretend there is a file **api/model/user.js** like this one:
+Let's pretend there is a file **api/models/user.js** like this one:
 
 ```javascript
 module.exports = {
@@ -41,5 +41,5 @@ The [common API of models](../api/model.md) is providing additional information 
 
 Accessing models from client-side code is beyond the scope of this plugin. Exposing models over the network is a job you need to implement yourself using server-side code. 
 
-As an option you might add an existing plugin that implements particular API for accessing models over the network. One of those plugins is [hitch-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest) and you should start with adding that one as a dependency right away for it will implicitly install this plugin, too.
+As an option you might add an existing plugin that implements particular API for accessing models over the network. One of those plugins is [hitch-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest).
 

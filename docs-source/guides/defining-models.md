@@ -9,26 +9,57 @@ next: model-derivations.md
 
 There are two ways supported for defining models:
 
+* Due to integrating with Hitchy's automatic discovery of plugins it is possible to place model definitions in files to be discovered into models automatically.
 * In server-side code you may use the Model API directly to define new models.
-* Due to integrating with Hitchy's automatic discovery of plugins it is possible to place model definitions in files expected in certain locations of your project.
 
 Both scenarios are described below.
+
+### Defining In Filesystem
+
+:::tip  
+We consider this approach to be the default for defining models.  
+:::
+
+Hitchy ODM is tightly integrated with Hitchy by means of meeting the latter one's conventions on how to declare server-side models. That's why defining a model basically works just by adding a Javascript file in folder **api/models** of your Hitchy-based project. For example, by creating file **api/models/user.js** you are implicitly defining to have a user model named `User`. 
+
+Any such file is assumed to expose the definition of another model. This is possible by sticking with the following pattern:
+
+```javascript
+module.exports = <definition>;
+```
+
+In this pattern `<definition>` must be replaced with the actual definition of a model. A definition's syntax is commonly described in [a separate chapter](#definition-syntax) below.
+
+Any file-based definition of a model is eventually processed through `Model.define()` which is described in next chapter. The resulting model is then exposed in [Hitchy's API](https://hitchyjs.github.io/core/api/). So in a request handler you might use the model as [`req.hitchy.runtime.models.<ModelName>`](https://hitchyjs.github.io/core/api/#req-hitchy-0-2-0) or as [`this.models.<ModelName>`](https://hitchyjs.github.io/core/api/#in-request-handlers).
+
+The name of a model is derived from the name of the defining file. This derivation assumes filename is given in kebab-case and converts it into PascalCase.
+
+:::tip Example  
+To create an application working with models **Post**, **Comment** and **User** you basically need to create files **post.js**, **comment.js** and **user.js** in folder **api/models**. A model named **BlogEditor** would be defined in a file named **api/models/blog-editor.js**.  
+:::
+
 
 ### Defining in Server-Side Code
 
 :::tip  
-The preferred way of defining models in a Hitchy application is via filesystem as described below.  
+In most cases you should stick with support for [defining models in filesystem](#defining-in-filesystem).  
 :::
 
-For sure, there is code reading and processing those files. That code is using API to be described in this chapter. You might want to use this API in testing your code e.g. to mock models your code is relying on.
+In selected situations you might want to define models in server-side code programmatically. This is possible by using static method `define` included with Hitchy ODM's Model API which is [exposed as a service component of Hitchy's API](https://hitchyjs.github.io/core/internals/components.html#exposure-at-runtime) named `Model`.
 
-The main module of hitchy-plugin-odem library exposes several classes. One of them is `Model`.
+```javascript
+const { Model } = api.runtime.services;
+```
+
+:::warning Compatibility
+`Model` gets exposed as a Hitchy service component since version 0.5.0 of Hitchy ODM. In previous version you need to `require()` the plugin:
 
 ```javascript
 const { Model } = require( "hitchy-plugin-odem" );
 ```
+:::
 
-This class is providing static method `Model.define()` accepting these arguments:
+Provided method `Model.define()` is accepting these arguments:
 
 * First there is the name of the desired model. 
 
@@ -57,7 +88,7 @@ Model.define( name, definition, baseClass = Model, dataStorageAdapter = null );
 Basically it is okay to stick with the first two arguments:
 
 ```javascript
-const { Model } = require( "hitchy-plugin-odem" );
+const { Model } = api.runtime.services;
 
 const Person = Model.define( "person", {
 	props: {
@@ -71,7 +102,7 @@ const Person = Model.define( "person", {
 Third argument can be used to create a hierarchy of models:
 
 ```javascript
-const { Model } = require( "hitchy-plugin-odem" );
+const { Model } = api.runtime.services;
 
 const Person = Model.define( "person", {
 	props: {
@@ -87,27 +118,6 @@ const Employee = Model.define( "employee", {
 	},
 }, Person );
 ```
-
-
-### Defining In Filesystem
-
-Hitchy ODM is tightly integrated with Hitchy by means of meeting the latter one's conventions on how to declare server-side models. That's why defining a model basically works just by adding a Javascript file in folder **api/model** of your Hitchy-based project. For example, by creating file **api/model/user.js** you are implicitly defining to have a user model named `User`. 
-
-Any such file is assumed to expose the definition of another model. This is possible by sticking with the following pattern:
-
-```javascript
-module.exports = <definition>;
-```
-
-In this pattern `<definition>` must be replaced with the actual definition of a model. A definition's syntax is commonly described below.
-
-Any file-based definition of a model is eventually processed through `Model.define()` as decribed before. The resulting model is then exposed in Hitchy's runtime API. So in a request handler you might use the model as `req.api.runtime.models.<ModelName>`.
-
-The name of a model is derived from the name of the defining file. This derivation assumes filename is given in kebab-case and converts it into PascalCase.
-
-:::tip Example  
-To create an application working with models **Post**, **Comment** and **User** you basically need to create files **post.js**, **comment.js** and **user.js** in folder **api/model**. A model named **BlogEditor** would be defined in a file named **api/model/blog-editor.js**.  
-:::
 
 
 ## Definition Syntax
@@ -613,7 +623,7 @@ Due to using a model's name in string interpolations in context of evaluated cod
 }
 ```
 
-When putting this in a file **api/model/public-holiday.js** the resulting model won't be implicitly named **PublicHoliday**, but **MyCustomName**.
+When putting this in a file **api/models/public-holiday.js** the resulting model won't be implicitly named **PublicHoliday**, but **MyCustomName**.
 
 
 ## Property Processing
@@ -882,4 +892,4 @@ module.exports = {
 
 This example declares a callback to be invoked after having saved an instance of this model. `this` is referring to the affected instance.
 
-See the [Model API regarding hooks](../api/model#hooks) for a full list of supported life cycle events.
+See the [Model API regarding hooks](../api/models#hooks) for a full list of supported life cycle events.

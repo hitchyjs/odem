@@ -10,7 +10,7 @@ Adopting aspects of the object-oriented programming models can be derived from e
 ## Deriving In Code
 
 ```javascript
-const { Model } = require( "hitchy-plugin-odem" );
+const { Model } = api.runtime.services;
 
 const Root = Model.define( "root", {
     props: {
@@ -78,7 +78,7 @@ Replacing.createRecord = function() {
 
 ## Deriving in Hitchy-Compliant Definition File
 
-When defining model using definition file in folder **api/model** of your project you can use special root-level definition property `parent` to name the model to derive from. 
+When defining model using definition file in folder **api/models** of your project you can use special root-level definition property `parent` to name the model to derive from. 
 
 :::tip
 The convention assumes files to use kebab-case file names converted into PascalCase model names. You should stick with this naming pattern when using `parent` as well by using either kebab-case or PascalCase value there.

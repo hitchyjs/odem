@@ -27,12 +27,12 @@ Answer all the questions according to your needs.
 Now install [hitchy](https://www.npmjs.com/package/hitchy) and [hitchy-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest) as dependencies:
 
 ```bash
-npm install hitchy hitchy-plugin-odem-rest
+npm install hitchy hitchy-plugin-odem hitchy-plugin-odem-rest
 ```
 
-:::tip
-Installing [hitchy-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest) is implicitly fetching [hitchy-plugin-odem](https://www.npmjs.com/package/hitchy-plugin-odem) as a dependency. That's why you don't need to install it explicitly here while instantly benefitting from a REST API for accessing your data. 
-:::
+:::warning Compatibility  
+Previously, installing hitchy-plugin-odem-rest was implicitly installing hitchy-plugin-odem. Due to recent issues this has been dropped and so you need to install hitchy-plugin-odem yourself, now.  
+::: 
 
 ## Define Models
 
@@ -44,7 +44,7 @@ mkdir -p api/models
 
 Put all the model definition files in there.
 
-Let's create something ravish like a blog ;). This would require definition of a **post**, thus create a file named **api/models/post.js** with the following content:
+Let's create something ravish like a blog. This would require definition of a **post**, thus create a file named **api/models/post.js** with the following content:
 
 ```javascript
 module.exports = {

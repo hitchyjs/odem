@@ -15,7 +15,7 @@ Hitchy's ODM is an _object document manager_ integrating with Hitchy as a discov
 * offers another API for accessing structured data using server-side code.
 
 :::tip Using Hitchy's ODM
-If you intend to access your data via HTTP requests you might be interested in another plugin called [hitchy-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest). Your application should depend on that one instead as it will add this plugin in turn and therefor is offering all the benefits this plugin is providing.
+If you intend to access your data via HTTP requests you might be interested in another plugin called [hitchy-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest).
 :::
 
 ## Structured Data?
