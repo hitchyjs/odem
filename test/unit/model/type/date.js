@@ -64,9 +64,9 @@ const ValidInput = ValidNonNullInput.concat( [ null, undefined ] );
 
 
 describe( "Model property type `date`", function() {
-	let OdemModelPropertyTypes, OdemModelType, OdemModelTypeDate, OdemUtilityDate;
+	let OdemModelType, OdemModelTypeDate, OdemUtilityDate;
 
-	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelPropertyTypes, OdemModelType, OdemModelTypeDate, OdemUtilityDate } = s ); } ) );
+	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelType, OdemModelTypeDate, OdemUtilityDate } = s ); } ) );
 
 	it( "is available", function() {
 		Should.exist( OdemModelTypeDate );
@@ -86,18 +86,18 @@ describe( "Model property type `date`", function() {
 	} );
 
 	it( "is commonly exposed by its name", function() {
-		OdemModelPropertyTypes.selectByName( "date" ).should.be.equal( OdemModelTypeDate );
+		OdemModelType.selectByName( "date" ).should.be.equal( OdemModelTypeDate );
 	} );
 
 	it( "is commonly exposed by all its aliases", function() {
-		OdemModelPropertyTypes.selectByName( "datetime" ).should.be.equal( OdemModelTypeDate );
-		OdemModelPropertyTypes.selectByName( "timestamp" ).should.be.equal( OdemModelTypeDate );
+		OdemModelType.selectByName( "datetime" ).should.be.equal( OdemModelTypeDate );
+		OdemModelType.selectByName( "timestamp" ).should.be.equal( OdemModelTypeDate );
 	} );
 
 	it( "is commonly exposed by its name and all its aliases case-insensitively", function() {
-		OdemModelPropertyTypes.selectByName( "DATE" ).should.be.equal( OdemModelTypeDate );
-		OdemModelPropertyTypes.selectByName( "DATETIME" ).should.be.equal( OdemModelTypeDate );
-		OdemModelPropertyTypes.selectByName( "TIMESTAMP" ).should.be.equal( OdemModelTypeDate );
+		OdemModelType.selectByName( "DATE" ).should.be.equal( OdemModelTypeDate );
+		OdemModelType.selectByName( "DATETIME" ).should.be.equal( OdemModelTypeDate );
+		OdemModelType.selectByName( "TIMESTAMP" ).should.be.equal( OdemModelTypeDate );
 	} );
 
 	it( "advertises values of type to be sortable", function() {

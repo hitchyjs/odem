@@ -27,6 +27,19 @@
  */
 
 module.exports = function() {
+	const api = this;
+	const { services: Services } = api.runtime;
+	const map = {
+		boolean: "OdemModelTypeBoolean",
+		date: "OdemModelTypeDate",
+		integer: "OdemModelTypeInteger",
+		number: "OdemModelTypeNumber",
+		string: "OdemModelTypeString",
+		uuid: "OdemModelTypeUuid",
+	};
+	let resolvedAliases = false;
+
+
 	/**
 	 * Implements basic API of all model types.
 	 *
@@ -245,6 +258,59 @@ module.exports = function() {
 		 * @returns {boolean} true if type is sortable
 		 */
 		static get sortable() { return true; }
+
+		/**
+		 * Selects a type's implementation selected by its name.
+		 *
+		 * @param {string} name name or alias of type to select
+		 * @returns {?OdemModelType} selected type's implementation, null on missing type
+		 */
+		static selectByName( name ) {
+			if ( !resolvedAliases ) {
+				resolvedAliases = true;
+
+				const names = Object.keys( map );
+				const numNames = names.length;
+
+				for ( let i = 0; i < numNames; i++ ) {
+					const key = names[i];
+
+					const type = Services[map[key]];
+					const aliases = type.aliases;
+					const numAliases = aliases.length;
+
+					for ( let j = 0; j < numAliases; j++ ) {
+						const alias = mapNameToKey( aliases[j] );
+
+						if ( !map.hasOwnProperty( alias ) ) {
+							map[alias] = map[key];
+						}
+					}
+				}
+			}
+
+			const key = mapNameToKey( name );
+			if ( Object.prototype.hasOwnProperty.call( map, key ) ) {
+				return Services[map[key]];
+			}
+
+			return null;
+
+			/**
+			 * Maps a type's name in quite arbitrary form to its related key used in
+			 * collection's map for addressing either type's implementation.
+			 *
+			 * @param {string} name name or alias of type
+			 * @returns {string} normalized key of type
+			 */
+			function mapNameToKey( name ) {
+				if ( typeof name !== "string" ) {
+					throw new TypeError( "invalid name of property type" );
+				}
+
+				return Services.OdemUtilityString.kebabToCamel( name.trim().toLocaleLowerCase() );
+			}
+		}
 	}
 
 	return OdemModelType;

@@ -426,7 +426,7 @@ module.exports = function() {
 								property.type = "string";
 							}
 
-							const $type = Services.OdemModelPropertyTypes.selectByName( property.type );
+							const $type = Services.OdemModelType.selectByName( property.type );
 							if ( $type ) {
 								property.$type = $type;
 								property.type = $type.typeName;
@@ -562,7 +562,7 @@ module.exports = function() {
 						let $type;
 
 						if ( type ) {
-							$type = Services.OdemModelPropertyTypes.selectByName( type );
+							$type = Services.OdemModelType.selectByName( type );
 							if ( !$type ) {
 								errors.push( `invalid type "${type}" for computed property "${name}" of model "${modelName}"` );
 							}
@@ -796,9 +796,9 @@ module.exports = function() {
 						} else if ( computed.$type ) {
 							info.$type = computed.$type;
 						} else if ( info.propertyType ) {
-							info.$type = Services.OdemModelPropertyTypes.selectByName( info.propertyType );
+							info.$type = Services.OdemModelType.selectByName( info.propertyType );
 						} else {
-							info.$type = Services.OdemModelPropertyTypes.abstract;
+							info.$type = Services.OdemModelType;
 						}
 					}
 				}
@@ -886,7 +886,7 @@ module.exports = function() {
 
 				( function( name, handler, definition ) {
 					coercions[name] = value => handler.coerce( value, definition, Services.OdemModel.prototype.$default );
-				} )( propertyName, property.$type || Services.OdemModelPropertyTypes.selectByName( property.type ), property );
+				} )( propertyName, property.$type || Services.OdemModelType.selectByName( property.type ), property );
 			}
 
 			return coercions;
@@ -911,7 +911,7 @@ module.exports = function() {
 				const propertyName = propertiesNames[ai];
 				const property = properties[propertyName];
 
-				const handler = property.$type || Services.OdemModelPropertyTypes.selectByName( property.type );
+				const handler = property.$type || Services.OdemModelType.selectByName( property.type );
 
 				const { args, body } = Services.OdemUtilityFunction.extractBody( handler.coerce );
 				if ( args.length < 3 ) {
@@ -959,7 +959,7 @@ ${coercion.join( "" )}
 				const propertyName = propertiesNames[ai];
 				const property = properties[propertyName];
 
-				const handler = property.$type || Services.OdemModelPropertyTypes.selectByName( property.type );
+				const handler = property.$type || Services.OdemModelType.selectByName( property.type );
 
 				const { args, body } = Services.OdemUtilityFunction.extractBody( handler.isValid );
 				if ( args.length < 4 ) {
@@ -1011,7 +1011,7 @@ return __errors;
 				const propertyName = propertiesNames[ai];
 				const property = properties[propertyName];
 
-				const handler = property.$type || Services.OdemModelPropertyTypes.selectByName( property.type );
+				const handler = property.$type || Services.OdemModelType.selectByName( property.type );
 
 				const { args, body } = Services.OdemUtilityFunction.extractBody( handler.serialize );
 				if ( args.length < 1 ) {
@@ -1066,7 +1066,7 @@ return $$d;
 				const propertyName = propertiesNames[ai];
 				const property = properties[propertyName];
 
-				const handler = property.$type || Services.OdemModelPropertyTypes.selectByName( property.type );
+				const handler = property.$type || Services.OdemModelType.selectByName( property.type );
 				let sourceName;
 
 				// append deserialize() method of current property's type handler

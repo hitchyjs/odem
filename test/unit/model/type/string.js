@@ -67,9 +67,9 @@ const ValidInput = ValidNonNullInput.concat( [ null, undefined ] );
 
 
 describe( "Model property type `string`", function() {
-	let OdemModelPropertyTypes, OdemModelType, OdemModelTypeString;
+	let OdemModelType, OdemModelTypeString;
 
-	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelPropertyTypes, OdemModelType, OdemModelTypeString } = s ); } ) );
+	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelType, OdemModelTypeString } = s ); } ) );
 
 	it( "is available", function() {
 		Should.exist( OdemModelTypeString );
@@ -89,16 +89,16 @@ describe( "Model property type `string`", function() {
 	} );
 
 	it( "is commonly exposed by its name", function() {
-		OdemModelPropertyTypes.selectByName( "string" ).should.be.equal( OdemModelTypeString );
+		OdemModelType.selectByName( "string" ).should.be.equal( OdemModelTypeString );
 	} );
 
 	it( "is commonly exposed by all its aliases", function() {
-		OdemModelPropertyTypes.selectByName( "text" ).should.be.equal( OdemModelTypeString );
+		OdemModelType.selectByName( "text" ).should.be.equal( OdemModelTypeString );
 	} );
 
 	it( "is commonly exposed by its name and all its aliases case-insensitively", function() {
-		OdemModelPropertyTypes.selectByName( "STRING" ).should.be.equal( OdemModelTypeString );
-		OdemModelPropertyTypes.selectByName( "TEXT" ).should.be.equal( OdemModelTypeString );
+		OdemModelType.selectByName( "STRING" ).should.be.equal( OdemModelTypeString );
+		OdemModelType.selectByName( "TEXT" ).should.be.equal( OdemModelTypeString );
 	} );
 
 	it( "advertises values of type to be sortable", function() {

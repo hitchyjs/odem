@@ -35,10 +35,10 @@ const { fakeApi } = require( "../helper" );
 
 describe( "Models API", () => {
 	const MostSimpleDefinition = { props: { label: {} } };
-	let OdemModel, OdemModelPropertyTypes;
+	let OdemModel, OdemModelType;
 	let CustomBaseClass;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemModelPropertyTypes } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemModelType } = s ); } ) );
 
 	before( () => {
 		CustomBaseClass = class CustomBaseClassImpl extends OdemModel {};
@@ -234,7 +234,7 @@ describe( "Models API", () => {
 			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
 			Item.schema.computed.fullName.code.should.be.Function();
 			Item.schema.computed.fullName.type.should.be.equal( "date" );
-			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( OdemModelPropertyTypes.abstract );
+			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( OdemModelType );
 			Item.schema.methods.should.be.empty();
 			Item.schema.hooks.should.be.empty();
 		} );
@@ -287,7 +287,7 @@ describe( "Models API", () => {
 			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
 			Item.schema.computed.fullName.code.should.be.Function();
 			Item.schema.computed.fullName.type.should.be.equal( "date" );
-			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( OdemModelPropertyTypes.abstract );
+			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( OdemModelType );
 			Item.schema.methods.should.be.empty();
 			Item.schema.hooks.should.be.empty();
 		} );
@@ -313,7 +313,7 @@ describe( "Models API", () => {
 			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
 			Item.schema.computed.fullName.code.should.be.Function();
 			Item.schema.computed.fullName.type.should.be.equal( "date" );
-			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( OdemModelPropertyTypes.abstract );
+			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( OdemModelType );
 			Item.schema.methods.should.be.empty();
 			Item.schema.hooks.should.be.empty();
 		} );
@@ -340,7 +340,7 @@ describe( "Models API", () => {
 			Item.schema.computed.should.have.ownProperty( "fullName" ).which.is.an.Object().and.has.properties( "code", "type", "$type" );
 			Item.schema.computed.fullName.code.should.be.Function();
 			Item.schema.computed.fullName.type.should.be.equal( "date" );
-			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( OdemModelPropertyTypes.abstract );
+			Item.schema.computed.fullName.$type.prototype.should.be.instanceOf( OdemModelType );
 			Item.schema.methods.should.be.empty();
 			Item.schema.hooks.should.be.empty();
 		} );

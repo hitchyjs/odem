@@ -33,9 +33,9 @@ const Should = require( "should" );
 const Helper = require( "../../helper" );
 
 describe( "Model property type `integer`", function() {
-	let OdemModelPropertyTypes, OdemModelType, OdemModelTypeInteger;
+	let OdemModelType, OdemModelTypeInteger;
 
-	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelPropertyTypes, OdemModelType, OdemModelTypeInteger } = s ); } ) );
+	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelType, OdemModelTypeInteger } = s ); } ) );
 
 	it( "is available", function() {
 		Should.exist( OdemModelTypeInteger );
@@ -55,16 +55,16 @@ describe( "Model property type `integer`", function() {
 	} );
 
 	it( "is commonly exposed by its name", function() {
-		OdemModelPropertyTypes.selectByName( "integer" ).should.be.equal( OdemModelTypeInteger );
+		OdemModelType.selectByName( "integer" ).should.be.equal( OdemModelTypeInteger );
 	} );
 
 	it( "is commonly exposed by all its aliases", function() {
-		OdemModelPropertyTypes.selectByName( "int" ).should.be.equal( OdemModelTypeInteger );
+		OdemModelType.selectByName( "int" ).should.be.equal( OdemModelTypeInteger );
 	} );
 
 	it( "is commonly exposed by its name and all its aliases case-insensitively", function() {
-		OdemModelPropertyTypes.selectByName( "INTEGER" ).should.be.equal( OdemModelTypeInteger );
-		OdemModelPropertyTypes.selectByName( "INT" ).should.be.equal( OdemModelTypeInteger );
+		OdemModelType.selectByName( "INTEGER" ).should.be.equal( OdemModelTypeInteger );
+		OdemModelType.selectByName( "INT" ).should.be.equal( OdemModelTypeInteger );
 	} );
 
 	it( "advertises values of type to be sortable", function() {

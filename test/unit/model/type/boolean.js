@@ -33,9 +33,9 @@ const Should = require( "should" );
 const Helper = require( "../../helper" );
 
 describe( "Model property type `boolean`", function() {
-	let OdemModelPropertyTypes, OdemModelType, OdemModelTypeBoolean;
+	let OdemModelType, OdemModelTypeBoolean;
 
-	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelPropertyTypes, OdemModelType, OdemModelTypeBoolean } = s ); } ) );
+	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelType, OdemModelTypeBoolean } = s ); } ) );
 
 	it( "is available", function() {
 		Should.exist( OdemModelTypeBoolean );
@@ -55,16 +55,16 @@ describe( "Model property type `boolean`", function() {
 	} );
 
 	it( "is commonly exposed by its name", function() {
-		OdemModelPropertyTypes.selectByName( "boolean" ).should.be.equal( OdemModelTypeBoolean );
+		OdemModelType.selectByName( "boolean" ).should.be.equal( OdemModelTypeBoolean );
 	} );
 
 	it( "is commonly exposed by all its aliases", function() {
-		OdemModelPropertyTypes.selectByName( "bool" ).should.be.equal( OdemModelTypeBoolean );
+		OdemModelType.selectByName( "bool" ).should.be.equal( OdemModelTypeBoolean );
 	} );
 
 	it( "is commonly exposed by its name and all its aliases case-insensitively", function() {
-		OdemModelPropertyTypes.selectByName( "BOOLEAN" ).should.be.equal( OdemModelTypeBoolean );
-		OdemModelPropertyTypes.selectByName( "BOOL" ).should.be.equal( OdemModelTypeBoolean );
+		OdemModelType.selectByName( "BOOLEAN" ).should.be.equal( OdemModelTypeBoolean );
+		OdemModelType.selectByName( "BOOL" ).should.be.equal( OdemModelTypeBoolean );
 	} );
 
 	it( "advertises values of type to be sortable", function() {

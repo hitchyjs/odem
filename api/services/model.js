@@ -26,26 +26,5 @@
  * @author: cepharum
  */
 
-module.exports = function() {
-	const api = this;
-
-	/**
-	 * Implements public API of common model concept.
-	 */
-	class Model {
-		/**
-		 * Programmatically creates model implementation from provided
-		 * definition.
-		 *
-		 * @param {string} name name of model to create
-		 * @param {object} schema schema definition of model
-		 * @param {*} args additional arguments to be passed
-		 * @returns {class} implementation of defined model's class
-		 */
-		static define( name, schema, ...args ) {
-			return api.runtime.services.OdemModel.define( name, schema, ...args );
-		}
-	}
-
-	return Model;
-};
+// re-exposes service OdemModel as service Model again
+module.exports = require( "./odem/model" );

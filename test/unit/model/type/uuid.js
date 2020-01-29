@@ -72,9 +72,9 @@ const InvalidInput = [
 
 
 describe( "Model Attribute Type `uuid`", function() {
-	let OdemAdapter, OdemModelPropertyTypes, OdemModelType, OdemModelTypeUuid;
+	let OdemAdapter, OdemModelType, OdemModelTypeUuid;
 
-	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemAdapter, OdemModelPropertyTypes, OdemModelType, OdemModelTypeUuid } = s ); } ) );
+	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemAdapter, OdemModelType, OdemModelTypeUuid } = s ); } ) );
 
 	it( "is available", function() {
 		Should.exist( OdemModelTypeUuid );
@@ -94,19 +94,19 @@ describe( "Model Attribute Type `uuid`", function() {
 	} );
 
 	it( "is commonly exposed by its name", function() {
-		OdemModelPropertyTypes.selectByName( "uuid" ).should.be.equal( OdemModelTypeUuid );
+		OdemModelType.selectByName( "uuid" ).should.be.equal( OdemModelTypeUuid );
 	} );
 
 	it( "is commonly exposed by all its aliases", function() {
-		OdemModelPropertyTypes.selectByName( "key" ).should.be.equal( OdemModelTypeUuid );
-		OdemModelPropertyTypes.selectByName( "foreign" ).should.be.equal( OdemModelTypeUuid );
-		OdemModelPropertyTypes.selectByName( "foreign key" ).should.be.equal( OdemModelTypeUuid );
+		OdemModelType.selectByName( "key" ).should.be.equal( OdemModelTypeUuid );
+		OdemModelType.selectByName( "foreign" ).should.be.equal( OdemModelTypeUuid );
+		OdemModelType.selectByName( "foreign key" ).should.be.equal( OdemModelTypeUuid );
 	} );
 
 	it( "is commonly exposed by its name and all its aliases case-insensitively", function() {
-		OdemModelPropertyTypes.selectByName( "KEY" ).should.be.equal( OdemModelTypeUuid );
-		OdemModelPropertyTypes.selectByName( "FOREIGN" ).should.be.equal( OdemModelTypeUuid );
-		OdemModelPropertyTypes.selectByName( "FOREIGN KEY" ).should.be.equal( OdemModelTypeUuid );
+		OdemModelType.selectByName( "KEY" ).should.be.equal( OdemModelTypeUuid );
+		OdemModelType.selectByName( "FOREIGN" ).should.be.equal( OdemModelTypeUuid );
+		OdemModelType.selectByName( "FOREIGN KEY" ).should.be.equal( OdemModelTypeUuid );
 	} );
 
 	describe( "is exposing method `checkDefinition()` which", function() {

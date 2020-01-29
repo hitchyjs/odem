@@ -33,9 +33,9 @@ const Should = require( "should" );
 const Helper = require( "../../helper" );
 
 describe( "Model property type `number`", function() {
-	let OdemModelPropertyTypes, OdemModelType, OdemModelTypeNumber;
+	let OdemModelType, OdemModelTypeNumber;
 
-	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelPropertyTypes, OdemModelType, OdemModelTypeNumber } = s ); } ) );
+	before( () => Helper.fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModelType, OdemModelTypeNumber } = s ); } ) );
 
 	it( "is available", function() {
 		Should.exist( OdemModelTypeNumber );
@@ -55,22 +55,22 @@ describe( "Model property type `number`", function() {
 	} );
 
 	it( "is commonly exposed by its name", function() {
-		OdemModelPropertyTypes.selectByName( "number" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "number" ).should.be.equal( OdemModelTypeNumber );
 	} );
 
 	it( "is commonly exposed by all its aliases", function() {
-		OdemModelPropertyTypes.selectByName( "float" ).should.be.equal( OdemModelTypeNumber );
-		OdemModelPropertyTypes.selectByName( "real" ).should.be.equal( OdemModelTypeNumber );
-		OdemModelPropertyTypes.selectByName( "double" ).should.be.equal( OdemModelTypeNumber );
-		OdemModelPropertyTypes.selectByName( "decimal" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "float" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "real" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "double" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "decimal" ).should.be.equal( OdemModelTypeNumber );
 	} );
 
 	it( "is commonly exposed by its name and all its aliases case-insensitively", function() {
-		OdemModelPropertyTypes.selectByName( "NUMBER" ).should.be.equal( OdemModelTypeNumber );
-		OdemModelPropertyTypes.selectByName( "FLOAT" ).should.be.equal( OdemModelTypeNumber );
-		OdemModelPropertyTypes.selectByName( "REAL" ).should.be.equal( OdemModelTypeNumber );
-		OdemModelPropertyTypes.selectByName( "DOUBLE" ).should.be.equal( OdemModelTypeNumber );
-		OdemModelPropertyTypes.selectByName( "DECIMAL" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "NUMBER" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "FLOAT" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "REAL" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "DOUBLE" ).should.be.equal( OdemModelTypeNumber );
+		OdemModelType.selectByName( "DECIMAL" ).should.be.equal( OdemModelTypeNumber );
 	} );
 
 	it( "advertises values of type to be sortable", function() {
