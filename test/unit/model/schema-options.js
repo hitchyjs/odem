@@ -33,12 +33,12 @@ const { fakeApi } = require( "../helper" );
 
 
 describe( "A model's schema may define", () => {
-	let OdemModel;
+	let Model;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model } = s ); } ) );
 
 	it( "a model that fails by default on assigning twice to property w/o saving intermittently", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: { someProp: {} },
 		} );
 
@@ -66,7 +66,7 @@ describe( "A model's schema may define", () => {
 		} );
 
 		it( "might be set 'ignore' to prevent failure or log message on assigning twice to property w/o saving intermittently", () => {
-			const MyModel = OdemModel.define( "MyModel", {
+			const MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				options: {
 					onUnsaved: "ignore",
@@ -83,7 +83,7 @@ describe( "A model's schema may define", () => {
 		} );
 
 		it( "might be set 'IGNORE' to prevent failure or log message on assigning twice to property w/o saving intermittently", () => {
-			const MyModel = OdemModel.define( "MyModel", {
+			const MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				options: {
 					onUnsaved: "IGNORE",
@@ -100,7 +100,7 @@ describe( "A model's schema may define", () => {
 		} );
 
 		it( "might be set 'warn' to prevent failure, but log message on assigning twice to property w/o saving intermittently", () => {
-			const MyModel = OdemModel.define( "MyModel", {
+			const MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				options: {
 					onUnsaved: "warn",
@@ -117,7 +117,7 @@ describe( "A model's schema may define", () => {
 		} );
 
 		it( "might be set 'WARN' to prevent failure, but log message on assigning twice to property w/o saving intermittently", () => {
-			const MyModel = OdemModel.define( "MyModel", {
+			const MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				options: {
 					onUnsaved: "WARN",
@@ -134,7 +134,7 @@ describe( "A model's schema may define", () => {
 		} );
 
 		it( "might be set 'fail' to fail w/o logging on assigning twice to property w/o saving intermittently", () => {
-			const MyModel = OdemModel.define( "MyModel", {
+			const MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				options: {
 					onUnsaved: "fail",
@@ -151,7 +151,7 @@ describe( "A model's schema may define", () => {
 		} );
 
 		it( "might be set 'FAIL' to fail w/o logging on assigning twice to property w/o saving intermittently", () => {
-			const MyModel = OdemModel.define( "MyModel", {
+			const MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				options: {
 					onUnsaved: "FAIL",
@@ -168,7 +168,7 @@ describe( "A model's schema may define", () => {
 		} );
 
 		it( "causes Model.define() to throw when assigning unknown value", () => {
-			( () => OdemModel.define( "MyModel", {
+			( () => Model.define( "MyModel", {
 				props: { someProp: {} },
 				options: {
 					onUnsaved: "something",

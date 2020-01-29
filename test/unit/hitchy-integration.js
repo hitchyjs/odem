@@ -33,9 +33,9 @@ const { fakeApi } = require( "./helper" );
 
 
 describe( "Integration with hitchy", () => {
-	let OdemConverter, OdemAdapterMemory, OdemModel;
+	let OdemConverter, OdemAdapterMemory, Model;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemConverter, OdemAdapterMemory, OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemConverter, OdemAdapterMemory, Model } = s ); } ) );
 
 	describe( "relies on exposed function OdemConverter.processModelDefinitions() which", () => {
 		it( "is a function", () => {
@@ -65,7 +65,7 @@ describe( "Integration with hitchy", () => {
 
 			const defined = OdemConverter.processModelDefinitions( Object.assign( {}, models ), new OdemAdapterMemory() );
 
-			defined.should.be.Object().which.has.property( "SomeModel" ).which.has.property( "prototype" ).which.is.instanceof( OdemModel );
+			defined.should.be.Object().which.has.property( "SomeModel" ).which.has.property( "prototype" ).which.is.instanceof( Model );
 		} );
 	} );
 
@@ -80,7 +80,7 @@ describe( "Integration with hitchy", () => {
 			}, new OdemAdapterMemory() );
 
 			models.should.have.property( "sole" );
-			models.sole.should.have.property( "prototype" ).which.is.instanceof( OdemModel );
+			models.sole.should.have.property( "prototype" ).which.is.instanceof( Model );
 
 			const sole = new models.sole(); // eslint-disable-line new-cap
 

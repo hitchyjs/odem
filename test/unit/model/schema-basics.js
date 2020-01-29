@@ -35,146 +35,146 @@ const { fakeApi } = require( "../helper" );
 
 describe( "Models API", () => {
 	const MostSimpleDefinition = { props: { label: {} } };
-	let OdemModel, OdemModelType;
+	let Model, OdemModelType;
 	let CustomBaseClass;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemModelType } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model, OdemModelType } = s ); } ) );
 
 	before( () => {
-		CustomBaseClass = class CustomBaseClassImpl extends OdemModel {};
+		CustomBaseClass = class CustomBaseClassImpl extends Model {};
 	} );
 
 	describe( "exposes method for defining custom models which", () => {
 		it( "is a function", () => {
-			OdemModel.define.should.be.Function();
+			Model.define.should.be.Function();
 		} );
 
 		it( "expects two parameters", () => {
-			OdemModel.define.should.have.length( 2 );
+			Model.define.should.have.length( 2 );
 
-			( () => OdemModel.define() ).should.throw( TypeError );
-			( () => OdemModel.define( "valid" ) ).should.throw( TypeError );
+			( () => Model.define() ).should.throw( TypeError );
+			( () => Model.define( "valid" ) ).should.throw( TypeError );
 
-			( () => OdemModel.define( "valid", MostSimpleDefinition ) ).should.not.throw();
+			( () => Model.define( "valid", MostSimpleDefinition ) ).should.not.throw();
 		} );
 
 		it( "requires valid provision of new model's name", () => {
-			( () => OdemModel.define( null, MostSimpleDefinition ) ).should.throw( TypeError );
-			( () => OdemModel.define( undefined, MostSimpleDefinition ) ).should.throw( TypeError );
-			( () => OdemModel.define( true, MostSimpleDefinition ) ).should.throw( TypeError );
-			( () => OdemModel.define( false, MostSimpleDefinition ) ).should.throw( TypeError );
-			( () => OdemModel.define( 1, MostSimpleDefinition ) ).should.throw( TypeError );
-			( () => OdemModel.define( 0.234, MostSimpleDefinition ) ).should.throw( TypeError );
-			( () => OdemModel.define( {}, MostSimpleDefinition ) ).should.throw( TypeError );
-			( () => OdemModel.define( [], MostSimpleDefinition ) ).should.throw( TypeError );
-			( () => OdemModel.define( () => {}, MostSimpleDefinition ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
-			( () => OdemModel.define( "", MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( null, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( undefined, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( true, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( false, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( 1, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( 0.234, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( {}, MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( [], MostSimpleDefinition ) ).should.throw( TypeError );
+			( () => Model.define( () => {}, MostSimpleDefinition ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
+			( () => Model.define( "", MostSimpleDefinition ) ).should.throw( TypeError );
 
-			( () => OdemModel.define( "sOmeThingVeRyaRBiTrarY", MostSimpleDefinition ) ).should.not.throw();
+			( () => Model.define( "sOmeThingVeRyaRBiTrarY", MostSimpleDefinition ) ).should.not.throw();
 		} );
 
 		it( "exposes resulting model's name as provided", () => {
-			const model = OdemModel.define( "sOmeThingVeRyaRBiTrarY", MostSimpleDefinition );
+			const model = Model.define( "sOmeThingVeRyaRBiTrarY", MostSimpleDefinition );
 
 			model.name.should.equal( "sOmeThingVeRyaRBiTrarY" );
 		} );
 
 		it( "rejects empty schema definition", () => {
-			( () => OdemModel.define( "Item", {} ) ).should.throw( TypeError );
+			( () => Model.define( "Item", {} ) ).should.throw( TypeError );
 		} );
 
 		it( "rejects schema definition omitting section for defining properties", () => {
-			( () => OdemModel.define( "Item", { methods: { fn: () => 0 } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { methods: { fn: () => 0 } } ) ).should.throw( TypeError );
 
-			( () => OdemModel.define( "Item", { methods: { fn: () => 0 }, props: { label: {} } } ) ).should.not.throw();
+			( () => Model.define( "Item", { methods: { fn: () => 0 }, props: { label: {} } } ) ).should.not.throw();
 		} );
 
 		it( "rejects schema definition including empty section for defining properties", () => {
-			( () => OdemModel.define( "Item", { props: {} } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: {} } ) ).should.throw( TypeError );
 
-			( () => OdemModel.define( "Item", { props: { label: {} } } ) ).should.not.throw();
+			( () => Model.define( "Item", { props: { label: {} } } ) ).should.not.throw();
 		} );
 
 		it( "rejects schema definition including definition of property using wrong type of information", () => {
-			( () => OdemModel.define( "Item", { props: { label: null } } ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: false } } ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: true } } ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: 1 } } ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: "" } } ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: "string" } } ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: () => {} } } ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
-			( () => OdemModel.define( "Item", { props: { label: [] } } ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: ["string"] } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: null } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: false } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: true } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: 1 } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: "" } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: "string" } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: () => {} } } ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
+			( () => Model.define( "Item", { props: { label: [] } } ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: ["string"] } } ) ).should.throw( TypeError );
 
-			( () => OdemModel.define( "Item", { props: { label: {} } } ) ).should.not.throw();
+			( () => Model.define( "Item", { props: { label: {} } } ) ).should.not.throw();
 		} );
 
 		it( "supports provision of existing model class for deriving new one from", () => {
-			const Stuff = OdemModel.define( "Stuff", MostSimpleDefinition );
-			const Item = OdemModel.define( "Item", MostSimpleDefinition, Stuff );
+			const Stuff = Model.define( "Stuff", MostSimpleDefinition );
+			const Item = Model.define( "Item", MostSimpleDefinition, Stuff );
 
 			Item.should.not.equal( Stuff );
-			Item.should.not.equal( OdemModel );
+			Item.should.not.equal( Model );
 			Item.prototype.should.be.instanceof( Stuff );
-			Item.prototype.should.be.instanceof( OdemModel );
+			Item.prototype.should.be.instanceof( Model );
 		} );
 
 		it( "accepts empty schema definition when defining derived model", () => {
-			( () => OdemModel.define( "Item", {}, CustomBaseClass ) ).should.not.throw();
+			( () => Model.define( "Item", {}, CustomBaseClass ) ).should.not.throw();
 		} );
 
 		it( "accepts schema definition omitting section for defining properties when defining derived model", () => {
-			( () => OdemModel.define( "Item", { methods: { fn: () => 0 } }, CustomBaseClass ) ).should.not.throw();
+			( () => Model.define( "Item", { methods: { fn: () => 0 } }, CustomBaseClass ) ).should.not.throw();
 
-			( () => OdemModel.define( "Item", { methods: { fn: () => 0 }, props: { label: {} } }, CustomBaseClass ) ).should.not.throw();
+			( () => Model.define( "Item", { methods: { fn: () => 0 }, props: { label: {} } }, CustomBaseClass ) ).should.not.throw();
 		} );
 
 		it( "accepts schema definition including empty section for defining properties when defining derived model", () => {
-			( () => OdemModel.define( "Item", { props: {} }, CustomBaseClass ) ).should.not.throw();
+			( () => Model.define( "Item", { props: {} }, CustomBaseClass ) ).should.not.throw();
 
-			( () => OdemModel.define( "Item", { props: { label: {} } }, CustomBaseClass ) ).should.not.throw();
+			( () => Model.define( "Item", { props: { label: {} } }, CustomBaseClass ) ).should.not.throw();
 		} );
 
 		it( "rejects schema definition including definition of property using wrong type of information when defining derived model", () => {
-			( () => OdemModel.define( "Item", { props: { label: null } }, CustomBaseClass ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: false } }, CustomBaseClass ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: true } }, CustomBaseClass ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: 1 } }, CustomBaseClass ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: "" } }, CustomBaseClass ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: "string" } }, CustomBaseClass ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: () => {} } }, CustomBaseClass ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
-			( () => OdemModel.define( "Item", { props: { label: [] } }, CustomBaseClass ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", { props: { label: ["string"] } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: null } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: false } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: true } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: 1 } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: "" } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: "string" } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: () => {} } }, CustomBaseClass ) ).should.throw( TypeError ); // eslint-disable-line no-empty-function
+			( () => Model.define( "Item", { props: { label: [] } }, CustomBaseClass ) ).should.throw( TypeError );
+			( () => Model.define( "Item", { props: { label: ["string"] } }, CustomBaseClass ) ).should.throw( TypeError );
 
-			( () => OdemModel.define( "Item", { props: { label: {} } }, CustomBaseClass ) ).should.not.throw();
+			( () => Model.define( "Item", { props: { label: {} } }, CustomBaseClass ) ).should.not.throw();
 		} );
 
 		it( "rejects to derive from anything but another model class", () => {
 			function OldStyleBad() {} // eslint-disable-line no-empty-function, require-jsdoc
 			class NewStyleBad {} // eslint-disable-line require-jsdoc
 
-			class NewStyleGood extends OdemModel {} // eslint-disable-line require-jsdoc
+			class NewStyleGood extends Model {} // eslint-disable-line require-jsdoc
 
-			( () => OdemModel.define( "Stuff", MostSimpleDefinition, Object ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Stuff", MostSimpleDefinition, Array ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Stuff", MostSimpleDefinition, Function ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Stuff", MostSimpleDefinition, Promise ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Stuff", MostSimpleDefinition, Map ) ).should.throw( TypeError );
+			( () => Model.define( "Stuff", MostSimpleDefinition, Object ) ).should.throw( TypeError );
+			( () => Model.define( "Stuff", MostSimpleDefinition, Array ) ).should.throw( TypeError );
+			( () => Model.define( "Stuff", MostSimpleDefinition, Function ) ).should.throw( TypeError );
+			( () => Model.define( "Stuff", MostSimpleDefinition, Promise ) ).should.throw( TypeError );
+			( () => Model.define( "Stuff", MostSimpleDefinition, Map ) ).should.throw( TypeError );
 
-			( () => OdemModel.define( "Item", MostSimpleDefinition, OldStyleBad ) ).should.throw( TypeError );
-			( () => OdemModel.define( "Item", MostSimpleDefinition, NewStyleBad ) ).should.throw( TypeError );
+			( () => Model.define( "Item", MostSimpleDefinition, OldStyleBad ) ).should.throw( TypeError );
+			( () => Model.define( "Item", MostSimpleDefinition, NewStyleBad ) ).should.throw( TypeError );
 
-			( () => OdemModel.define( "Item", MostSimpleDefinition, NewStyleGood ) ).should.not.throw();
+			( () => Model.define( "Item", MostSimpleDefinition, NewStyleGood ) ).should.not.throw();
 		} );
 
 		it( "returns defined model", () => {
-			const Item = OdemModel.define( "Item", { props: { label: {} } } );
+			const Item = Model.define( "Item", { props: { label: {} } } );
 
-			Item.prototype.should.be.instanceOf( OdemModel );
+			Item.prototype.should.be.instanceOf( Model );
 		} );
 
 		it( "accepts schema defining actual property of type `string` (implicitly)", () => {
-			const Item = OdemModel.define( "Item", {
+			const Item = Model.define( "Item", {
 				props: {
 					label: {},
 					alias: {},
@@ -192,7 +192,7 @@ describe( "Models API", () => {
 		} );
 
 		it( "accepts schema defining computed property the simple way", () => {
-			const Item = OdemModel.define( "Item", {
+			const Item = Model.define( "Item", {
 				props: {
 					lastName: {},
 					firstName: {},
@@ -216,7 +216,7 @@ describe( "Models API", () => {
 		} );
 
 		it( "accepts schema defining computed property the simply way with type handler applied", () => {
-			const Item = OdemModel.define( "Item", {
+			const Item = Model.define( "Item", {
 				props: {
 					lastName: {},
 					firstName: {},
@@ -240,7 +240,7 @@ describe( "Models API", () => {
 		} );
 
 		it( "accepts schema defining computed property more explicitly", () => {
-			const Item = OdemModel.define( "Item", {
+			const Item = Model.define( "Item", {
 				props: {
 					lastName: {},
 					firstName: {},
@@ -266,7 +266,7 @@ describe( "Models API", () => {
 		} );
 
 		it( "accepts schema explicitly defining computed property with custom type handler applied", () => {
-			const Item = OdemModel.define( "Item", {
+			const Item = Model.define( "Item", {
 				props: {
 					lastName: {},
 					firstName: {},
@@ -293,7 +293,7 @@ describe( "Models API", () => {
 		} );
 
 		it( "accepts schema explicitly defining computed property with custom type handler applied implicitly", () => {
-			const Item = OdemModel.define( "Item", {
+			const Item = Model.define( "Item", {
 				props: {
 					lastName: {},
 					firstName: {},
@@ -319,7 +319,7 @@ describe( "Models API", () => {
 		} );
 
 		it( "accepts schema explicitly defining computed property with explicitly defined custom type handler overriding implicitly defined one", () => {
-			const Item = OdemModel.define( "Item", {
+			const Item = Model.define( "Item", {
 				props: {
 					lastName: {},
 					firstName: {},

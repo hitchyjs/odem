@@ -33,12 +33,12 @@ const { fakeApi } = require( "../helper" );
 
 
 describe( "Definition of a model's schema", () => {
-	let OdemModel, OdemModelType, OdemModelTypeInteger;
+	let Model, OdemModelType, OdemModelTypeInteger;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemModelType, OdemModelTypeInteger } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model, OdemModelType, OdemModelTypeInteger } = s ); } ) );
 
 	it( "may include anything but an index", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: { someProp: {} },
 		} );
 
@@ -51,7 +51,7 @@ describe( "Definition of a model's schema", () => {
 	} );
 
 	it( "may have empty section of indices", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: { someProp: {} },
 			indices: {},
 		} );
@@ -65,7 +65,7 @@ describe( "Definition of a model's schema", () => {
 	} );
 
 	it( "may declare a property's index locally", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: { someProp: { index: true } },
 		} );
 
@@ -77,7 +77,7 @@ describe( "Definition of a model's schema", () => {
 	} );
 
 	it( "may declare a property with its index declared in separate section", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: { someProp: {} },
 			indices: {
 				someProp: true
@@ -92,7 +92,7 @@ describe( "Definition of a model's schema", () => {
 	} );
 
 	it( "may declare computed property with related index declared in separate section", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: { someProp: {} },
 			computed: {
 				derived() { return String( this.someProp ).toLowerCase(); },
@@ -113,7 +113,7 @@ describe( "Definition of a model's schema", () => {
 	} );
 
 	it( "may declare computed property with its index declared in separate section using reducer", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: { someProp: {} },
 			computed: {
 				derived() { return String( this.someProp ).toLowerCase(); },
@@ -136,7 +136,7 @@ describe( "Definition of a model's schema", () => {
 	} );
 
 	it( "may declare computed property with its index declared in separate section selecting type of expected values", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: { someProp: {} },
 			computed: {
 				derived() { return String( this.someProp ).toLowerCase(); },
@@ -161,7 +161,7 @@ describe( "Definition of a model's schema", () => {
 	} );
 
 	it( "mustn't declare index of same type for property twice in local and separate definition", () => {
-		( () => OdemModel.define( "MyModel", {
+		( () => Model.define( "MyModel", {
 			props: { someProp: { index: true } },
 			indices: {
 				someProp: true,
@@ -170,7 +170,7 @@ describe( "Definition of a model's schema", () => {
 	} );
 
 	it( "mustn't declare index of same type for property twice in separate section using mixture of shortcut and different index names", () => {
-		( () => OdemModel.define( "MyModel", {
+		( () => Model.define( "MyModel", {
 			props: { someProp: {} },
 			indices: {
 				someProp: true,
@@ -180,7 +180,7 @@ describe( "Definition of a model's schema", () => {
 	} );
 
 	it( "mustn't declare index of same type for property twice in separate section using two named index definitions", () => {
-		( () => OdemModel.define( "MyModel", {
+		( () => Model.define( "MyModel", {
 			props: { someProp: {} },
 			indices: {
 				namedIndex: { property: "someProp" },

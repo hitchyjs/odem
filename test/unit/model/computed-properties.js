@@ -34,15 +34,15 @@ const { fakeApi } = require( "../helper" );
 
 
 describe( "A computed property", () => {
-	let OdemModel;
+	let Model;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model } = s ); } ) );
 
 	describe( "without index and while depending on an actual property", () => {
 		let MyModel;
 
 		beforeEach( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: {
 					state: {},
 				},
@@ -66,7 +66,7 @@ describe( "A computed property", () => {
 		beforeEach( () => MyModel.adapter.purge() );
 
 		it( "can be defined", () => {
-			MyModel.prototype.should.be.instanceOf( OdemModel );
+			MyModel.prototype.should.be.instanceOf( Model );
 		} );
 
 		it( "can be read", () => {
@@ -158,7 +158,7 @@ describe( "A computed property", () => {
 		let MyModel;
 
 		beforeEach( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: {
 					state: {},
 				},
@@ -185,7 +185,7 @@ describe( "A computed property", () => {
 		beforeEach( () => MyModel.adapter.purge() );
 
 		it( "can be defined", () => {
-			MyModel.prototype.should.be.instanceOf( OdemModel );
+			MyModel.prototype.should.be.instanceOf( Model );
 		} );
 
 		it( "can be read", () => {

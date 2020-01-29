@@ -33,11 +33,11 @@ const { fakeApi } = require( "../helper" );
 
 
 describe( "Abstract Model", () => {
-	let OdemModel, OdemAdapter, OdemAdapterMemory;
+	let Model, OdemAdapter, OdemAdapterMemory;
 	let memory;
 	let CustomModel;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemAdapter, OdemAdapterMemory } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model, OdemAdapter, OdemAdapterMemory } = s ); } ) );
 
 	before( () => {
 		/**
@@ -45,15 +45,15 @@ describe( "Abstract Model", () => {
 		 * class without causing side-effects in upcoming tests due to adjusting
 		 * static properties in scope of shared base class.
 		 */
-		CustomModel = class DerivedModel extends OdemModel {};
+		CustomModel = class DerivedModel extends Model {};
 	} );
 
 	before( () => {
 		memory = new OdemAdapterMemory();
 	} );
 
-	it( "is exposed in property `Model`", () => {
-		Should( OdemModel ).be.ok();
+	it( "is exposed as service component `Model`", () => {
+		Should( Model ).be.ok();
 	} );
 
 	it( "can be used to create instance", () => {
@@ -123,7 +123,7 @@ describe( "Abstract Model", () => {
 	} );
 
 	it( "exposes class/static properties of Model API", () => {
-		OdemModel.should.have.property( "name" ).which.is.a.String().and.equal( "$$OdemModel$$" );
+		Model.should.have.property( "name" ).which.is.a.String().and.equal( "$$OdemModel$$" );
 	} );
 
 	it( "exposes class/static methods of Model API", () => {

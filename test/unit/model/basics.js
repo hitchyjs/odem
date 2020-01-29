@@ -35,15 +35,15 @@ const { fakeApi } = require( "../helper" );
 
 
 describe( "Using Model", () => {
-	let OdemModel;
+	let Model;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model } = s ); } ) );
 
 	describe( "supports extracting properties into regular object which", () => {
 		let MyModel;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: {
 					aString: {},
 					aNumber: { type: "number" },

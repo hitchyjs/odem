@@ -34,12 +34,12 @@ require( "should" );
 const { fakeApi } = require( "../helper" );
 
 describe( "A model-related index", () => {
-	let OdemModel;
+	let Model;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model } = s ); } ) );
 
 	it( "can be solely defined with index reducer which is exposed by resulting index handler", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: {
 					index: value => value.toLowerCase(),
@@ -59,7 +59,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be solely defined without index reducer causing resulting index handler not exposing reducer function", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: {
 					index: true,
@@ -78,7 +78,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be solely defined as object with index reducer", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: {
 					index: {
@@ -99,7 +99,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be solely defined as object without index reducer", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: {
 					index: {
@@ -120,7 +120,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be combined in object-style definition with further indices", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: {
 					index: {
@@ -146,7 +146,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "property exposes reducer function for any index in a combined definition of indices that's got an index reducer there", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: {
 					index: {
@@ -174,7 +174,7 @@ describe( "A model-related index", () => {
 			let MyModel;
 
 			it( "is accepted", () => {
-				MyModel = OdemModel.define( "MyModel", {
+				MyModel = Model.define( "MyModel", {
 					props: {
 						number: {
 							type: "number",
@@ -200,7 +200,7 @@ describe( "A model-related index", () => {
 			} );
 
 			it( "is recreated when defining another model for accessing existing data with same schema", () => {
-				MyModel = OdemModel.define( "MyModel", {
+				MyModel = Model.define( "MyModel", {
 					props: {
 						number: {
 							type: "number",
@@ -216,7 +216,7 @@ describe( "A model-related index", () => {
 			} );
 
 			it( "is recreated when defining another model for accessing existing data with similar schema, this time using different index reducer", () => {
-				MyModel = OdemModel.define( "MyModel", {
+				MyModel = Model.define( "MyModel", {
 					props: {
 						number: {
 							type: "number",
@@ -232,7 +232,7 @@ describe( "A model-related index", () => {
 			} );
 
 			it( "is recreated when defining model for accessing existing data with similar schema, this time omitting index reducer", () => {
-				MyModel = OdemModel.define( "MyModel", {
+				MyModel = Model.define( "MyModel", {
 					props: {
 						number: {
 							type: "number",
@@ -248,7 +248,7 @@ describe( "A model-related index", () => {
 			} );
 
 			it( "finds multiple records with property value reduced to same value as the one used for searching instead of single one matching exactly", () => {
-				MyModel = OdemModel.define( "MyModel", {
+				MyModel = Model.define( "MyModel", {
 					props: {
 						number: {
 							type: "number",

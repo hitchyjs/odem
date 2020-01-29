@@ -36,7 +36,7 @@
 /**
  * Describes properties exposed by a model compiled from definition.
  *
- * @typedef {Services.OdemModel} CompiledModel
+ * @typedef {Services.Model} CompiledModel
  * @property {string} name defined name of model
  * @property {ModelSchema} schema model's definition
  * @property {Services.OdemAdapter} adapter adapter to use with instances of model by default
@@ -106,7 +106,7 @@ module.exports = function() {
 	const { services: Services } = api.runtime;
 
 	/**
-	 * Compiles classes deriving from OdemModel from a schema-like definition.
+	 * Compiles classes deriving from Model from a schema-like definition.
 	 *
 	 * @alias this.runtime.services.OdemModelCompiler
 	 */
@@ -118,7 +118,7 @@ module.exports = function() {
 		 * @param {object} modelSchema definition of model's properties, computed properties and lifecycle hooks
 		 * @param {object} baseClass custom base class to derive model class from
 		 * @param {Services.OdemAdapter} adapter selects adapter to use on instances of resulting model by default
-		 * @returns {class<Services.OdemModel>} compiled model class
+		 * @returns {class<Services.Model>} compiled model class
 		 * @alias ModelCompiler
 		 */
 		static compileModel( modelName, modelSchema = {}, baseClass = null, adapter = null ) {
@@ -127,10 +127,10 @@ module.exports = function() {
 			}
 
 			// manage base class for deriving class to be defined from
-			const _baseClass = baseClass == null ? Services.OdemModel : baseClass;
-			const isDerived = _baseClass !== Services.OdemModel;
+			const _baseClass = baseClass == null ? Services.Model : baseClass;
+			const isDerived = _baseClass !== Services.Model;
 
-			if ( isDerived && !( _baseClass.prototype instanceof Services.OdemModel ) ) {
+			if ( isDerived && !( _baseClass.prototype instanceof Services.Model ) ) {
 				throw new TypeError( "provided base class must be inheriting from AbstractModel" );
 			}
 
@@ -172,9 +172,9 @@ module.exports = function() {
 				/**
 				 * Validates properties of current instance.
 				 *
-				 * @note This method is replacing Services.OdemModel#$validate().
+				 * @note This method is replacing Services.Model#$validate().
 				 *
-				 * @name Services.OdemModel#validate
+				 * @name Services.Model#validate
 				 * @prototype {function():Promise<Error[]>}
 				 * @readonly
 				 */
@@ -204,7 +204,7 @@ module.exports = function() {
 				 * Exposes instance properties and methods defined in scope of base
 				 * class.
 				 *
-				 * @name Services.OdemModel#$super
+				 * @name Services.Model#$super
 				 * @property {object}
 				 * @readonly
 				 */
@@ -214,7 +214,7 @@ module.exports = function() {
 				 * Exposes Hitchy's API for simplified access in methods of this
 				 * model.
 				 *
-				 * @name Services.OdemModel#$api
+				 * @name Services.Model#$api
 				 * @property {HitchyAPI|object}
 				 * @readonly
 				 */
@@ -239,28 +239,28 @@ module.exports = function() {
 			// customize static methods and properties
 			Object.defineProperties( DefinedModel, {
 				/**
-				 * @name Services.OdemModel.derivesFrom
-				 * @property {class<Services.OdemModel>}
+				 * @name Services.Model.derivesFrom
+				 * @property {class<Services.Model>}
 				 * @readonly
 				 */
 				derivesFrom: { value: _baseClass },
 
 				/**
-				 * @name Services.OdemModel.adapter
+				 * @name Services.Model.adapter
 				 * @property {Services.OdemAdapter}
 				 * @readonly
 				 */
 				adapter: { value: _adapter },
 
 				/**
-				 * @name Services.OdemModel.name
+				 * @name Services.Model.name
 				 * @property {string}
 				 * @readonly
 				 */
 				name: { value: modelName },
 
 				/**
-				 * @name Services.OdemModel.schema
+				 * @name Services.Model.schema
 				 * @property {object}
 				 * @readonly
 				 */
@@ -269,14 +269,14 @@ module.exports = function() {
 				/**
 				 * Lists all indices defined in schema.
 				 *
-				 * @name Services.OdemModel.indices
+				 * @name Services.Model.indices
 				 * @property {Array<ExtractedIndex>}
 				 * @readonly
 				 */
 				indices: { value: flatIndices },
 
 				/**
-				 * @name Services.OdemModel._coerceProperties
+				 * @name Services.Model._coerceProperties
 				 * @property {function}
 				 * @readonly
 				 * @protected
@@ -284,7 +284,7 @@ module.exports = function() {
 				_coerceProperties: { value: this.compileCoercion( props ) },
 
 				/**
-				 * @name Services.OdemModel._coercionHandlers
+				 * @name Services.Model._coercionHandlers
 				 * @property {object<string,function(*,string):*>}
 				 * @readonly
 				 * @protected
@@ -292,7 +292,7 @@ module.exports = function() {
 				_coercionHandlers: { value: this.compileCoercionMap( props ) },
 
 				/**
-				 * @name Services.OdemModel._validateProperties
+				 * @name Services.Model._validateProperties
 				 * @property {function():Error[]}
 				 * @readonly
 				 * @protected
@@ -300,7 +300,7 @@ module.exports = function() {
 				_validateProperties: { value: this.compileValidator( props ) },
 
 				/**
-				 * @name Services.OdemModel._serializeProperties
+				 * @name Services.Model._serializeProperties
 				 * @property {function(object):object}
 				 * @readonly
 				 * @protected
@@ -308,7 +308,7 @@ module.exports = function() {
 				_serializeProperties: { value: this.compileSerializer( props ) },
 
 				/**
-				 * @name Services.OdemModel._deserializeProperties
+				 * @name Services.Model._deserializeProperties
 				 * @property {function(object, object):object}
 				 * @readonly
 				 * @protected
@@ -319,7 +319,7 @@ module.exports = function() {
 				 * Exposes adapter observed for remote change of data on behalf of
 				 * current model.
 				 *
-				 * @name Services.OdemModel._observedAdapter
+				 * @name Services.Model._observedAdapter
 				 * @property {Services.OdemAdapter}
 				 * @protected
 				 */
@@ -885,7 +885,7 @@ module.exports = function() {
 				const property = properties[propertyName];
 
 				( function( name, handler, definition ) {
-					coercions[name] = value => handler.coerce( value, definition, Services.OdemModel.prototype.$default );
+					coercions[name] = value => handler.coerce( value, definition, Services.Model.prototype.$default );
 				} )( propertyName, property.$type || Services.OdemModelType.selectByName( property.type ), property );
 			}
 
@@ -1287,7 +1287,7 @@ return $$d;
 
 			if ( options.onUnsaved != null ) {
 				/**
-				 * @name Services.OdemModel.onUnsaved
+				 * @name Services.Model.onUnsaved
 				 * @property {string}
 				 * @readonly
 				 */

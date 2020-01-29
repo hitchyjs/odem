@@ -33,9 +33,9 @@ require( "should" );
 const { fakeApi } = require( "../helper" );
 
 describe( "A hook related to the life-cycle event", () => {
-	let OdemModel;
+	let Model;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model } = s ); } ) );
 
 	[ "beforeCreate", "afterCreate", "beforeLoad", "afterLoad", "beforeValidate", "afterValidate", "beforeSave", "afterSave", "beforeRemove", "afterRemove" ]
 		.forEach( eventName => {
@@ -45,7 +45,7 @@ describe( "A hook related to the life-cycle event", () => {
 				const altName = "on" + eventName.charAt( 0 ).toUpperCase() + eventName.slice( 1 );
 
 				it( "can be defined", () => {
-					const MyModel = OdemModel.define( "MyModel", {
+					const MyModel = Model.define( "MyModel", {
 						props: {
 							a: {},
 						},
@@ -62,7 +62,7 @@ describe( "A hook related to the life-cycle event", () => {
 				} );
 
 				it( `can be defined using alternative name "${altName}" in definition`, () => {
-					const MyModel = OdemModel.define( "MyModel", {
+					const MyModel = Model.define( "MyModel", {
 						props: {
 							a: {},
 						},
@@ -79,7 +79,7 @@ describe( "A hook related to the life-cycle event", () => {
 				} );
 
 				it( `is exposed in${isStatic ? "" : " prototype of"} resulting model`, () => {
-					const MyModel = OdemModel.define( "MyModel", {
+					const MyModel = Model.define( "MyModel", {
 						props: {
 							a: {},
 						},
@@ -97,7 +97,7 @@ describe( "A hook related to the life-cycle event", () => {
 
 				if ( !isStatic ) {
 					it( "is available in context of single instance of defined model", () => {
-						const MyModel = OdemModel.define( "MyModel", {
+						const MyModel = Model.define( "MyModel", {
 							props: {
 								a: {},
 							},
@@ -113,7 +113,7 @@ describe( "A hook related to the life-cycle event", () => {
 				}
 
 				it( "may be used though omitted in definition", () => {
-					const MyModel = OdemModel.define( "MyModel", {
+					const MyModel = Model.define( "MyModel", {
 						props: {
 							a: {},
 						},
@@ -132,7 +132,7 @@ describe( "A hook related to the life-cycle event", () => {
 				} );
 
 				it( "can be tested for being defined", () => {
-					let MyModel = OdemModel.define( "MyModel", {
+					let MyModel = Model.define( "MyModel", {
 							props: {
 								a: {},
 							},
@@ -149,7 +149,7 @@ describe( "A hook related to the life-cycle event", () => {
 						Object.prototype.hasOwnProperty.call( Object.getPrototypeOf( item ), eventName ).should.be.false();
 					}
 
-					MyModel = OdemModel.define( "MyModel", {
+					MyModel = Model.define( "MyModel", {
 						props: {
 							a: {},
 						},
@@ -173,7 +173,7 @@ describe( "A hook related to the life-cycle event", () => {
 					it( "can invoke related hook defined in context of model current one is derived from", () => {
 						let invoked = false;
 
-						const Parent = OdemModel.define( "Parent", {
+						const Parent = Model.define( "Parent", {
 							props: { a: {} },
 							hooks: {
 								[eventName]() {
@@ -182,7 +182,7 @@ describe( "A hook related to the life-cycle event", () => {
 							}
 						} );
 
-						const Derived = OdemModel.define( "Derived", {
+						const Derived = Model.define( "Derived", {
 							props: { b: {} },
 							hooks: {
 								[eventName]() {
@@ -197,7 +197,7 @@ describe( "A hook related to the life-cycle event", () => {
 					} );
 				} else {
 					it( "can invoke related hook defined in context of instance of model current one is derived from", () => {
-						const Parent = OdemModel.define( "Parent", {
+						const Parent = Model.define( "Parent", {
 							props: { a: {} },
 							hooks: {
 								[eventName]() {
@@ -210,7 +210,7 @@ describe( "A hook related to the life-cycle event", () => {
 							}
 						} );
 
-						const Derived = OdemModel.define( "Derived", {
+						const Derived = Model.define( "Derived", {
 							props: { b: {} },
 							hooks: {
 								[eventName]( ...args ) {
@@ -236,15 +236,15 @@ describe( "A hook related to the life-cycle event", () => {
 } );
 
 describe( "A model defining hook", () => {
-	let OdemModel;
+	let Model;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model } = s ); } ) );
 
 	describe( "beforeCreate()", () => {
 		let MyModel, hookData;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				hooks: {
 					beforeCreate( data ) {
@@ -316,7 +316,7 @@ describe( "A model defining hook", () => {
 		let MyModel, hookData, mode;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				hooks: {
 					afterCreate() {
@@ -370,7 +370,7 @@ describe( "A model defining hook", () => {
 		let MyModel, hookData, uuid, mode;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				hooks: {
 					beforeLoad() {
@@ -435,7 +435,7 @@ describe( "A model defining hook", () => {
 		let MyModel, hookData, uuid, mode;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				hooks: {
 					afterLoad( record ) {
@@ -502,7 +502,7 @@ describe( "A model defining hook", () => {
 		let MyModel, hookData, uuid = null, mode;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: {
 					someProp: { required: true },
 					anotherProp: { minLength: 5 },
@@ -745,7 +745,7 @@ describe( "A model defining hook", () => {
 		let MyModel, hookData, uuid = null, mode;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: {
 					someProp: { required: true },
 					anotherProp: { minLength: 5 },
@@ -992,7 +992,7 @@ describe( "A model defining hook", () => {
 		let MyModel, hookData, uuid = null, mode;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: { someProp: {
 					required: true,
 				} },
@@ -1183,7 +1183,7 @@ describe( "A model defining hook", () => {
 		let MyModel, hookData, uuid = null, mode;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: { someProp: {
 					required: true,
 				} },
@@ -1352,7 +1352,7 @@ describe( "A model defining hook", () => {
 		let MyModel, hookData, uuid = null, mode;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				hooks: {
 					beforeRemove() {
@@ -1497,7 +1497,7 @@ describe( "A model defining hook", () => {
 		let MyModel, hookData, uuid = null, mode;
 
 		before( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: { someProp: {} },
 				hooks: {
 					afterRemove() {

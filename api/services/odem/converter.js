@@ -108,7 +108,7 @@ module.exports = function() {
 				}
 
 				try {
-					models[raw] = Services.OdemModel.define( name, definition, parent ? models[tree[parent].raw] : null, adapter );
+					models[raw] = Services.Model.define( name, definition, parent ? models[tree[parent].raw] : null, adapter );
 				} catch ( error ) {
 					throw new TypeError( `definition of model ${name} failed: ${error.message}` );
 				}

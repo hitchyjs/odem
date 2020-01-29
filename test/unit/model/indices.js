@@ -37,12 +37,12 @@ require( "should" );
 const { fakeApi } = require( "../helper" );
 
 describe( "A model-related index", () => {
-	let OdemModel, OdemAdapterFile;
+	let Model, OdemAdapterFile;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemAdapterFile } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model, OdemAdapterFile } = s ); } ) );
 
 	it( "can be omitted", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: {},
 				b: {},
@@ -53,7 +53,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined on a single property of model", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: { index: "eq" },
 				b: {},
@@ -64,7 +64,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "is described by its property's name and selected operation", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: { index: "eq" },
 				b: {},
@@ -79,7 +79,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined using single-item array listing sole operation", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: { index: ["eq"] },
 				b: {},
@@ -95,7 +95,7 @@ describe( "A model-related index", () => {
 
 	[ [], null, undefined, 0, "", false ].forEach( value => {
 		it( `is ignoring index definitions using ${value === "" ? "empty string" : Array.isArray( value ) ? "[]" : String( value )} for index type`, () => {
-			const MyModel = OdemModel.define( "MyModel", {
+			const MyModel = Model.define( "MyModel", {
 				props: {
 					a: { index: value },
 					b: {},
@@ -108,7 +108,7 @@ describe( "A model-related index", () => {
 
 	[ [true], 1, "arbitrary string" ].forEach( value => {
 		it( `is rejecting index definition using ${Array.isArray( value ) ? "[true]" : String( value )} for index type`, () => {
-			( () => OdemModel.define( "MyModel", {
+			( () => Model.define( "MyModel", {
 				props: {
 					a: { index: value },
 					b: {},
@@ -118,7 +118,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined multiple times on same property using different types", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: { index: [ "eq", "gt" ] },
 				b: {},
@@ -141,7 +141,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "rejects definition of multiple indices per property using same type of index", () => {
-		( () => OdemModel.define( "MyModel", {
+		( () => Model.define( "MyModel", {
 			props: {
 				a: { index: [ "eq", "eq" ] },
 				b: {},
@@ -150,7 +150,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined multiple times on separate properties", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: { index: "eq" },
 				b: { index: "gt" },
@@ -173,7 +173,7 @@ describe( "A model-related index", () => {
 	} );
 
 	it( "can be defined multiple times on separate properties using same type for different properties", () => {
-		const MyModel = OdemModel.define( "MyModel", {
+		const MyModel = Model.define( "MyModel", {
 			props: {
 				a: { index: "eq" },
 				b: { index: "eq" },
@@ -200,7 +200,7 @@ describe( "A model-related index", () => {
 		let uuids;
 
 		beforeEach( () => {
-			MyModel = OdemModel.define( "MyModel", {
+			MyModel = Model.define( "MyModel", {
 				props: {
 					offset: { type: "integer" },
 					label: {},
@@ -358,7 +358,7 @@ describe( "A model-related index", () => {
 							let MyModel;
 
 							before( () => {
-								MyModel = OdemModel.define( "MyModel", {
+								MyModel = Model.define( "MyModel", {
 									props: {
 										index: { type: valueType, index: "eq" },
 										noIndex: { type: valueType },
@@ -447,7 +447,7 @@ describe( "A model-related index", () => {
 								let NewModel;
 
 								it( "is restored from existing data backend", () => {
-									NewModel = OdemModel.define( "MyModel", {
+									NewModel = Model.define( "MyModel", {
 										props: {
 											index: { type: valueType, index: "eq" },
 											noIndex: { type: valueType },

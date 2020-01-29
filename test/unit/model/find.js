@@ -192,13 +192,13 @@ describe( "Inspecting collection of a model's items", function() {
 	uuids.sort( ( l, r ) => l.compare( r ) );
 
 
-	let OdemModel;
+	let Model;
 	let MyModel;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model } = s ); } ) );
 
 	before( "create model", () => {
-		MyModel = OdemModel.define( "MyModel", {
+		MyModel = Model.define( "MyModel", {
 			props: {
 				index: { type: "integer" },
 				slowInteger: { type: "integer" },

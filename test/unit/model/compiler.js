@@ -33,9 +33,9 @@ const Should = require( "should" );
 const { fakeApi } = require( "../helper" );
 
 describe( "Model compiler module", () => {
-	let OdemModel, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory;
+	let Model, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemModel, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory } = s ); } ) );
 
 	it( "exposes internally used functions for unit-testing", () => {
 		OdemModelCompiler.should.have.property( "normalizeSchema" ).which.is.a.Function();
@@ -58,7 +58,7 @@ describe( "Model compiler module", () => {
 
 		before( () => {
 			/** Inherits from basic model class. */
-			ProperBaseClassRef = class ProperBaseClass extends OdemModel {};
+			ProperBaseClassRef = class ProperBaseClass extends Model {};
 		} );
 
 		const MostSimpleSchema = { props: { a: {} } };
@@ -133,7 +133,7 @@ describe( "Model compiler module", () => {
 			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, "CustomBaseClass" ) ).should.throw( TypeError );
 			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, ImproperBaseClass ) ).should.throw( TypeError );
 
-			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, OdemModel ) ).should.not.throw();
+			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, Model ) ).should.not.throw();
 			( () => OdemModelCompiler.compileModel( "name", MostSimpleSchema, ProperBaseClassRef ) ).should.not.throw();
 		} );
 
@@ -171,7 +171,7 @@ describe( "Model compiler module", () => {
 			it( "is derived from `Model`", () => {
 				const Sub = OdemModelCompiler.compileModel( "mySub", MostSimpleSchema );
 
-				Sub.prototype.should.be.instanceOf( OdemModel );
+				Sub.prototype.should.be.instanceOf( Model );
 			} );
 
 			it( "can be instantiated", () => {
@@ -179,7 +179,7 @@ describe( "Model compiler module", () => {
 
 				const item = new Sub();
 
-				item.should.be.instanceOf( OdemModel );
+				item.should.be.instanceOf( Model );
 			} );
 
 			it( "can be used as base class in another model definition", () => {
@@ -189,8 +189,8 @@ describe( "Model compiler module", () => {
 				const sub = new Sub();
 				const subSub = new SubSub();
 
-				sub.should.be.instanceOf( OdemModel );
-				subSub.should.be.instanceOf( OdemModel );
+				sub.should.be.instanceOf( Model );
+				subSub.should.be.instanceOf( Model );
 
 				sub.should.be.instanceOf( Sub );
 				subSub.should.be.instanceOf( Sub );
