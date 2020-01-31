@@ -386,8 +386,20 @@ module.exports = function() {
 			const nullItems = this.nullItems;
 
 			return function* () {
+				let touchedEndKey = false;
+
 				while ( iterator.key ) {
 					const { key, value: items } = iterator;
+
+					if ( key === endKey ) {
+						// there may be multiple nodes in tree representing
+						// terminal key of iteration
+						// -> stop iteration as soon as key has changed _after_
+						//    meeting terminal one
+						touchedEndKey = true;
+					} else if ( touchedEndKey ) {
+						break;
+					}
 
 					if ( items ) {
 						// always list items attached to node in ascending order for
@@ -397,10 +409,6 @@ module.exports = function() {
 						for ( let i = 0; i < numItems; i++ ) {
 							yield withKey ? [ items[i], key ] : items[i];
 						}
-					}
-
-					if ( key === endKey ) {
-						break;
 					}
 
 					iterator[next]();
