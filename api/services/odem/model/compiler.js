@@ -134,7 +134,7 @@ module.exports = function() {
 				throw new TypeError( "provided base class must be inheriting from AbstractModel" );
 			}
 
-			const _adapter = adapter == null ? api.config.database.defaultAdapter : adapter;
+			const _adapter = adapter == null ? api.config.database.default : adapter;
 
 			if ( !( _adapter instanceof Services.OdemAdapter ) ) {
 				throw new TypeError( "missing or invalid adapter" );

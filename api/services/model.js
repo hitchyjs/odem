@@ -66,7 +66,7 @@ module.exports = function() {
 			const _onUnsaved = __onUnsaved == null ? this.constructor.onUnsaved : __onUnsaved;
 
 			let _uuid = null;
-			const __adapter = _adapter || this.constructor.adapter || api.config.database.defaultAdapter;
+			const __adapter = _adapter || this.constructor.adapter || api.config.database.default;
 
 			Object.defineProperties( this, {
 				/**
