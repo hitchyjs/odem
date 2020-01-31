@@ -46,6 +46,8 @@ const PtnModelItemsKey = /^models\/([^/]+)\/items\/([^/]+)(?:\/(\S+))?$/;
 module.exports = function() {
 	const api = this;
 	const { services: Services } = api.runtime;
+	const logDebug = api.log( "hitchy:odem:debug" );
+	const logError = api.log( "hitchy:odem:error" );
 
 	/**
 	 * Implements basic behaviour of a model.
@@ -57,7 +59,7 @@ module.exports = function() {
 		/**
 		 * @param {?(string|Buffer)} itemUUID UUID of model item to be managed by instance, omit for starting new item
 		 * @param {boolean|string} onUnsaved set true to omit model logging to stderr on replacing changed property w/o saving first
-		 * @param {?Adapter} adapter selects driver for backend to use for storing data
+		 * @param {?OdemAdapter} adapter selects driver for backend to use for storing data
 		 */
 		constructor( itemUUID = null, { adapter = null, onUnsaved = null } = {} ) {
 			const args = this.beforeCreate( { uuid: itemUUID, options: { adapter, onUnsaved } } ) || {};
@@ -193,7 +195,7 @@ module.exports = function() {
 
 											case "warn" :
 												// eslint-disable-next-line no-console
-												console.error( "WARNING: replacing an item's properties after changing some w/o saving" );
+												logError( "WARNING: replacing an item's properties after changing some w/o saving" );
 												break;
 
 											case "fail" :
@@ -242,7 +244,7 @@ module.exports = function() {
 				 * for storing it persistently.
 				 *
 				 * @name Model#$adapter
-				 * @property {Adapter}
+				 * @property {OdemAdapter}
 				 * @readonly
 				 */
 				$adapter: { value: __adapter },
@@ -419,7 +421,7 @@ module.exports = function() {
 		static observe( adapter ) {
 			if ( this._observedAdapter ) {
 				if ( this._observedAdapter !== adapter ) {
-					console.error( "WARNING: using different backends with the same model is causing data integrity issues most probably" );
+					logError( "WARNING: using different backends with the same model is causing data integrity issues most probably" );
 				}
 			} else {
 				this._observedAdapter = adapter;
@@ -474,7 +476,7 @@ module.exports = function() {
 							}
 						} )
 						.catch( error => {
-							console.error( "handling remote change of %s's %s failed: %s", this.name, Services.OdemUtilityUuid.format( uuid ), error.stack );
+							logError( "handling remote change of %s's %s failed: %s", this.name, Services.OdemUtilityUuid.format( uuid ), error.stack );
 						} );
 				} );
 
@@ -499,7 +501,7 @@ module.exports = function() {
 							}
 						} )
 						.catch( error => {
-							console.error( "handling remote removal of %s's %s failed: %s", this.name, Services.OdemUtilityUuid.format( uuid ), error.stack );
+							logError( "handling remote removal of %s's %s failed: %s", this.name, Services.OdemUtilityUuid.format( uuid ), error.stack );
 						} );
 				} );
 			}
@@ -937,8 +939,8 @@ module.exports = function() {
 		 * Fetches index handler matching named property and type of index.
 		 *
 		 * @param {string} property name of property to be covered by index
-		 * @param {string} type type name of index
-		 * @returns {EqualityIndex|undefined} found index
+		 * @param {string} type test operation supported by index
+		 * @returns {OdemModelIndexer|undefined} found index
 		 */
 		static getIndex( property, type = "eq" ) {
 			const indices = this.indices;

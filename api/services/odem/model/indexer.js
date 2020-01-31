@@ -29,6 +29,7 @@
 module.exports = function() {
 	const api = this;
 	const { services: Services } = api.runtime;
+	const logDebug = api.log( "hitchy:odem:debug" );
 
 	/**
 	 * Maps index type names into either one's implementation.
@@ -189,15 +190,19 @@ module.exports = function() {
 		static select( typeName ) {
 			this._prepareTypesMap();
 
+			let indexerType;
+
 			if ( typesMap.has( typeName ) ) {
-				return typesMap.get( typeName );
+				indexerType = typesMap.get( typeName );
+			} else if ( typesMap.has( typeName.toLowerCase() ) ) {
+				indexerType = typesMap.get( typeName.toLowerCase() );
+			} else {
+				throw new TypeError( `request for handler of unknown type of index ${typeName}` );
 			}
 
-			if ( typesMap.has( typeName.toLowerCase() ) ) {
-				return typesMap.get( typeName.toLowerCase() );
-			}
+			logDebug( "using indexer %s", indexerType.name );
 
-			throw new TypeError( `request for handler of unknown type of index ${typeName}` );
+			return indexerType;
 		}
 
 		/**

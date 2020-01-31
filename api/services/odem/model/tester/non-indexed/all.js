@@ -31,6 +31,7 @@ const { Readable, Transform } = require( "stream" );
 module.exports = function() {
 	const api = this;
 	const { services: Services } = api.runtime;
+	const logDebug = api.log( "hitchy:odem:debug" );
 
 	/**
 	 * Implements code considering any record to be satisfy the test.
@@ -40,7 +41,7 @@ module.exports = function() {
 	class OdemModelTesterNonIndexedAll extends Services.OdemModelTester {
 		/**
 		 * @param {class<Model>} ModelClass class of associated model
-		 * @param {EqualityIndex} index index to use for retrieving UUIDs
+		 * @param {OdemModelIndexerEquality} index index to use for retrieving UUIDs
 		 * @param {boolean} fetchAscendingly set true to fetch UUIDs from index in ascending order
 		 */
 		constructor( ModelClass, index = null, fetchAscendingly = true ) {
@@ -60,7 +61,7 @@ module.exports = function() {
 				 * Exposes optionally provided index instance.
 				 *
 				 * @name OdemModelTesterNonIndexedAll#index
-				 * @property {EqualityIndex}
+				 * @property {OdemModelIndexerEquality}
 				 * @readonly
 				 */
 				index: { value: index },
@@ -82,8 +83,13 @@ module.exports = function() {
 			if ( ModelClass.indices.length > 0 ) {
 				const index = ModelClass.getIndex( sortBy, "eq" );
 				if ( index ) {
+					logDebug( "fetching all using properly sorted index %s of %s.%s", index.constructor.name, ModelClass.name, sortBy );
+
 					return new this( ModelClass, index, sortAscendingly );
 				}
+
+				logDebug( "fetching all using first available index %s of %s.%s",
+					ModelClass.indices[0].handler.constructor.name, ModelClass.name, ModelClass.indices[0].property );
 
 				return new this( ModelClass, ModelClass.indices[0].handler, true );
 			}
@@ -105,6 +111,8 @@ module.exports = function() {
 					objectMode: true,
 					read() {
 						const { done, value: uuid } = iter.next();
+
+						logDebug( "retrieving %s match %s", done ? "final" : "next", uuid ? uuid.toString( "hex" ) : "<unset>" );
 
 						if ( done ) {
 							this.push( null );
