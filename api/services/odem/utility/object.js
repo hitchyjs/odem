@@ -38,7 +38,7 @@ module.exports = function() {
 		 * @returns {*} sealed object, any other type of value is returned as-is
 		 */
 		static deepSeal( object ) {
-			if ( object && typeof object === "object" && object.constructor === Object ) {
+			if ( object && typeof object === "object" && object.constructor === Object && !object.$$doNotSeal$$ ) {
 				const names = Object.keys( object );
 				for ( let i = 0, length = names.length; i < length; i++ ) {
 					const name = names[i];
@@ -58,7 +58,7 @@ module.exports = function() {
 		 * @returns {*} frozen object, any other type of value is returned as-is
 		 */
 		static deepFreeze( object ) {
-			if ( object && typeof object === "object" && object.constructor === Object ) {
+			if ( object && typeof object === "object" && object.constructor === Object && !object.$$doNotFreeze$$ ) {
 				const names = Object.keys( object );
 				for ( let i = 0, length = names.length; i < length; i++ ) {
 					const name = names[i];
