@@ -35,7 +35,9 @@ const { fakeApi } = require( "../helper" );
 describe( "Model compiler module", () => {
 	let Model, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => {
+		( { Model, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory } = s );
+	} ) );
 
 	it( "exposes internally used functions for unit-testing", () => {
 		OdemModelCompiler.should.have.property( "normalizeSchema" ).which.is.a.Function();

@@ -38,7 +38,7 @@ module.exports = function() {
 		 * Processes discovered definitions of models.
 		 *
 		 * @param {object<string,object>} models raw definitions of models to be converted
-		 * @param {Adapter} adapter provides default adapter to use for either defined model
+		 * @param {OdemAdapter} adapter provides default adapter to use for either defined model
 		 * @return {object} provided object with contained definitions replaced with according implementations
 		 */
 		static processModelDefinitions( models, adapter ) {
@@ -53,7 +53,7 @@ module.exports = function() {
 			}
 
 
-			// prepare data to detect either models' weight on being dependent of other models
+			// prepare data to detect either models' weight on being dependant of other models
 			const tree = {};
 			const { OdemUtilityString } = Services;
 

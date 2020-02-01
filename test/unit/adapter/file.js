@@ -40,7 +40,9 @@ const dataSource = Path.resolve( __dirname, "../../../data" );
 describe( "FileAdapter", function() {
 	let OdemAdapterFile, OdemAdapter, OdemUtilityUuid;
 
-	before( () => MkDir( dataSource ).then( () => fakeApi() ).then( ( { runtime: { services: s } } ) => { ( { OdemAdapter, OdemAdapterFile, OdemUtilityUuid } = s ); } ) );
+	before( () => MkDir( dataSource ).then( () => fakeApi() ).then( ( { runtime: { services: s } } ) => {
+		( { OdemAdapter, OdemAdapterFile, OdemUtilityUuid } = s );
+	} ) );
 
 	afterEach( () => RmDir( dataSource, { subsOnly: true } ) );
 
