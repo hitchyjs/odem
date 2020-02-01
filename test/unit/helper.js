@@ -90,6 +90,10 @@ module.exports = Object.seal( {
 			}
 		}
 
+		if ( typeof mockedAPI.log !== "function" ) {
+			mockedAPI.log = function( name ) { return function( format, ...data ) { }; }; // eslint-disable-line no-unused-vars
+		}
+
 		return _loadComponents().then( () => _loadConfig() ).then( () => mockedAPI );
 
 		function _loadComponents() {
