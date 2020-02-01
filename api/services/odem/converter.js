@@ -103,14 +103,16 @@ module.exports = function() {
 				const { raw, parent } = tree[name];
 				const definition = models[raw] || {};
 
-				if ( parent && !tree.hasOwnProperty( parent ) ) { // eslint-disable-line no-prototype-builtins
-					throw new TypeError( `invalid reference on parent model ${parent} in context of model ${raw}` );
-				}
+				if ( definition.constructor === Object ) {
+					if ( parent && !tree.hasOwnProperty( parent ) ) { // eslint-disable-line no-prototype-builtins
+						throw new TypeError( `invalid reference on parent model ${parent} in context of model ${raw}` );
+					}
 
-				try {
-					models[raw] = Services.Model.define( name, definition, parent ? models[tree[parent].raw] : null, adapter );
-				} catch ( error ) {
-					throw new TypeError( `definition of model ${name} failed: ${error.message}` );
+					try {
+						models[raw] = Services.Model.define( name, definition, parent ? models[tree[parent].raw] : null, adapter );
+					} catch ( error ) {
+						throw new TypeError( `definition of model ${name} failed: ${error.message}` );
+					}
 				}
 			}
 
