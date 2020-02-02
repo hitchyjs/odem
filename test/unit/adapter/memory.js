@@ -36,12 +36,12 @@ const Should = require( "should" );
 const { fakeApi } = require( "../helper" );
 
 
-describe( "MemoryAdapter", function() {
+describe( "OdemAdapterMemory", function() {
 	let OdemAdapter, OdemAdapterMemory;
 
 	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { OdemAdapter, OdemAdapterMemory } = s ); } ) );
 
-	it( "is exposed in property `MemoryAdapter`", function() {
+	it( "is exposed as service component", function() {
 		Should( OdemAdapterMemory ).be.ok();
 	} );
 

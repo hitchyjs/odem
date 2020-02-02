@@ -328,7 +328,7 @@ describe( "A model-related index", () => {
 
 		const Adapters = [
 			[ "default (memory) adapter", undefined ],
-			[ "FileAdapter", fileAdapter ],
+			[ "filesystem-based adapter", fileAdapter ],
 		];
 
 		const Values = [

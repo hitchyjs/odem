@@ -37,7 +37,7 @@ const { fakeApi } = require( "../helper" );
 
 const dataSource = Path.resolve( __dirname, "../../../data" );
 
-describe( "FileAdapter", function() {
+describe( "OdemAdapterFile", function() {
 	let OdemAdapterFile, OdemAdapter, OdemUtilityUuid;
 
 	before( () => MkDir( dataSource ).then( () => fakeApi() ).then( ( { runtime: { services: s } } ) => {
@@ -66,7 +66,7 @@ describe( "FileAdapter", function() {
 	after( () => RmDir( dataSource ) );
 
 
-	it( "is exposed in property `FileAdapter`", function() {
+	it( "is exposed as service component", function() {
 		Should( OdemAdapterFile ).be.ok();
 	} );
 
