@@ -188,15 +188,7 @@ This example is defining two actual properties. Their type defaults to _string_ 
 }
 ```
 
-Currently supported types are:
-
-* `string`
-* `number`
-* `integer`
-* `date`
-* `boolean`
-
-Either types comes with a set of specific constraints to be defined in addition. Some constraints are applicable to either type of property.
+There is a [list of currently supported property types](#property-types) explaining how to pick either type as well as introducing specific constraints for either supported type of property.
 
 ### Computed Properties
  
