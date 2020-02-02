@@ -368,7 +368,7 @@ describe( "A model-related index", () => {
 										derived() { return this.noIndex; }
 									},
 									indices: {
-										derived: true,
+										derived: { propertyType: "string" },
 									}
 								}, undefined, adapter );
 

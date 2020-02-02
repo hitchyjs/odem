@@ -43,6 +43,7 @@ function test() {
 
 	return PromiseUtils.each( [ 1000, 10000, 100000, 500000 ], NumRecords => {
 		const uuids = new Array( NumRecords );
+
 		return new Promise( ( resolve, reject ) => {
 			const create = index => {
 				if ( index >= NumRecords ) {
@@ -78,7 +79,7 @@ function test() {
 							memoryUsageBefore = process.memoryUsage();
 
 							for ( let i = 0; i < NumRecords; i++ ) {
-								MyIndex.add( uuids[i], values[i % numValues], undefined, { checkDuplicate: false } );
+								MyIndex.add( uuids[i], values[i % numValues] );
 							}
 
 							return UUID.create()

@@ -397,7 +397,7 @@ Indices result in redundantly stored information and thus shouldn't be created f
 
 There are two opportunities for defining indices to be described below.
 
-#### Defining Per Actual Property
+#### Defining Index For Actual Property
 
 Indices may be defined in conjunction with either property just like its type and optional constraints. A property's indices are defined in another definition property named `index` there. This definition property is listing types of indices each usually related to some test operation used on searching items by this particular property. The resulting index is meant to improve that related operation's performance.
 
@@ -426,9 +426,35 @@ By design, an _equality_ index is suitable for improving additional search opera
 
 The second case of `age` is illustrating opportunity to define separate indices suitable for improving search by `age` being **g**reater **t**han (thus `gt`) or **l**ess **t**han (thus `lt`) some given value. 
 
-When defining single index per property the index type may be given as string, too. Using `true` instead of an index type name is identical to using `"eq"`.
+When defining single index per property the index type may be given as string, too. See `firstName` in example above. For sake of readability using `true` instead of an index type name is supported as well and it's identical to using `"eq"`:
 
-Multiple indices may be defined per property. This requires use of an array listing type of either index. Alternatively an object may be used to map either type of index into some truthy value. This organisation is adopted by schema of resulting model. See the [section on index reducers](#index-reducer) below for some examples.
+```javascript
+module.exports = {
+    props: {
+        firstName: {
+            index: true
+        },
+    },
+};
+```
+
+Multiple indices may be defined per property. This requires use of an array listing type of either index and it has been demonstrated on property `age` in example above. Alternatively an object may be used to map either type of index into some truthy value. 
+
+```javascript
+module.exports = {
+    props: {
+        age: {
+            type: "number",
+            index: {
+                lt: true,            
+                gt: true,
+            },
+        },
+    },
+};
+```
+
+This syntax is required in selected situations as described in [section on index reducers](#index-reducer) below.
 
 
 #### Defining Index in Separate Section <Badge type="info" text="0.2.8+"></Badge>
@@ -459,14 +485,28 @@ The index options are customizing the kind of index. There is a default for ever
 }
 ```
 
-Here come the commonly supported options per index definition:
+These are the commonly supported options per index definition:
 
 * The **type** of index is usually `"eq"` selecting definition of an equality index. It is the default type and as of now it is the only supported one as well.
 * The index **reducer** is a function to be invoked on every value that's passed to the index e.g. for tracking its containing item on change of indexed property's value or for searching items by indexed property.
 
-When defining a property-related index here (instead of doing so in context of property as described before) another option **property** selects the model's property which is to be covered by resulting index. This may name may address an actual or a computed property.
+When defining a property-related index here (instead of doing so in context of property as described before) another option **property** selects the model's property which is to be covered by resulting index. This may address an actual or a computed property.
 
-When defining an index for a computed property there is no reliable information on what type of values the computed property will return for indexing. Thus you should provide a particular type in option **propertyType**. Its value works equivalent to the **type** option provided on defining actual properties. However, when omitted the default isn't `"string"` but some abstract base type which is slightly more capable of handling different types of values than string type handler.
+:::warning Important
+A schema must not define multiple indices of same type for the same property. This holds true even when defining some indices in context of properties and some in context of this dedicated section.
+::: 
+
+#### Defining Index For Computed Property
+
+On declaring indices in [separate section of schema](#defining-index-in-separate-section) it is possible to define indices for computed properties, too. 
+
+Indices for computed properties still rely on particular type of values delivered by either computed property. For there is no reliable way of implicitly discovering what type of values a computed property will deliver for indexing, you should provide a particular type explicitly. This is possible 
+
+* in option **propertyType** of index declaration supporting same type names as on defining actual properties or
+
+* by [selecting type when defining computed property](#selecting-type-handler) itself. 
+
+By default assumed values of computed properties are _numeric_. When selecting a particular type index becomes capable of handling non-numeric values. Failing to do so results in non-numeric values rejected from being tracked in index. This may cause related entries not being found when searching your data via related index.
 
 ```javascript
 {
@@ -493,10 +533,6 @@ When defining an index for a computed property there is no reliable information 
 ```
 
 In this example three indices of type _equality_ are defined for covering the actual property **lastName** and the computed properties **fullName** and **searchable**. Definition of the latter includes declaration of assuming string values, only.
-
-:::warning Important
-A schema must not define multiple indices of same type for the same property. This holds true even when defining some indices in context of properties and some in context of this dedicated section.
-::: 
 
 
 

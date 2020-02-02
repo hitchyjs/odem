@@ -26,7 +26,6 @@
  * @author: cepharum
  */
 
-
 const { describe, it, before, beforeEach } = require( "mocha" );
 const Should = require( "should" );
 

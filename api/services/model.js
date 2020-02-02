@@ -1161,11 +1161,30 @@ module.exports = function() {
 								for ( let i = 0; i < numIndices; i++ ) {
 									const { property, handler } = indices[i];
 
-									handler.add( $uuid, item[property], undefined, true );
+									handler.add( $uuid, item[property] );
 								}
 							} );
 					} )
 						.then( () => {
+							if ( process.env.NODE_ENV !== "production" ) {
+								const failed = [];
+
+								for ( let i = 0; i < numIndices; i++ ) {
+									const index = indices[i];
+
+									try {
+										index.handler.checkIntegrity();
+									} catch ( error ) {
+										failed.push( `${index.type} on ${this.name}.${index.property} (${this.schema.computed[index.property] ? `${this.schema.computed[index.property].type} computed` : this.schema.props[index.property].type})` ); // eslint-disable-line max-len
+										logError( "integrity check of %s index on %s.%s failed: %s", index.type, this.name, index.property, error.message );
+									}
+								}
+
+								if ( failed.length > 0 ) {
+									throw new Error( "failed integrity check(s) on: " + failed.join( ", " ) );
+								}
+							}
+
 							this.observeBackend();
 
 							return indices;
