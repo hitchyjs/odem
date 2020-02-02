@@ -405,7 +405,7 @@ module.exports = function() {
 		 * @returns {void}
 		 */
 		static observeBackend() {
-			if ( this._isObservingAdapter ) {
+			if ( !this._isObservingAdapter ) {
 				Object.defineProperty( this, "_isObservingAdapter", { value: true } );
 
 				this.adapter.on( "change", ( key, data ) => {
@@ -432,7 +432,7 @@ module.exports = function() {
 									const computedInfo = computed[property];
 									let newProp;
 
-									logDebug( "updating index of %s.%s after change of %s", this.constructor.name, property, match[2] );
+									logDebug( "updating index of %s.%s after change of %s", this.name, property, match[2] );
 
 									if ( computedInfo ) {
 										// required: computed value in context of updated record
@@ -457,7 +457,7 @@ module.exports = function() {
 										newProp = data[property];
 									}
 
-									handler.update( uuid, null, newProp, true );
+									handler.update( uuid, null, newProp, { searchExisting: true, addIfMissing: true } );
 								}
 							}
 						} )
@@ -483,7 +483,9 @@ module.exports = function() {
 							const length = indices.length;
 
 							for ( let i = 0; i < length; i++ ) {
-								const { handler } = indices[i];
+								const { property, handler } = indices[i];
+
+								logDebug( "removing %s from index of %s.%s", match[2], this.name, property );
 
 								handler.remove( uuid );
 							}

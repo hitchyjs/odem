@@ -357,15 +357,16 @@ module.exports = function() {
 		 * @param {*} oldValue previous value of indexed property
 		 * @param {*} newValue current value of indexed property
 		 * @param {boolean} searchExisting set true if existing track should be search while ignoring **oldValue**
+		 * @param {boolean} addIfMissing set true for adding track on provided UUID if missing
 		 * @return {void}
 		 */
-		update( uuid, oldValue, newValue, searchExisting = false ) {
+		update( uuid, oldValue, newValue, { searchExisting = false, addIfMissing = false } = {} ) {
 			if ( newValue !== null && this.compare( newValue, newValue ) !== 0 ) {
 				throw new TypeError( "index isn't capable of processing given value due to mismatching type of value" );
 			}
 
 			if ( searchExisting ) {
-				if ( this.remove( uuid ) ) {
+				if ( this.remove( uuid ) || addIfMissing ) {
 					this.add( uuid, newValue );
 					return;
 				}
@@ -383,6 +384,11 @@ module.exports = function() {
 							this.add( uuid, newValue );
 							return;
 						}
+					}
+
+					if ( addIfMissing ) {
+						this.add( uuid, newValue );
+						return;
 					}
 
 					throw new Error( "index didn't cover item as expected, is it out of sync?" );
