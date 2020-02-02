@@ -96,7 +96,7 @@ It will render very simple error page regarding request for unknown page. That's
  
 It will render the same error page. That's still okay because the exposed REST API needs to know a model you like to work with at least. The model's name is appended to the URL. We've created a model named **post**, so that's what you need to append to URL. Try fetching URL [http://127.0.0.1:3000/api/post](http://127.0.0.1:3000/api/post).
 
-This time you get a different response. There is HTML document, but some JSON-formatted data. It reads similar to this one:
+This time you get a different response. There is no HTML document, but some JSON-formatted data. It reads similar to this one:
 
 ```json
 {"items":[]}
