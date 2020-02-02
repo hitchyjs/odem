@@ -261,8 +261,6 @@ module.exports = function() {
 			} );
 
 
-			// this.constructor.observe( __adapter );
-
 
 			if ( _uuid == null ) {
 				this.$loaded = Promise.resolve();
@@ -416,6 +414,8 @@ module.exports = function() {
 						return;
 					}
 
+					logDebug( "NOTIFICATION: %s has changed remotely", match[2] );
+
 					// FIXME detect a backend's watcher triggering on local change instead of remote one
 
 					const uuid = Buffer.from( match[2].replace( /-/g, "" ), "hex" );
@@ -431,6 +431,8 @@ module.exports = function() {
 									const { property, handler } = indices[i];
 									const computedInfo = computed[property];
 									let newProp;
+
+									logDebug( "updating index of %s.%s after change of %s", this.constructor.name, property, match[2] );
 
 									if ( computedInfo ) {
 										// required: computed value in context of updated record
@@ -471,6 +473,8 @@ module.exports = function() {
 					}
 
 					// FIXME detect a backend's watcher triggering on local removal instead of remote one
+
+					logDebug( "NOTIFICATION: %s has been removed remotely", match[2] );
 
 					const uuid = Buffer.from( match[2].replace( /-/g, "" ), "hex" );
 
@@ -1144,12 +1148,13 @@ module.exports = function() {
 			if ( !this.indexPromise ) {
 				const { adapter, indices } = this;
 				const numIndices = indices.length;
+				let promise;
 
 				if ( numIndices ) {
 					const stream = adapter.keyStream( { prefix: `models/${this.name}/items` } );
 
-					this.indexPromise = PromiseUtils.process( stream, dataKey => {
-						return new this( this.keyToUuid( dataKey ), { adapter } ) // eslint-disable-line new-cap
+					promise = PromiseUtils.process( stream, dataKey => {
+						return new this( this.keyToUuid( dataKey ) ) // eslint-disable-line new-cap
 							.load().then( item => {
 								const { $uuid } = item;
 
@@ -1160,10 +1165,16 @@ module.exports = function() {
 								}
 							} );
 					} )
-						.then( () => indices );
+						.then( () => {
+							this.observeBackend();
+
+							return indices;
+						} );
 				} else {
-					this.indexPromise = Promise.resolve( indices );
+					promise = Promise.resolve( indices );
 				}
+
+				Object.defineProperty( this, "indexPromise", { value: promise } );
 			}
 
 			return this.indexPromise;
