@@ -3,9 +3,11 @@ prev: model.md
 next: false
 ---
 
-# Adapter API
+# Adapters
 
-Models are relying on _adapters_ to access data in a persistent data storage. This document is about those adapters, how to use them and how to create one yourself.
+Models are relying on _adapters_ for accessing its data in a connected data storage. When defining a model an adapter may be provided to use for all instances of resulting model instead of some default adapter.
+
+This document is about those adapters, how to use them and how to create one yourself.
 
 ## Available Adapters
 
@@ -26,7 +28,7 @@ If you intend to save records in volatile memory you might want to use an instan
 const adapter = new MemoryAdapter();
 ```
 
-This adapter may be provided on calling `Model.define()` or on constructing an instance of your defined model afterwards.
+This adapter may be provided on calling `Model.define()` explicitly. In a default setup it is also used whenever omitting provision of adapter on calling that function.
 
 ## FileAdapter
 
@@ -37,5 +39,3 @@ const adapter = new FileAdapter( {
     dataSource: "/path/name/of/a/folder"
 } );
 ```
-
-

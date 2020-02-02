@@ -230,15 +230,6 @@ describe( "Model compiler module", () => {
 				Employee.adapter.should.be.equal( adapter );
 			} );
 
-			it( "is exposing adapter provided on compilation as property of model's every instance", () => {
-				const adapter = new OdemAdapterMemory();
-				const Employee = OdemModelCompiler.compileModel( "employee", { props: { name: {} } }, null, adapter );
-
-				const boss = new Employee();
-
-				boss.$adapter.should.be.equal( adapter );
-			} );
-
 			it( "can be instantiated with instances suitable for validating properties, saving them to and reading them from a storage", () => {
 				const storage = new OdemAdapterMemory();
 				const MyModel = OdemModelCompiler.compileModel( "MyModel", {

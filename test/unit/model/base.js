@@ -46,6 +46,8 @@ describe( "Abstract Model", () => {
 		 * static properties in scope of shared base class.
 		 */
 		CustomModel = class DerivedModel extends Model {};
+
+		Object.defineProperty( CustomModel, "adapter", { value: new OdemAdapterMemory() } );
 	} );
 
 	before( () => {
@@ -106,7 +108,6 @@ describe( "Abstract Model", () => {
 		instance.should.have.property( "uuid" ).which.is.a.String().and.equal( uuid );
 		instance.should.have.property( "$loaded" ).which.is.null();
 		instance.should.have.property( "$isNew" ).which.is.a.Boolean().which.is.false();
-		instance.should.have.property( "$adapter" ).which.is.an.instanceOf( OdemAdapter );
 		instance.should.have.property( "$dataKey" ).which.is.a.String().and.not.empty();
 		instance.should.have.property( "$properties" ).which.is.an.Object().and.ok();
 		instance.should.have.property( "$exists" ).which.is.a.Promise().and.resolvedWith( false );

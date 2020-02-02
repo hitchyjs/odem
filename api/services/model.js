@@ -59,16 +59,14 @@ module.exports = function() {
 		/**
 		 * @param {?(string|Buffer)} itemUUID UUID of model item to be managed by instance, omit for starting new item
 		 * @param {boolean|string} onUnsaved set true to omit model logging to stderr on replacing changed property w/o saving first
-		 * @param {?OdemAdapter} adapter selects driver for backend to use for storing data
 		 */
-		constructor( itemUUID = null, { adapter = null, onUnsaved = null } = {} ) {
-			const args = this.beforeCreate( { uuid: itemUUID, options: { adapter, onUnsaved } } ) || {};
+		constructor( itemUUID = null, { onUnsaved = null } = {} ) {
+			const args = this.beforeCreate( { uuid: itemUUID, options: { onUnsaved } } ) || {};
 
-			const { adapter: _adapter, onUnsaved: __onUnsaved } = args.options || {};
+			const { onUnsaved: __onUnsaved } = args.options || {};
 			const _onUnsaved = __onUnsaved == null ? this.constructor.onUnsaved : __onUnsaved;
 
 			let _uuid = null;
-			const __adapter = _adapter || this.constructor.adapter || api.config.database.default;
 
 			Object.defineProperties( this, {
 				/**
@@ -240,16 +238,6 @@ module.exports = function() {
 				$isNew: { get: () => _uuid == null },
 
 				/**
-				 * Refers to adapter connecting instance of model to some storage
-				 * for storing it persistently.
-				 *
-				 * @name Model#$adapter
-				 * @property {OdemAdapter}
-				 * @readonly
-				 */
-				$adapter: { value: __adapter },
-
-				/**
 				 * Fetches data key of current model usually to be used with some
 				 * KV-based storage.
 				 *
@@ -395,7 +383,7 @@ module.exports = function() {
 				return Promise.resolve( false );
 			}
 
-			return this.$adapter.has( this.$dataKey );
+			return this.constructor.adapter.has( this.$dataKey );
 		}
 
 		/**
@@ -412,21 +400,17 @@ module.exports = function() {
 		}
 
 		/**
-		 * Observes provided adapter on behalf of current model for remote changes
-		 * to be adopted in locally managed indices.
+		 * Observes current model's adapter for remote changes to be adopted in
+		 * locally managed indices.
 		 *
 		 * @param {Services.OdemAdapter} adapter backend adapter used with current model
 		 * @returns {void}
 		 */
-		static observe( adapter ) {
-			if ( this._observedAdapter ) {
-				if ( this._observedAdapter !== adapter ) {
-					logError( "WARNING: using different backends with the same model is causing data integrity issues most probably" );
-				}
-			} else {
-				this._observedAdapter = adapter;
+		static observeBackend() {
+			if ( this._isObservingAdapter ) {
+				Object.defineProperty( this, "_isObservingAdapter", { value: true } );
 
-				adapter.on( "change", ( key, data ) => {
+				this.adapter.on( "change", ( key, data ) => {
 					const match = PtnModelItemsKey.exec( key );
 					if ( !match || match[1] !== this.name ) {
 						return;
@@ -480,7 +464,7 @@ module.exports = function() {
 						} );
 				} );
 
-				adapter.on( "delete", key => {
+				this.adapter.on( "delete", key => {
 					const match = PtnModelItemsKey.exec( key );
 					if ( !match || match[1] !== this.name ) {
 						return;
@@ -614,7 +598,7 @@ module.exports = function() {
 			if ( !this.$loaded ) {
 				this.$loaded = Promise.resolve()
 					.then( () => this.beforeLoad() )
-					.then( () => this.$adapter.read( this.$dataKey ) )
+					.then( () => this.constructor.adapter.read( this.$dataKey ) )
 					.then( record => this.afterLoad( record ) );
 				// NOTE Properties are replaced in setter of `this.$loaded`.
 			}
@@ -726,12 +710,12 @@ module.exports = function() {
 											}
 										}
 
-										return this.$adapter.write( this.$dataKey, record );
+										return this.constructor.adapter.write( this.$dataKey, record );
 									} );
 							}
 
 							return constructor.indexLoaded.then( indices => {
-								return this.$adapter.create( this.$dataKey, record )
+								return this.constructor.adapter.create( this.$dataKey, record )
 									.then( dataKey => {
 										const uuid = constructor.keyToUuid( dataKey );
 										if ( !uuid ) {
@@ -811,7 +795,7 @@ module.exports = function() {
 
 					return undefined;
 				} )
-				.then( () => this.$adapter.remove( this.$dataKey ) )
+				.then( () => this.constructor.adapter.remove( this.$dataKey ) )
 				.then( () => this.afterRemove() )
 				.then( () => this );
 		}
