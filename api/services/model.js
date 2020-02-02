@@ -46,6 +46,8 @@ const PtnModelItemsKey = /^models\/([^/]+)\/items\/([^/]+)(?:\/(\S+))?$/;
 module.exports = function() {
 	const api = this;
 	const { services: Services } = api.runtime;
+	const logDebug = api.log( "hitchy:odem:debug" );
+	const logError = api.log( "hitchy:odem:error" );
 
 	/**
 	 * Implements basic behaviour of a model.
@@ -57,16 +59,14 @@ module.exports = function() {
 		/**
 		 * @param {?(string|Buffer)} itemUUID UUID of model item to be managed by instance, omit for starting new item
 		 * @param {boolean|string} onUnsaved set true to omit model logging to stderr on replacing changed property w/o saving first
-		 * @param {?Adapter} adapter selects driver for backend to use for storing data
 		 */
-		constructor( itemUUID = null, { adapter = null, onUnsaved = null } = {} ) {
-			const args = this.beforeCreate( { uuid: itemUUID, options: { adapter, onUnsaved } } ) || {};
+		constructor( itemUUID = null, { onUnsaved = null } = {} ) {
+			const args = this.beforeCreate( { uuid: itemUUID, options: { onUnsaved } } ) || {};
 
-			const { adapter: _adapter, onUnsaved: __onUnsaved } = args.options || {};
+			const { onUnsaved: __onUnsaved } = args.options || {};
 			const _onUnsaved = __onUnsaved == null ? this.constructor.onUnsaved : __onUnsaved;
 
 			let _uuid = null;
-			const __adapter = _adapter || this.constructor.adapter || api.config.database.defaultAdapter;
 
 			Object.defineProperties( this, {
 				/**
@@ -193,7 +193,7 @@ module.exports = function() {
 
 											case "warn" :
 												// eslint-disable-next-line no-console
-												console.error( "WARNING: replacing an item's properties after changing some w/o saving" );
+												logError( "WARNING: replacing an item's properties after changing some w/o saving" );
 												break;
 
 											case "fail" :
@@ -238,16 +238,6 @@ module.exports = function() {
 				$isNew: { get: () => _uuid == null },
 
 				/**
-				 * Refers to adapter connecting instance of model to some storage
-				 * for storing it persistently.
-				 *
-				 * @name Model#$adapter
-				 * @property {Adapter}
-				 * @readonly
-				 */
-				$adapter: { value: __adapter },
-
-				/**
 				 * Fetches data key of current model usually to be used with some
 				 * KV-based storage.
 				 *
@@ -270,8 +260,6 @@ module.exports = function() {
 				$properties: { get: () => data },
 			} );
 
-
-			// this.constructor.observe( __adapter );
 
 
 			if ( _uuid == null ) {
@@ -393,7 +381,7 @@ module.exports = function() {
 				return Promise.resolve( false );
 			}
 
-			return this.$adapter.has( this.$dataKey );
+			return this.constructor.adapter.has( this.$dataKey );
 		}
 
 		/**
@@ -410,25 +398,23 @@ module.exports = function() {
 		}
 
 		/**
-		 * Observes provided adapter on behalf of current model for remote changes
-		 * to be adopted in locally managed indices.
+		 * Observes current model's adapter for remote changes to be adopted in
+		 * locally managed indices.
 		 *
 		 * @param {Services.OdemAdapter} adapter backend adapter used with current model
 		 * @returns {void}
 		 */
-		static observe( adapter ) {
-			if ( this._observedAdapter ) {
-				if ( this._observedAdapter !== adapter ) {
-					console.error( "WARNING: using different backends with the same model is causing data integrity issues most probably" );
-				}
-			} else {
-				this._observedAdapter = adapter;
+		static observeBackend() {
+			if ( !this._isObservingAdapter ) {
+				Object.defineProperty( this, "_isObservingAdapter", { value: true } );
 
-				adapter.on( "change", ( key, data ) => {
+				this.adapter.on( "change", ( key, data ) => {
 					const match = PtnModelItemsKey.exec( key );
 					if ( !match || match[1] !== this.name ) {
 						return;
 					}
+
+					logDebug( "NOTIFICATION: %s has changed remotely", match[2] );
 
 					// FIXME detect a backend's watcher triggering on local change instead of remote one
 
@@ -445,6 +431,8 @@ module.exports = function() {
 									const { property, handler } = indices[i];
 									const computedInfo = computed[property];
 									let newProp;
+
+									logDebug( "updating index of %s.%s after change of %s", this.name, property, match[2] );
 
 									if ( computedInfo ) {
 										// required: computed value in context of updated record
@@ -469,22 +457,24 @@ module.exports = function() {
 										newProp = data[property];
 									}
 
-									handler.update( uuid, null, newProp, true );
+									handler.update( uuid, null, newProp, { searchExisting: true, addIfMissing: true } );
 								}
 							}
 						} )
 						.catch( error => {
-							console.error( "handling remote change of %s's %s failed: %s", this.name, Services.OdemUtilityUuid.format( uuid ), error.stack );
+							logError( "handling remote change of %s's %s failed: %s", this.name, Services.OdemUtilityUuid.format( uuid ), error.stack );
 						} );
 				} );
 
-				adapter.on( "delete", key => {
+				this.adapter.on( "delete", key => {
 					const match = PtnModelItemsKey.exec( key );
 					if ( !match || match[1] !== this.name ) {
 						return;
 					}
 
 					// FIXME detect a backend's watcher triggering on local removal instead of remote one
+
+					logDebug( "NOTIFICATION: %s has been removed remotely", match[2] );
 
 					const uuid = Buffer.from( match[2].replace( /-/g, "" ), "hex" );
 
@@ -493,13 +483,15 @@ module.exports = function() {
 							const length = indices.length;
 
 							for ( let i = 0; i < length; i++ ) {
-								const { handler } = indices[i];
+								const { property, handler } = indices[i];
+
+								logDebug( "removing %s from index of %s.%s", match[2], this.name, property );
 
 								handler.remove( uuid );
 							}
 						} )
 						.catch( error => {
-							console.error( "handling remote removal of %s's %s failed: %s", this.name, Services.OdemUtilityUuid.format( uuid ), error.stack );
+							logError( "handling remote removal of %s's %s failed: %s", this.name, Services.OdemUtilityUuid.format( uuid ), error.stack );
 						} );
 				} );
 			}
@@ -612,7 +604,7 @@ module.exports = function() {
 			if ( !this.$loaded ) {
 				this.$loaded = Promise.resolve()
 					.then( () => this.beforeLoad() )
-					.then( () => this.$adapter.read( this.$dataKey ) )
+					.then( () => this.constructor.adapter.read( this.$dataKey ) )
 					.then( record => this.afterLoad( record ) );
 				// NOTE Properties are replaced in setter of `this.$loaded`.
 			}
@@ -724,12 +716,12 @@ module.exports = function() {
 											}
 										}
 
-										return this.$adapter.write( this.$dataKey, record );
+										return this.constructor.adapter.write( this.$dataKey, record );
 									} );
 							}
 
 							return constructor.indexLoaded.then( indices => {
-								return this.$adapter.create( this.$dataKey, record )
+								return this.constructor.adapter.create( this.$dataKey, record )
 									.then( dataKey => {
 										const uuid = constructor.keyToUuid( dataKey );
 										if ( !uuid ) {
@@ -809,7 +801,7 @@ module.exports = function() {
 
 					return undefined;
 				} )
-				.then( () => this.$adapter.remove( this.$dataKey ) )
+				.then( () => this.constructor.adapter.remove( this.$dataKey ) )
 				.then( () => this.afterRemove() )
 				.then( () => this );
 		}
@@ -937,8 +929,8 @@ module.exports = function() {
 		 * Fetches index handler matching named property and type of index.
 		 *
 		 * @param {string} property name of property to be covered by index
-		 * @param {string} type type name of index
-		 * @returns {EqualityIndex|undefined} found index
+		 * @param {string} type test operation supported by index
+		 * @returns {OdemModelIndexer|undefined} found index
 		 */
 		static getIndex( property, type = "eq" ) {
 			const indices = this.indices;
@@ -1158,26 +1150,52 @@ module.exports = function() {
 			if ( !this.indexPromise ) {
 				const { adapter, indices } = this;
 				const numIndices = indices.length;
+				let promise;
 
 				if ( numIndices ) {
 					const stream = adapter.keyStream( { prefix: `models/${this.name}/items` } );
 
-					this.indexPromise = PromiseUtils.process( stream, dataKey => {
-						return new this( this.keyToUuid( dataKey ), { adapter } ) // eslint-disable-line new-cap
+					promise = PromiseUtils.process( stream, dataKey => {
+						return new this( this.keyToUuid( dataKey ) ) // eslint-disable-line new-cap
 							.load().then( item => {
 								const { $uuid } = item;
 
 								for ( let i = 0; i < numIndices; i++ ) {
 									const { property, handler } = indices[i];
 
-									handler.add( $uuid, item[property], undefined, true );
+									handler.add( $uuid, item[property] );
 								}
 							} );
 					} )
-						.then( () => indices );
+						.then( () => {
+							if ( process.env.NODE_ENV !== "production" ) {
+								const failed = [];
+
+								for ( let i = 0; i < numIndices; i++ ) {
+									const index = indices[i];
+
+									try {
+										index.handler.checkIntegrity();
+									} catch ( error ) {
+										failed.push( `${index.type} on ${this.name}.${index.property} (${this.schema.computed[index.property] ? `${this.schema.computed[index.property].type} computed` : this.schema.props[index.property].type})` ); // eslint-disable-line max-len
+										logError( "integrity check of %s index on %s.%s failed: %s", index.type, this.name, index.property, error.message );
+									}
+								}
+
+								if ( failed.length > 0 ) {
+									throw new Error( "failed integrity check(s) on: " + failed.join( ", " ) );
+								}
+							}
+
+							this.observeBackend();
+
+							return indices;
+						} );
 				} else {
-					this.indexPromise = Promise.resolve( indices );
+					promise = Promise.resolve( indices );
 				}
+
+				Object.defineProperty( this, "indexPromise", { value: promise } );
 			}
 
 			return this.indexPromise;

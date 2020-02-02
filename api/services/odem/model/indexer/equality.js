@@ -56,6 +56,9 @@ module.exports = function() {
 
 			super();
 
+			this.tree = RBTree( compare );
+			this.revision = revisionNumber;
+
 			Object.defineProperties( this, {
 				/**
 				 * Exposes method provided to compare two given values covered by
@@ -65,7 +68,7 @@ module.exports = function() {
 				 * @property {function(*,*):number}
 				 * @readonly
 				 */
-				compare: { value: compare },
+				compare: { value: this.tree._compare },
 
 				/**
 				 * Collects UUIDs of records currently not part of index tree due to
@@ -87,9 +90,6 @@ module.exports = function() {
 				 */
 				reducer: { value: reducer },
 			} );
-
-			this.tree = RBTree( compare );
-			this.revision = revisionNumber;
 		}
 
 		/**
@@ -112,6 +112,31 @@ module.exports = function() {
 				reducer: reducer || $type.indexReducer,
 				revision: 0,
 			} );
+		}
+
+		/**
+		 * Checks integrity of index throwing exception on encountering issue.
+		 *
+		 * @returns {void}
+		 */
+		checkIntegrity() {
+			const keys = new Map();
+			const iter = this.tree.begin;
+			const duplicates = new Map();
+
+			while ( iter.valid ) {
+				if ( keys.has( iter.key ) ) {
+					duplicates.set( iter.key, ( duplicates.get( iter.key ) || 1 ) + 1 );
+				}
+
+				keys.set( iter.key, true );
+
+				iter.next();
+			}
+
+			if ( duplicates.size > 0 ) {
+				throw new Error( `index is corrupted due to duplicate nodes for keys ${Array.from( duplicates.keys() ).join( ", " )}` );
+			}
 		}
 
 		/**
@@ -168,11 +193,14 @@ module.exports = function() {
 		 * @param {Buffer} uuid UUID of new item with given value of property
 		 * @param {*} value value of item's indexed property
 		 * @param {number} revision revision that was used to create the index
-		 * @param {boolean} ignoreDuplicates if true there will not be checked if entry is already in list
 		 * @returns {void} true if new entry for index was created
 		 */
-		add( uuid, value, revision = this.revision, ignoreDuplicates = false ) {
+		add( uuid, value, revision = this.revision ) {
 			this.checkRevision( revision );
+
+			if ( value !== null && this.compare( value, value ) !== 0 ) {
+				throw new TypeError( "index isn't capable of processing given value due to mismatching type of value" );
+			}
 
 			let uuidList, reduced;
 
@@ -184,15 +212,13 @@ module.exports = function() {
 			}
 
 			if ( uuidList ) {
-				if ( !ignoreDuplicates ) {
-					const length = uuidList.length;
+				const length = uuidList.length;
 
-					for ( let index = 0; index < length; index++ ) {
-						const _uuid = uuidList[index];
+				for ( let index = 0; index < length; index++ ) {
+					const _uuid = uuidList[index];
 
-						if ( uuid.equals( _uuid ) ) {
-							return;
-						}
+					if ( uuid.equals( _uuid ) ) {
+						return;
 					}
 				}
 
@@ -331,11 +357,16 @@ module.exports = function() {
 		 * @param {*} oldValue previous value of indexed property
 		 * @param {*} newValue current value of indexed property
 		 * @param {boolean} searchExisting set true if existing track should be search while ignoring **oldValue**
+		 * @param {boolean} addIfMissing set true for adding track on provided UUID if missing
 		 * @return {void}
 		 */
-		update( uuid, oldValue, newValue, searchExisting = false ) {
+		update( uuid, oldValue, newValue, { searchExisting = false, addIfMissing = false } = {} ) {
+			if ( newValue !== null && this.compare( newValue, newValue ) !== 0 ) {
+				throw new TypeError( "index isn't capable of processing given value due to mismatching type of value" );
+			}
+
 			if ( searchExisting ) {
-				if ( this.remove( uuid ) ) {
+				if ( this.remove( uuid ) || addIfMissing ) {
 					this.add( uuid, newValue );
 					return;
 				}
@@ -353,6 +384,11 @@ module.exports = function() {
 							this.add( uuid, newValue );
 							return;
 						}
+					}
+
+					if ( addIfMissing ) {
+						this.add( uuid, newValue );
+						return;
 					}
 
 					throw new Error( "index didn't cover item as expected, is it out of sync?" );

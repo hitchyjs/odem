@@ -15,8 +15,6 @@ The constructor is creating an instance of any defined model at runtime to repre
 
 * The **options** object consists of several properties customizing the resulting item's behaviour:
 
-  * The property **adapter** may be given to choose a [custom adapter](./adapter.md) for use with created instance. The adapter is used to interact with a persistent data storage such as the file system or any other supported kind of database.
-
   * The property **onUnsaved** selects mode for handling multiple consecutive assignments to a single property without saving intermittently. See the [description of `Model.onUnsaved`](#model-onunsaved) for additional information.
 
 Always start creation of items like this:
@@ -44,6 +42,10 @@ item.load().then( () => { ... } );
 **Signature:** `Model.define( name, schema, baseClass, adapter ) : Model`
 
 This method is available to create a new model class according to provided definition. See the related documentation for [defining models](../guides/defining-models.md) and [on adapters](./adapter.md) for additional information.
+
+:::tip Tightly Bound  
+A defined model is always bound to a certain backend using adapter provided here.  
+:::
 
 ### Model.list() <Badge type="info">0.2.0+</Badge>
 
@@ -345,10 +347,6 @@ Internally, [object-monitor](https://www.npmjs.com/package/object-monitor) is us
 * fetching map of recently changed values through `instance.$properties.$context.changed`, which is a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) listing names and new values of changed property values,
 * committing or rolling back recent changes to properties using either `instance.$properties.$context.commit()` or `instance.$properties.$context.rollBack()`.
 
-
-### instance.$adapter
-
-This property exposes adapter used to persistently store this instance of model. It might be different from the adapter defined for use with the model as a whole, though it won't be different in most cases.
 
 ### instance.$isNew
 

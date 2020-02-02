@@ -293,8 +293,7 @@ describe( "A model defining hook", () => {
 
 			new MyModel( null, { onUnsaved: "ignore", arbitrary: "stuff" } );
 
-			hookData.options.should.be.Object().which.has.size( 2 ).and.properties( "adapter", "onUnsaved" );
-			( hookData.options.adapter == null ).should.be.true();
+			hookData.options.should.be.Object().which.has.size( 1 ).and.properties( "onUnsaved" );
 			hookData.options.onUnsaved.should.be.String().which.is.equal( "ignore" );
 		} );
 

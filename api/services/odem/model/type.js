@@ -300,15 +300,15 @@ module.exports = function() {
 			 * Maps a type's name in quite arbitrary form to its related key used in
 			 * collection's map for addressing either type's implementation.
 			 *
-			 * @param {string} name name or alias of type
+			 * @param {string} _name name or alias of type
 			 * @returns {string} normalized key of type
 			 */
-			function mapNameToKey( name ) {
-				if ( typeof name !== "string" ) {
+			function mapNameToKey( _name ) {
+				if ( typeof _name !== "string" ) {
 					throw new TypeError( "invalid name of property type" );
 				}
 
-				return Services.OdemUtilityString.kebabToCamel( name.trim().toLocaleLowerCase() );
+				return Services.OdemUtilityString.kebabToCamel( _name.trim().toLocaleLowerCase() );
 			}
 		}
 	}

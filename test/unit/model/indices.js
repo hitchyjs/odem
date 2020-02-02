@@ -328,7 +328,7 @@ describe( "A model-related index", () => {
 
 		const Adapters = [
 			[ "default (memory) adapter", undefined ],
-			[ "FileAdapter", fileAdapter ],
+			[ "filesystem-based adapter", fileAdapter ],
 		];
 
 		const Values = [
@@ -368,7 +368,7 @@ describe( "A model-related index", () => {
 										derived() { return this.noIndex; }
 									},
 									indices: {
-										derived: true,
+										derived: { propertyType: "string" },
 									}
 								}, undefined, adapter );
 

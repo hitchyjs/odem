@@ -35,18 +35,19 @@ module.exports = function() {
 		/**
 		 * Defines backend to use by default on storing model data persistently.
 		 *
-		 * @name api.config.database.defaultAdapter
+		 * @name api.config.database.default
 		 * @property {Services.OdemAdapter}
 		 * @readonly
 		 */
-		defaultAdapter: {
+		default: {
 			get: () => {
 				const adapter = new Services.OdemAdapterMemory();
 
 				Object.defineProperties( OdemDefaults, {
-					defaultAdapter: {
+					default: {
 						value: adapter,
 						enumerable: true,
+						configurable: true,
 					},
 				} );
 

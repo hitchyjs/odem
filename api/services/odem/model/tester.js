@@ -29,6 +29,7 @@
 module.exports = function() {
 	const api = this;
 	const { services: Services } = api.runtime;
+	const logDebug = api.log( "hitchy:odem:debug" );
 
 	/**
 	 * Implements abstract base for any tester supported by model collection
@@ -65,6 +66,8 @@ module.exports = function() {
 			if ( !testerClass ) {
 				throw new TypeError( `unknown test operation: ${operation}` );
 			}
+
+			logDebug( "using %s for picking matches of model %s", testerClass.name, ModelClass.name );
 
 			const tester = testerClass.fromDescription( ModelClass, description[operation], operation, { sortBy, sortAscendingly } );
 			if ( !( tester instanceof this ) ) {

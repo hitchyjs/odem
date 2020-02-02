@@ -27,28 +27,30 @@
  */
 
 module.exports = function() {
-	return Object.assign( {},
-		{
-			defaults: this.runtime.services.OdemDefaults,
-		}, {
-			initialize( /* options */ ) {
-				const that = this;
-				const { log, config, runtime: { models, services } } = that;
-				const Log = log( "odem" );
+	const api = this;
+	const logDebug = api.log( "hitchy:odem:debug" );
+	const logError = api.log( "hitchy:odem:error" );
 
-				// choose configured default adapter for storing model instances
-				let adapter = ( config.database || {} ).default;
-				if ( adapter ) {
-					if ( !( adapter instanceof services.OdemAdapter ) ) {
-						Log( "invalid adapter:", adapter );
-						return;
-					}
-				} else {
-					adapter = new services.OdemAdapterMemory();
+	return {
+		initialize() {
+			const { config, runtime: { models, services } } = api;
+
+			// choose configured default adapter for storing model instances
+			let adapter = ( config.database || {} ).default;
+			if ( adapter ) {
+				if ( !( adapter instanceof services.OdemAdapter ) ) {
+					logError( "invalid adapter:", adapter );
+					return;
 				}
 
-				services.OdemConverter.processModelDefinitions( models, adapter );
+				logDebug( "discovering model definitions to be managed via %s with %j", adapter.constructor.name, adapter.options || adapter.config || adapter.id );
+			} else {
+				adapter = new services.OdemAdapterMemory();
+
+				logDebug( "discovering model definitions to be managed via memory adapter by default" );
 			}
+
+			services.OdemConverter.processModelDefinitions( models, adapter );
 		}
-	);
+	};
 };

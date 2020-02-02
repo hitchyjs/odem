@@ -38,7 +38,7 @@ module.exports = function() {
 		 * Processes discovered definitions of models.
 		 *
 		 * @param {object<string,object>} models raw definitions of models to be converted
-		 * @param {Adapter} adapter provides default adapter to use for either defined model
+		 * @param {OdemAdapter} adapter provides default adapter to use for either defined model
 		 * @return {object} provided object with contained definitions replaced with according implementations
 		 */
 		static processModelDefinitions( models, adapter ) {
@@ -53,7 +53,7 @@ module.exports = function() {
 			}
 
 
-			// prepare data to detect either models' weight on being dependent of other models
+			// prepare data to detect either models' weight on being dependant of other models
 			const tree = {};
 			const { OdemUtilityString } = Services;
 
@@ -103,14 +103,16 @@ module.exports = function() {
 				const { raw, parent } = tree[name];
 				const definition = models[raw] || {};
 
-				if ( parent && !tree.hasOwnProperty( parent ) ) { // eslint-disable-line no-prototype-builtins
-					throw new TypeError( `invalid reference on parent model ${parent} in context of model ${raw}` );
-				}
+				if ( definition.constructor === Object ) {
+					if ( parent && !tree.hasOwnProperty( parent ) ) { // eslint-disable-line no-prototype-builtins
+						throw new TypeError( `invalid reference on parent model ${parent} in context of model ${raw}` );
+					}
 
-				try {
-					models[raw] = Services.Model.define( name, definition, parent ? models[tree[parent].raw] : null, adapter );
-				} catch ( error ) {
-					throw new TypeError( `definition of model ${name} failed: ${error.message}` );
+					try {
+						models[raw] = Services.Model.define( name, definition, parent ? models[tree[parent].raw] : null, adapter );
+					} catch ( error ) {
+						throw new TypeError( `definition of model ${name} failed: ${error.message}` );
+					}
 				}
 			}
 

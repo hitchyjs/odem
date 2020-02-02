@@ -26,7 +26,6 @@
  * @author: cepharum
  */
 
-
 const { describe, it, before, beforeEach } = require( "mocha" );
 const Should = require( "should" );
 
@@ -35,7 +34,9 @@ const { fakeApi } = require( "../helper" );
 describe( "Model compiler module", () => {
 	let Model, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => {
+		( { Model, OdemModelCompiler, OdemAdapter, OdemAdapterFile, OdemAdapterMemory } = s );
+	} ) );
 
 	it( "exposes internally used functions for unit-testing", () => {
 		OdemModelCompiler.should.have.property( "normalizeSchema" ).which.is.a.Function();
@@ -226,15 +227,6 @@ describe( "Model compiler module", () => {
 				const Employee = OdemModelCompiler.compileModel( "employee", { props: { name: {} } }, null, adapter );
 
 				Employee.adapter.should.be.equal( adapter );
-			} );
-
-			it( "is exposing adapter provided on compilation as property of model's every instance", () => {
-				const adapter = new OdemAdapterMemory();
-				const Employee = OdemModelCompiler.compileModel( "employee", { props: { name: {} } }, null, adapter );
-
-				const boss = new Employee();
-
-				boss.$adapter.should.be.equal( adapter );
 			} );
 
 			it( "can be instantiated with instances suitable for validating properties, saving them to and reading them from a storage", () => {
