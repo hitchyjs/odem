@@ -198,7 +198,7 @@ module.exports = function() {
 		add( uuid, value, revision = this.revision ) {
 			this.checkRevision( revision );
 
-			if ( value !== null && this.compare( value, value ) !== 0 ) {
+			if ( value != null && this.compare( value, value ) !== 0 ) {
 				throw new TypeError( "index isn't capable of processing given value due to mismatching type of value" );
 			}
 
