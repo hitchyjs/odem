@@ -264,7 +264,7 @@ module.exports = function() {
 				 * @property {object}
 				 * @readonly
 				 */
-				schema: { value: Services.OdemUtilityObject.deepSeal( mergedSchema ) },
+				schema: { value: api.utility.object.seal( mergedSchema ) },
 
 				/**
 				 * Lists all indices defined in schema.

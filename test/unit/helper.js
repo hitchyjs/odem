@@ -94,6 +94,10 @@ module.exports = Object.seal( {
 			mockedAPI.log = function( name ) { return function( format, ...data ) { }; }; // eslint-disable-line no-unused-vars
 		}
 
+		if ( !mockedAPI.utility ) {
+			mockedAPI.utility = require( "hitchy/lib/utility" ).call( mockedAPI, {} );
+		}
+
 		return _loadComponents().then( () => _loadConfig() ).then( () => mockedAPI );
 
 		function _loadComponents() {
