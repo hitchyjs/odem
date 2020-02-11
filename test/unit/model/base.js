@@ -33,11 +33,11 @@ const { fakeApi } = require( "../helper" );
 
 
 describe( "Abstract Model", () => {
-	let Model, OdemAdapter, OdemAdapterMemory;
+	let Model, OdemAdapterMemory;
 	let memory;
 	let CustomModel;
 
-	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model, OdemAdapter, OdemAdapterMemory } = s ); } ) );
+	before( () => fakeApi().then( ( { runtime: { services: s } } ) => { ( { Model, OdemAdapterMemory } = s ); } ) );
 
 	before( () => {
 		/**
