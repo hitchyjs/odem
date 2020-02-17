@@ -1154,6 +1154,8 @@ module.exports = function() {
 
 				if ( numIndices ) {
 					const stream = adapter.keyStream( { prefix: `models/${this.name}/items` } );
+					let count = 0;
+					let step = 100;
 
 					promise = PromiseUtils.process( stream, dataKey => {
 						return new this( this.keyToUuid( dataKey ) ) // eslint-disable-line new-cap
@@ -1165,9 +1167,21 @@ module.exports = function() {
 
 									handler.add( $uuid, item[property] );
 								}
+
+								if ( count++ % step === 0 ) {
+									logDebug( "having indexed %d records of model %s", count, this.name );
+
+									if ( count / step >= 10 ) {
+										step *= 10;
+									}
+								}
 							} );
 					} )
 						.then( () => {
+							if ( count % step ) {
+								logDebug( "having indexed %d records of model %s eventually", count, this.name );
+							}
+
 							if ( process.env.NODE_ENV !== "production" ) {
 								const failed = [];
 
