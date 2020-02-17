@@ -707,7 +707,7 @@ module.exports = function() {
 													newProp = this[property];
 												} else {
 													newProp = this.$properties[property];
-													oldProp = this.$properties.$context.changed.get( property );
+													oldProp = this.$properties.$context.changed.has( property ) ? this.$properties.$context.changed.get( property ) : this.$properties[property];
 												}
 
 												if ( newProp !== oldProp ) {
