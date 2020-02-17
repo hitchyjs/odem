@@ -32,6 +32,8 @@ module.exports = function() {
 	const api = this;
 	const { services: Services } = api.runtime;
 
+	const logError = api.log( "hitchy:odem:index:equality:error" );
+
 	/**
 	 * Implements equality index for single property.
 	 *
@@ -390,6 +392,8 @@ module.exports = function() {
 						this.add( uuid, newValue );
 						return;
 					}
+
+					logError( "failed updating %s from %s to %s with %j", uuid, oldValue, newValue, { searchExisting, addIfMissing } );
 
 					throw new Error( "index didn't cover item as expected, is it out of sync?" );
 				}
