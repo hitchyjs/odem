@@ -393,7 +393,7 @@ module.exports = function() {
 						return;
 					}
 
-					logError( "failed updating %s from %s to %s with %j", uuid, oldValue, newValue, { searchExisting, addIfMissing } );
+					logError( "failed updating %s from %s to %s with %j", uuid.toString( "hex" ), oldValue, newValue, { searchExisting, addIfMissing } );
 
 					throw new Error( "index didn't cover item as expected, is it out of sync?" );
 				}
