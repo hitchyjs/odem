@@ -40,7 +40,8 @@ module.exports = function() {
 			if ( adapter ) {
 				if ( !( adapter instanceof services.OdemAdapter ) ) {
 					logError( "invalid adapter:", adapter );
-					return;
+
+					return Promise.reject( new Error( "invalid adapter rejected" ) );
 				}
 
 				logDebug( "discovering model definitions to be managed via %s with %j", adapter.constructor.name, adapter.options || adapter.config || adapter.id );
@@ -50,7 +51,8 @@ module.exports = function() {
 				logDebug( "discovering model definitions to be managed via memory adapter by default" );
 			}
 
-			services.OdemConverter.processModelDefinitions( models, adapter );
+			return ( adapter.onPrepared || Promise.resolve() )
+				.then( () => services.OdemConverter.processModelDefinitions( models, adapter ) );
 		}
 	};
 };
