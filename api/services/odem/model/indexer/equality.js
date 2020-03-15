@@ -201,7 +201,7 @@ module.exports = function() {
 			this.checkRevision( revision );
 
 			if ( value != null && this.compare( value, value ) !== 0 ) {
-				throw new TypeError( `index isn't capable of processing given value due to mismatching type of value: ${value}` );
+				throw new TypeError( `index isn't capable of processing given value due to mismatching type of value: ${value} (${typeof value})` );
 			}
 
 			let uuidList, reduced;
@@ -364,7 +364,7 @@ module.exports = function() {
 		 */
 		update( uuid, oldValue, newValue, { searchExisting = false, addIfMissing = false } = {} ) {
 			if ( newValue != null && this.compare( newValue, newValue ) !== 0 ) {
-				throw new TypeError( `index isn't capable of processing given value due to mismatching type of value: ${newValue}` );
+				throw new TypeError( `index isn't capable of processing given value due to mismatching type of value: ${newValue} (${typeof newValue})` );
 			}
 
 			if ( searchExisting ) {
