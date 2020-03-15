@@ -427,6 +427,17 @@ module.exports = function() {
 								const { computed, props } = this.schema;
 								let context = null;
 
+								const propNames = Object.keys( props );
+								const numPropNames = propNames.length;
+								const record = {};
+
+								for ( let i = 0; i < numPropNames; i++ ) {
+									const propName = propNames[i];
+									const prop = props[propName];
+
+									record[propName] = prop.$type.deserialize( data[propName] );
+								}
+
 								for ( let i = 0; i < length; i++ ) {
 									const { property, handler } = indices[i];
 									const computedInfo = computed[property];
@@ -440,11 +451,11 @@ module.exports = function() {
 											context = new Proxy( new this( uuid ), {
 												get( target, prop ) {
 													if ( prop === "$properties" ) {
-														return data;
+														return record;
 													}
 
 													if ( props[prop] ) {
-														return data[prop];
+														return record[prop];
 													}
 
 													return target[prop];
@@ -454,7 +465,7 @@ module.exports = function() {
 
 										newProp = computedInfo.code.call( context );
 									} else {
-										newProp = data[property];
+										newProp = record[property];
 									}
 
 									handler.update( uuid, null, newProp, { searchExisting: true, addIfMissing: true } );
