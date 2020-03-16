@@ -225,6 +225,7 @@ module.exports = function() {
 		}
 		/* eslint-enable no-param-reassign */
 
+		/* eslint-disable no-param-reassign */
 		/** @inheritDoc */
 		static deserialize( value ) {
 			switch ( typeof value ) {
@@ -235,17 +236,21 @@ module.exports = function() {
 
 				// falls through
 				case "string" :
-					return new Date( String( value ) );
+					value = new Date( String( value ) );
+					break;
 
 				case "number" :
-					return new Date( value );
+					value = new Date( value );
+					break;
 
 				case "undefined" :
-					return null;
+					value = null;
+					break;
 			}
 
 			return value;
 		}
+		/* eslint-enable no-param-reassign */
 
 		/** @inheritDoc */
 		static compare( value, reference, operation ) {
