@@ -226,6 +226,28 @@ module.exports = function() {
 		/* eslint-enable no-param-reassign */
 
 		/** @inheritDoc */
+		static deserialize( value ) {
+			switch ( typeof value ) {
+				case "object" :
+					if ( !value || value instanceof Date ) {
+						break;
+					}
+
+				// falls through
+				case "string" :
+					return new Date( String( value ) );
+
+				case "number" :
+					return new Date( value );
+
+				case "undefined" :
+					return null;
+			}
+
+			return value;
+		}
+
+		/** @inheritDoc */
 		static compare( value, reference, operation ) {
 			let result;
 
