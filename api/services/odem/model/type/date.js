@@ -240,7 +240,7 @@ module.exports = function() {
 					break;
 
 				case "number" :
-					value = new Date( value );
+					value = new Date( value * 1000 );
 					break;
 
 				case "undefined" :
