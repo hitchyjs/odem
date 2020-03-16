@@ -874,10 +874,37 @@ describe( "Model property type `date`", function() {
 			( () => OdemModelTypeDate.deserialize( ["required: true"] ) ).should.not.throw();
 		} );
 
-		it( "returns any provided value as-is", function() {
+		it( "returns Date instances assuming some provided number to be seconds since Unix Epoch", function() {
 			ValidInput
+				.filter( value => typeof value === "number" )
 				.forEach( value => {
-					Should( OdemModelTypeDate.deserialize( value ) ).be.equal( value );
+					const deserialized = OdemModelTypeDate.deserialize( value );
+
+					deserialized.should.be.instanceOf( Date );
+					deserialized.getTime().should.be.equal( parseInt( value * 1000 ) );
+				} );
+		} );
+
+		it( "returns Date instances assuming some provided string is a formatted date/time information", function() {
+			ValidInput
+				.filter( value => typeof value === "string" )
+				.forEach( value => {
+					const deserialized = OdemModelTypeDate.deserialize( value );
+
+					deserialized.should.be.instanceOf( Date );
+					if ( isNaN( deserialized ) ) {
+						isNaN( new Date( value ) ).should.be.true();
+					} else {
+						deserialized.getTime().should.be.equal( new Date( value ).getTime() );
+					}
+				} );
+		} );
+
+		it( "returns `null` when providing null-ish input", function() {
+			ValidInput
+				.filter( value => value == null )
+				.forEach( value => {
+					( OdemModelTypeDate.deserialize( value ) === null ).should.be.true();
 				} );
 		} );
 	} );
