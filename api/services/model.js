@@ -330,7 +330,7 @@ module.exports = function() {
 
 		/**
 		 * Generates data key related to given UUID suitable for selecting related
-		 * record in datasource connected via current adapter.
+		 * record in data source connected via current adapter.
 		 *
 		 * @param {?(string|Buffer)} uuid UUID to be converted
 		 * @returns {string} backend-compatible key for selecting related record there
@@ -401,7 +401,6 @@ module.exports = function() {
 		 * Observes current model's adapter for remote changes to be adopted in
 		 * locally managed indices.
 		 *
-		 * @param {Services.OdemAdapter} adapter backend adapter used with current model
 		 * @returns {void}
 		 */
 		static observeBackend() {
