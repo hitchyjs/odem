@@ -50,6 +50,17 @@ module.exports = {
 			} );
 	},
 
+	modelImplicitCmfpInstance( req, res ) {
+		const { CmfpRegular } = this.api.runtime.models;
+
+		const item = new CmfpRegular();
+
+		return item.save()
+			.then( () => {
+				res.json( item.toObject() );
+			} );
+	},
+
 	modelExplicitInstance( req, res ) {
 		const ExtraModel = this.api.runtime.services.Model.define( "RawModel", {
 			props: {

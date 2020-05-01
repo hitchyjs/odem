@@ -53,7 +53,7 @@ describe( "When integrating with Hitchy a controller", () => {
 		return ctx.get( "/models" )
 			.then( res => {
 				res.should.have.status( 200 ).and.be.json();
-				res.data.should.be.an.Array().which.is.deepEqual( ["BasicData"] );
+				res.data.should.be.an.Array().which.is.deepEqual( [ "BasicData", "CmfpRegular" ] );
 			} );
 	} );
 
@@ -69,7 +69,15 @@ describe( "When integrating with Hitchy a controller", () => {
 		return ctx.get( "/modelImplicitInstance" )
 			.then( res => {
 				res.should.have.status( 200 ).and.be.json();
-				res.data.should.be.Object().which.has.property( "someString" ).which.is.equal( "BasicData" );
+				res.data.should.be.Object().which.has.property( "someString" ).which.is.equal( "BasicData,CmfpRegular" );
+			} );
+	} );
+
+	it( "can access instance of implicitly discovered model provided in compliance with CMFP which is having access on Hitchy's API", () => {
+		return ctx.get( "/modelImplicitCmfpInstance" )
+			.then( res => {
+				res.should.have.status( 200 ).and.be.json();
+				res.data.should.be.Object().which.has.property( "someString" ).which.is.equal( "BasicData,CmfpRegular" );
 			} );
 	} );
 
@@ -77,7 +85,7 @@ describe( "When integrating with Hitchy a controller", () => {
 		return ctx.get( "/modelExplicitInstance" )
 			.then( res => {
 				res.should.have.status( 200 ).and.be.json();
-				res.data.should.be.Object().which.has.property( "someString" ).which.is.equal( "BasicData" );
+				res.data.should.be.Object().which.has.property( "someString" ).which.is.equal( "BasicData,CmfpRegular" );
 			} );
 	} );
 
@@ -85,7 +93,7 @@ describe( "When integrating with Hitchy a controller", () => {
 		return ctx.get( "/modelExplicitInstance" )
 			.then( res => {
 				res.should.have.status( 200 ).and.be.json();
-				res.data.should.be.Object().which.has.property( "someString" ).which.is.equal( "BasicData" );
+				res.data.should.be.Object().which.has.property( "someString" ).which.is.equal( "BasicData,CmfpRegular" );
 			} );
 	} );
 } );

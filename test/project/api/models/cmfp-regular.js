@@ -26,11 +26,11 @@
  * @author: cepharum
  */
 
-exports.routes = {
-	"/models": "inspect.models",
-	"/modelClass": "inspect.modelClass",
-	"/modelImplicitInstance": "inspect.modelImplicitInstance",
-	"/modelImplicitCmfpInstance": "inspect.modelImplicitCmfpInstance",
-	"/modelExplicitInstance": "inspect.modelExplicitInstance",
-	"/modelExplicitRawInstance": "inspect.modelExplicitRawInstance",
+/**
+ * Defines model while relying on Hitchy's CMFP.
+ *
+ * @returns {function():object} generator for actual model definition
+ */
+module.exports = function() {
+	return require( "./basic-data" );
 };
