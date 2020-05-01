@@ -18,9 +18,9 @@ There are two adapters distributed as part of hitchy-plugin-odem and exposed as 
 
 In addition, separate plugins are capable of providing additional adapters, just like:
 
-* [hitchy-plugin-odem-etcd](https://www.npmjs.com/package/hitchy-plugin-odem-etcd) us adding support for storing data in an etcd-based cluster.
+* [hitchy-plugin-odem-etcd](#storing-data-in-etcd-cluster) us adding support for storing data in an etcd-based cluster.
 
-Adapter are exposing an API very similar to the one of LevelDB. That's why it is possible to write your own adapter for saving records in a key-value-store like LevelDB.
+Adapters are exposing an API very similar to the one of LevelDB. That's why it is possible to write your own adapter for saving records in a key-value-store like LevelDB.
 
 ### Storing Data in Volatile Memory
 
@@ -46,9 +46,37 @@ const adapter = new api.runtime.services.OdemAdapterFile( {
 } );
 ```
 
+### Storing Data in Etcd Cluster
+
+Separate plugin [hitchy-plugin-odem-etcd](https://www.npmjs.com/package/hitchy-plugin-odem-etcd) enables data being persisted in an etcd cluster, too. This option is intended for use with production setups running in a cluster enabling horizontal scaling of your Hitchy application.
+
+See the plugin's documentation for up-to-date information on how to integrate it with your application. The following excerpt is meant to demonstrate the ease of integrating Odem with etcd cluster instead of some local filesystem, only:
+
+```javascript
+const adapter = new api.runtime.services.OdemAdapterEtcd( {
+    hosts: [
+        "https://etcd1:2379",
+        "https://etcd2:2379",
+        "https://etcd3:2379",
+    ],
+    // optional: share single etcd cluster with multiple apps
+    prefix: "/apps/my-app",
+    auth: {
+        username: "etcd-login-user",
+        password: "secret-pw",
+    },
+    // optional: authenticate server and client on encrypted connections
+    credentials: {
+        rootCertificate: require( "fs" ).readFileSync( "path/to/ca.pem" ),
+        certChain: require( "fs" ).readFileSync( "path/to/cert.pem" ),
+        privateKey: require( "fs" ).readFileSync( "path/to/key.pem" ),
+    }
+} );
+```
+
 ## Configuring Default Adapter
 
-In compliance with Hitchy's conventions you may create a file **config/database.js** into your Hitchy-based project's folder with content like this:
+In compliance with Hitchy's conventions you may create a file **config/database.js** in your Hitchy-based project's folder with content like this:
 
 ```javascript
 const File = require( "fs" );
