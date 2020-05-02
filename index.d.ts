@@ -41,6 +41,12 @@ declare namespace HitchyOdem {
 
     interface ModelOptions {
         onUnsaved?: OdemModelOptionOnUnsaveEnum;
+
+        /** Controls whether exposing this model's schema to clients. Support for this option depends on used plugin enabling client access. [default: true] */
+        promote?: boolean;
+
+        /** Controls whether exposing this model to clients at all. Support for this option depends on used plugin enabling client access. [default: true] */
+        expose?: boolean;
     }
 
     interface ModelSchema extends ModelSchemaDefinition {
