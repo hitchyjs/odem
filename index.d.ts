@@ -1,4 +1,4 @@
-import {HitchyAPI, HitchyModelComponent, HitchyServiceComponent} from "hitchy";
+import { HitchyAPI, HitchyModelComponent, HitchyServiceComponent } from "hitchy";
 import { Readable } from "stream";
 
 export = HitchyOdem;
