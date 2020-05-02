@@ -1,4 +1,4 @@
-import { HitchyAPI } from "hitchy";
+import {HitchyAPI, HitchyModelComponent, HitchyServiceComponent} from "hitchy";
 import { Readable } from "stream";
 
 export = HitchyOdem;
@@ -8,14 +8,14 @@ declare namespace HitchyOdem {
 
     }
 
-    class OdemAdapterMemory implements OdemAdapter {
+    class OdemAdapterMemory implements OdemAdapter, HitchyServiceComponent {
         constructor( options?: OdemAdapterMemoryOptions );
     }
 
     interface OdemAdapterMemoryOptions {
     }
 
-    class OdemAdapterFile implements OdemAdapter {
+    class OdemAdapterFile implements OdemAdapter, HitchyServiceComponent {
         constructor( options: OdemAdapterFileOptions );
     }
 
@@ -212,10 +212,6 @@ declare namespace HitchyOdem {
         uuid?: UuidValue;
     }
 
-    interface IndexDefinition {
-
-    }
-
     interface IndexFindOptions {
         /** Lower limit of range of values to fetch. Omit for open end. */
         lowerLimit?: any;
@@ -240,7 +236,7 @@ declare namespace HitchyOdem {
         static select( typeName: string ): Function;
 
         /** Creates instance of current indexer. */
-        static create( options: IndexDefinition ): OdemModelIndexer;
+        static create( options: ModelIndexDefinition ): OdemModelIndexer;
 
         /** Drops all records tracked in index. */
         clear(): OdemModelIndexer;
@@ -351,7 +347,7 @@ declare namespace HitchyOdem {
      *
      * @see https://hitchyjs.github.io/plugin-odem/api/model.html
      */
-    class Model extends LifeCycleHooks {
+    class Model extends LifeCycleHooks implements HitchyModelComponent {
         constructor( itemUuid?: UuidValue, options?: ModelOptions );
 
         /**
