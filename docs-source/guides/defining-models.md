@@ -367,18 +367,38 @@ A schema definition may include options for customizing the resulting model's be
 
 These options are supported currently:
 
-* **onUnsaved** controls value exposed as [property `onUnsaved` of resulting model](../api/model.md#model-onunsaved).
+*  **onUnsaved** controls value exposed as [property `onUnsaved` of resulting model](../api/model.md#model-onunsaved).
 
-```javascript
-{
-    props: {
-        someProp: {}
-    },
-    options: {
-        onUnsaved: "ignore"
-    }
-}
-```
+   ```javascript
+   {
+       props: {
+           someProp: {}
+       },
+       options: {
+           onUnsaved: "ignore"
+       }
+   }
+   ```
+
+*  **expose** is controlling whether some model is accessible through client-facing APIs. Supported values are:
+
+   * `public` (default) is declaring model to be available to the public.
+   * `protected` is declaring model to be available to authenticated users, only.
+   * `private` is declaring model to be excluded from any client-facing API. Server-side code has access on this model, only. 
+
+   :::warning  
+   This feature must be supported by separate plugin implementing some client-facing API, like [hitchy-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest) implementing HTTP REST API. It is up to either implementation to discover requests of authenticated users, too.  
+   :::
+
+*  **promote** is controlling whether some exposed model is listed in overviews as part of some client-facing API. This option supports same values as option **expose** before. By default, this option's value is identical to the one given in option **expose**.
+   
+   :::warning  
+   This feature must be supported by separate plugin implementing some client-facing API, like [hitchy-plugin-odem-rest](https://www.npmjs.com/package/hitchy-plugin-odem-rest) implementing HTTP REST API. It is up to either implementation to discover requests of authenticated users, too.  
+   :::
+  
+   :::tip Example  
+   In [HTTP REST API](https://www.npmjs.com/package/hitchy-plugin-odem-rest) there is an option for fetching all supported models' schemata. When **promote** option is `private` the model is not included with response to that overview request. It doesn't affect requests for fetching a particular model or its schema, though.  
+   :::
 
 
 ### Indices

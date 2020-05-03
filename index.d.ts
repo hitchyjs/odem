@@ -39,14 +39,23 @@ declare namespace HitchyOdem {
         IGNORE = "ignore"
     }
 
+    /**
+     * Controls a model's level of exposure and/or promotion.
+     */
+    enum ScopeEnum {
+        PUBLIC = "public",
+        PROTECTED = "protected",
+        PRIVATE = "private"
+    }
+
     interface ModelOptions {
         onUnsaved?: OdemModelOptionOnUnsaveEnum;
 
-        /** Controls whether exposing this model's schema to clients. Support for this option depends on used plugin enabling client access. [default: true] */
-        promote?: boolean;
+        /** Controls scope of exposing this model to clients. Support for this option depends on used plugin enabling client access. [default: public] */
+        expose?: ScopeEnum;
 
-        /** Controls whether exposing this model to clients at all. Support for this option depends on used plugin enabling client access. [default: true] */
-        expose?: boolean;
+        /** Controls scope of exposing this model to clients. Support for this option depends on used plugin enabling client access. [default: same as `expose`] */
+        promote?: ScopeEnum;
     }
 
     interface ModelSchema extends ModelSchemaDefinition {
