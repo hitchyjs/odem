@@ -29,7 +29,7 @@
     "eslint": "^6.8.0",
     "eslint-config-cepharum": "^1.0.11",
     "eslint-plugin-promise": "^4.2.1",
-    "hitchy-server-dev-tools": "^0.2.1",
+    "hitchy-server-dev-tools": "^0.2.2",
     "mocha": "^7.1.2",
     "nyc": "^15.0.1",
     "should": "^13.2.3",
@@ -37,12 +37,12 @@
     "vuepress": "^1.4.1"
   },
   "peerDependencies": {
-    "hitchy": "^0.6.2"
+    "hitchy": "^0.6.3"
   },
   "dependencies": {
-    "file-essentials": "^0.0.13",
+    "file-essentials": "^0.1.1",
     "functional-red-black-tree": "^1.0.1",
     "object-monitor": "^0.0.8",
-    "promise-essentials": "^0.1.0"
+    "promise-essentials": "^0.2.0"
   }
 }
