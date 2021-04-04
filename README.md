@@ -1,3 +1,7 @@
+# [Hitchy](https://core.hitchy.org) has [moved its repositories](https://gitlab.com/hitchy) incl. [this one](https://gitlab.com/hitchy/plugin-odem).
+
+---
+
 # Hitchy's Odem [![Build Status](https://travis-ci.org/hitchyjs/plugin-odem.svg?branch=master)](https://travis-ci.org/hitchyjs/plugin-odem)
 
 _an object document management for hitchy_
